@@ -1,0 +1,65 @@
+---
+description: Multi-module project structure and package layout
+globs: ["settings.gradle.kts", "**/build.gradle.kts"]
+alwaysApply: false
+---
+
+## Standard modules
+
+| Module | Responsibility |
+|--------|----------------|
+| `:app` | Application class, DI aggregation, manifest, composition root only |
+| `:domain` | Entities, repository interfaces, use cases — no Android UI |
+| `:data` | Repository implementations, DataSources, platform I/O |
+| `:presentation` | Screens, ViewModels, navigation, feature MVI packages |
+| `:core-common` | Pure Kotlin shared types/constants — no Android UI or DI |
+| `:core-platform` | Network, location, Firebase helpers, platform services |
+| `:core-ui` | Base UI classes, themes, drawables, strings, extensions |
+| `:feature-*` | Optional self-contained feature libraries |
+
+Gradle module names: kebab-case (`:core-ui`, `:feature-auth`).
+
+## Feature package layout (presentation)
+
+```
+presentation/<featureName>/
+  di/          # *PresentationModule
+  intent/      # sealed class *Intent
+  state/       # data class *State
+  effect/      # sealed class *Effect
+  viewModel/   # *ViewModel
+  ui/          # Fragment / Activity / Dialog / BottomSheet
+  adapter/     # optional ListAdapter
+  mapper/      # optional domain → UI mappers
+```
+
+Feature folders: camelCase (`onBoarding`, `userProfile`).
+
+## Package naming
+
+```
+<applicationId>.<layer>.<area>.<subpackage>
+```
+
+| Layer | Example suffix |
+|-------|----------------|
+| Domain | `domain.entity`, `domain.repository.*`, `domain.usecase.*` |
+| Data | `data.*.repository`, `data.*.dataSource`, `data.di` |
+| Presentation | `presentation.<feature>.{intent\|state\|effect\|viewModel\|ui\|di}` |
+| Core | `core.common`, `core.platform`, `core.ui` |
+
+## Allowed dependencies
+
+| From | To |
+|------|----|
+| `presentation` | `domain`, `core-*`, optional `feature-*` |
+| `data` | `domain`, `core-*` |
+| `domain` | coroutines-core, optional pure feature libs |
+| `app` | all modules |
+
+## Forbidden
+
+- `presentation` → `data`
+- `domain` → `presentation`, `data`, Android UI libs
+- `core-common` → Android UI / DI frameworks
+- Circular module dependencies

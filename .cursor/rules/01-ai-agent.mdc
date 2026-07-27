@@ -1,0 +1,36 @@
+---
+description: Rules for AI-assisted development — always apply
+alwaysApply: true
+---
+
+## Always
+
+1. Follow Clean Architecture + MVVM/MVI (Intent / State / Effect / ViewModel / UseCase / Repository)
+2. XML + View Binding only — never introduce Compose
+3. Use the project's DI framework — register new bindings in the composition root
+4. Use Version Catalog — no hardcoded dependency versions
+5. Respect module boundaries — presentation must not depend on `:data`
+6. Put user-facing text in string resources — no hardcoded UI strings
+7. Match existing naming conventions (resources, packages, classes)
+8. Add unit tests for new UseCases and ViewModels when adding features
+
+## Never
+
+1. Never add libraries without explicit human approval
+2. Never add Hilt/Dagger/Compose/RxJava unless project already uses them
+3. Never put business logic in Fragments/Activities beyond render + intent dispatch
+4. Never access DataSources directly from presentation
+6. Never skip `android:exported` on manifest components with intent-filters
+7. Never use `GlobalScope` for feature work
+8. Never modify unrelated files when implementing a feature
+
+## New feature checklist
+
+- [ ] Feature package: `{di,intent,state,effect,viewModel,ui}`
+- [ ] Layout: `fragment_<feature>.xml` with prefixed view IDs
+- [ ] Domain UseCase(s) + repository interface if new capability needed
+- [ ] Data repository impl + DataSource if needed
+- [ ] DI registration in composition root
+- [ ] Strings in shared UI module (+ translations if project localizes)
+- [ ] Unit tests for UseCase / ViewModel
+- [ ] Verify no `:presentation` → `:data` dependency

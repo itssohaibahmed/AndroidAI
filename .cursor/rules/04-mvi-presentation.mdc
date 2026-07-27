@@ -1,0 +1,65 @@
+---
+description: MVI pattern — Intent, State, Effect, ViewModel
+globs: ["**/presentation/**/*.kt", "**/viewModel/**/*.kt", "**/intent/**/*.kt", "**/state/**/*.kt", "**/effect/**/*.kt"]
+alwaysApply: false
+---
+
+## Intent (user/system actions)
+
+```kotlin
+sealed class FeatureIntent {
+    object Initialize : FeatureIntent()
+    data class OnItemClicked(val id: String) : FeatureIntent()
+}
+```
+
+- UI dispatches intents via `viewModel.handleIntent(...)` only
+- No business branching in Fragments beyond rendering
+
+## State (continuous UI data)
+
+```kotlin
+data class FeatureState(
+    val isLoading: Boolean = false,
+    val title: String? = null,
+) {
+    val showTitle: Boolean = title != null
+}
+```
+
+- Default values on all properties
+- Derived flags as computed properties
+- Update via `_state.update { it.copy(...) }`
+
+## Effect (one-shot events)
+
+```kotlin
+sealed class FeatureEffect {
+    object NavigateBack : FeatureEffect()
+    data class ShowErrorRes(@StringRes val messageResId: Int) : FeatureEffect()
+}
+```
+
+- Navigation, toasts, permission prompts, dialogs
+- Prefer `@StringRes` for user-facing messages
+
+## ViewModel skeleton
+
+```kotlin
+private val _state = MutableStateFlow(FeatureState())
+val state: StateFlow<FeatureState> = _state.asStateFlow()
+
+private val _effect = MutableSharedFlow<FeatureEffect>()
+val effect: SharedFlow<FeatureEffect> = _effect.asSharedFlow()
+
+fun handleIntent(intent: FeatureIntent) = viewModelScope.launch(handler) {
+    when (intent) { /* ... */ }
+}
+```
+
+## Fragment rules
+
+- Collect state with lifecycle-aware collectors (`repeatOnLifecycle`)
+- Collect effects separately from state
+- Extend project base Fragment classes when available
+- Map domain models to UI models in mapper classes, not XML

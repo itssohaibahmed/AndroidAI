@@ -1,0 +1,46 @@
+---
+description: Cross-cutting naming conventions reference
+alwaysApply: false
+---
+
+## Kotlin
+
+| Kind | Rule | Example |
+|------|------|---------|
+| Classes | PascalCase + role suffix | `HomeFragment`, `UserRepositoryImpl` |
+| Interfaces | No `I` prefix | `UserRepository` |
+| Implementations | `Impl` suffix | `UserRepositoryImpl` |
+| ViewModels | `*ViewModel` | `HomeViewModel` |
+| UseCases | `*UseCase` | `GetUserUseCase` |
+| MVI types | `*Intent` / `*State` / `*Effect` | `HomeIntent` |
+| DI modules | `*Module` val | `homePresentationModule` |
+| Functions | camelCase, verb-first | `handleIntent`, `savePreferences` |
+| Backing flows | `_state`, `_effect` (private) | `_state.update { }` |
+
+## Gradle modules
+
+- kebab-case: `:core-ui`, `:feature-auth`, `:data`
+
+## Packages
+
+```
+<applicationId>.<layer>.<feature>.<subpackage>
+```
+
+Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
+
+## Resources
+
+- Layouts/drawables/strings: snake_case with type prefix
+- Modules for resources: screen layouts in `:presentation`, shared assets in `:core-ui`
+
+## Data layer
+
+| Layer | Naming |
+|-------|--------|
+| Repository interface | `UserRepository` |
+| Repository impl | `UserRepositoryImpl` |
+| DataSource | `UserDataSource`, `UserRemoteDataSource` |
+| Entity (domain) | `User`, `GeoLocation` |
+| UI model | `UserUiItem` |
+| Mapper | `UserUiMapper.toUi(...)` |

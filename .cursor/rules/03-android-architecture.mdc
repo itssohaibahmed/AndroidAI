@@ -1,0 +1,52 @@
+---
+description: Clean Architecture layer rules
+globs: ["**/*.kt"]
+alwaysApply: false
+---
+
+## Layer responsibilities
+
+```
+Presentation  →  Domain  →  Data
+(UI logic)       (business)   (I/O + mapping)
+```
+
+Dependencies always point inward.
+
+### Presentation
+- UI logic and state rendering only
+- ViewModels manage state — no direct DB/API calls
+- Navigate via Effects, not direct Fragment transactions from ViewModel
+
+### Domain
+- Business logic and use cases
+- Repository **interfaces** only
+- No Android framework dependencies
+
+### Data
+- Repository **implementations**
+- Local/remote DataSources
+- DTO ↔ entity mapping
+
+## ViewModel
+
+- Extend `androidx.lifecycle.ViewModel`
+- Expose `StateFlow<*State>` and `SharedFlow<*Effect>`
+- Single entry: `fun handleIntent(intent: *Intent)`
+- Use `viewModelScope` + `CoroutineExceptionHandler`
+- No View/Fragment/Context references
+- No layout inflation or View Binding inside ViewModel
+
+## UseCase
+
+- One class = one business action area
+- Naming: `Get*`, `Save*`, `Check*`, `Schedule*` + `UseCase`
+- Depend only on repository interfaces
+- Live in `:domain`
+
+## Repository
+
+- Interface in domain: `LocationRepository`
+- Implementation in data: `LocationRepositoryImpl`
+- UI never accesses DataSources — only repositories via use cases
+- Repository decides local vs remote strategy

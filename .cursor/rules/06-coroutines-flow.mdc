@@ -1,0 +1,52 @@
+---
+description: Coroutines, Flow, StateFlow, and SharedFlow rules
+globs: ["**/*.kt"]
+alwaysApply: false
+---
+
+## Scopes
+
+| Scope | Use |
+|-------|-----|
+| `viewModelScope` | All ViewModel coroutine work |
+| `lifecycleScope` + `repeatOnLifecycle` | UI Flow collection |
+| `GlobalScope` | **Forbidden** for feature work |
+
+## Dispatchers
+
+- Inject dispatchers via DI when testability matters
+- IO/Default work in data layer: `withContext(Dispatchers.IO)`
+- UI updates via StateFlow/SharedFlow collection on main thread
+
+## Flow
+
+- Cold `Flow` from repositories for continuous observation
+- Use operators (`map`, `catch`, `flowOn`) in data/presentation
+- Play Services Tasks: `await()` via coroutines-play-services
+
+## StateFlow
+
+```kotlin
+private val _state = MutableStateFlow(FeatureState())
+val state: StateFlow<FeatureState> = _state.asStateFlow()
+_state.update { it.copy(isLoading = true) }
+```
+
+- Private mutable, public immutable — never expose `MutableStateFlow`
+- Always provide initial value
+
+## SharedFlow (effects)
+
+- One-shot events only — not continuous UI state
+- Navigation, errors, permission requests
+
+## Exception handling
+
+```kotlin
+private val handler = CoroutineExceptionHandler { _, t ->
+    viewModelScope.launch { /* map to Effect or state error */ }
+}
+```
+
+- Never swallow exceptions silently
+- Convert failures to Effect or state error flags

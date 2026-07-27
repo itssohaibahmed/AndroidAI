@@ -1,0 +1,53 @@
+---
+description: AndroidManifest.xml conventions
+globs: ["**/AndroidManifest.xml"]
+alwaysApply: false
+---
+
+## Module roles
+
+| Module | Manifest content |
+|--------|-----------------|
+| `:app` | Full merged manifest — Application, Activities, Services, Receivers, Providers |
+| Other modules | Permissions only, or component stubs as needed |
+
+## Application class
+
+- Single Application in `:app` — DI init only, keep minimal
+- Declare with `android:name=".App"`
+- `allowBackup` configured explicitly with backup/extraction XML rules
+- `supportsRtl="true"`
+
+## Activities
+
+- Prefer single-Activity architecture with Navigation Component
+- Launcher Activity: `exported="true"` + MAIN/LAUNCHER intent-filter
+- All other Activities: `exported="false"`
+- **Never leave `exported` unspecified** when intent-filters exist
+
+## Fragments
+
+- Not declared in manifest — hosted via Navigation graphs
+
+## Services and receivers
+
+- Default: `exported="false"`
+- System receivers (BOOT_COMPLETED, etc.): `exported="true"` only when required
+- Foreground services: set `foregroundServiceType` + matching permissions
+- Custom actions: namespace with `applicationId`
+
+## Permissions
+
+- Declare in the module that needs them — app merges all
+- Dangerous permissions: request at runtime, never assume granted
+- Optional hardware: `uses-feature ... required="false"`
+
+## Secrets and placeholders
+
+- API keys via manifest placeholders sourced from `local.properties` or CI
+- Never commit production secrets in source or docs
+
+## Themes
+
+- Splash theme on launcher Activity, post-splash Material3 DayNight theme
+- Themes defined in shared UI module

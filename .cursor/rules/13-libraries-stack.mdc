@@ -1,0 +1,49 @@
+---
+description: Approved, optional, and forbidden libraries
+globs: ["**/*.gradle.kts", "**/libs.versions.toml"]
+alwaysApply: false
+---
+
+## Core stack (add via version catalog when setting up projects)
+
+| Category | Libraries |
+|----------|-----------|
+| AndroidX | core-ktx, appcompat, activity, fragment-ktx |
+| UI | Material 3, ConstraintLayout, View Binding |
+| Navigation | navigation-fragment/ui + Safe Args |
+| Lifecycle | viewmodel-ktx, runtime-ktx |
+| DI | Koin (default) |
+| Coroutines | kotlinx-coroutines-core, play-services integration |
+| Images | Glide |
+| Splash | core-splashscreen |
+| Desugaring | desugar_jdk_libs (for java.time on older APIs) |
+
+## Optional (add when feature requires — with approval)
+
+Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing, Mobile Ads, Shimmer, App Update KTX.
+
+## Forbidden (unless project already uses or explicitly approved)
+
+- Jetpack Compose (UI is XML-only)
+- Hilt / Dagger (when Koin is project standard)
+- RxJava (use coroutines/Flow)
+- Alternative navigation libs replacing Navigation Component
+- Alternative image loaders when Glide is established
+- Random new networking stacks without approval
+
+## Replacements
+
+| Do not use | Use instead |
+|------------|-------------|
+| Compose UI | XML + View Binding + Material3 |
+| LiveData (new MVI screens) | StateFlow + SharedFlow |
+| findViewById | View Binding |
+| Hardcoded versions | `libs.versions.toml` |
+| God Utils classes | Focused extensions / use cases / repositories |
+
+## Adding any library
+
+1. Add version to `[versions]` in catalog
+2. Add library alias to `[libraries]`
+3. Use `implementation(libs.alias)` in module script
+4. Get human approval before merging

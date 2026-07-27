@@ -1,0 +1,62 @@
+---
+description: XML layouts, drawables, strings, colors, and themes
+globs: ["**/res/**/*.xml"]
+alwaysApply: false
+---
+
+## Layout naming (snake_case)
+
+| Prefix | Usage |
+|--------|-------|
+| `fragment_` | Screen layouts |
+| `activity_` | Activities |
+| `item_` | RecyclerView rows |
+| `dialog_` | Dialogs |
+| `bottom_sheet_` | Bottom sheets |
+| `layout_` | Reusable include blocks |
+
+Example: `fragment_home.xml`, `item_language.xml`
+
+## View ID naming (prefix + camelCase)
+
+| Prefix | Widget |
+|--------|--------|
+| `mb` | MaterialButton |
+| `mtv` | MaterialTextView |
+| `mcv` | MaterialCardView |
+| `cl` | ConstraintLayout |
+| `rcv` | RecyclerView |
+| `fcv` | FragmentContainerView |
+
+Pattern: `{prefix}{Role}{Context}` → `mtvHeadingHome`, `mbContinueLogin`
+
+## Drawable naming
+
+| Prefix | Usage |
+|--------|-------|
+| `ic_svg_` | Vector icons |
+| `ic_png_` | Raster icons |
+| `bg_` | Backgrounds / selectors |
+| `img_svg_` / `img_png_` | Large illustrations |
+
+## Strings
+
+- No hardcoded user-facing text in layouts or Kotlin
+- Patterns: `toast_*`, `action_*`, `{screen}_title`, `{feature}_*`
+- Non-translatable config: `translatable="false"`
+- Shared strings in `:core-ui` module
+
+## Colors and themes
+
+- Material 3 DayNight theme as base
+- Semantic color names: `colorPrimary`, `bodyTextColor`
+- Prefer theme attributes in layouts: `?attr/colorSurface`
+- Light/dark via `values` + `values-night` — avoid duplicating full layouts
+
+## Layout rules
+
+- ConstraintLayout as primary layout engine
+- Material components (`MaterialButton`, `MaterialCardView`, etc.)
+- RecyclerView: `ListAdapter` + `DiffUtil`, inflate via View Binding
+- Shared styles in core-ui — reuse over one-off attributes
+- `dp` for layout, `sp` for text

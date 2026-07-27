@@ -1,0 +1,47 @@
+---
+description: Dependency injection conventions
+globs: ["**/di/**/*.kt", "**/*Module*.kt", "**/App.kt"]
+alwaysApply: false
+---
+
+## Framework
+
+Use the DI framework already in the project. Default stack: **Koin**.
+
+- Bootstrap in Application class — keep Application minimal
+- Aggregate modules in a single composition root (e.g. `KoinModules`)
+- Prefer constructor injection and `by inject()` over service locators
+
+## Module organization
+
+| Location | Contents |
+|----------|----------|
+| `app/di/` | App-level singles, module aggregation |
+| `data/di/` | Repository + DataSource bindings |
+| `domain/` | Use case factories (via app or domain DI module) |
+| `presentation/<feature>/di/` | Feature ViewModels |
+| `core-*/di/` | Platform and UI dependencies |
+
+## Binding types
+
+| Scope | Use for |
+|-------|---------|
+| `single` | Repositories, DataSources, managers, dispatchers |
+| `factory` | UseCases (stateless, cheap to recreate) |
+| `viewModel` | ViewModels |
+
+## Rules
+
+- Declare modules with project's standard pattern (e.g. `lazyModule { }`)
+- Register every new module in the composition root
+- Bind interfaces to implementations: `single<XRepository> { XRepositoryImpl(get()) }`
+- Use named qualifiers for parallel instances: `named("banner_main")`
+- Presentation injects use cases and repository **interfaces** — never impl classes from `:data`
+
+## ViewModel DI example
+
+```kotlin
+val featurePresentationModule = lazyModule {
+    viewModel { FeatureViewModel(get(), get()) }
+}
+```

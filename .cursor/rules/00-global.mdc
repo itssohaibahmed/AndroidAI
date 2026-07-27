@@ -1,0 +1,47 @@
+---
+description: Global Android project standards — always apply
+alwaysApply: true
+---
+
+You are working on a production Android application.
+
+## Stack (defaults — adapt to existing project if already established)
+
+- Kotlin only
+- XML UI + View Binding only (no Jetpack Compose)
+- Clean Architecture (Presentation → Domain → Data)
+- MVVM + MVI (Intent / State / Effect)
+- Repository pattern
+- Multi-module architecture
+- DI via the project's existing framework (default: Koin)
+- Gradle Kotlin DSL + Version Catalog (`libs.versions.toml`)
+
+## Before writing code
+
+- Analyze existing project structure and conventions first
+- Reuse existing base classes, modules, and patterns
+- Do not introduce new libraries without explicit approval
+- Do not change architecture or module boundaries without approval
+- Maintain backward compatibility
+
+## Code quality
+
+- Production-ready code only — no placeholders or TODOs left behind
+- Single responsibility per class
+- Avoid duplicate logic — extract shared code to core modules
+- Prefer readable code over clever code
+- Minimize scope — change only what the task requires
+
+## Golden dependency rule
+
+```
+app (Composition Root)
+        |
+        ↓
+presentation  →  domain  ←  data
+        |
+        ↓
+core modules (shared utilities)
+```
+
+UI never imports data implementations. Domain never imports UI.

@@ -1,0 +1,49 @@
+---
+description: Unit and instrumentation testing conventions
+globs: ["**/test/**/*.kt", "**/androidTest/**/*.kt"]
+alwaysApply: false
+---
+
+## What to test
+
+| Layer | Priority |
+|-------|----------|
+| UseCases | High — pure JVM, fake repositories |
+| ViewModels | High — drive via Intents, assert State + Effects |
+| Mappers | Medium |
+| Repositories | Medium — fake DataSources |
+| UI (Espresso) | User-visible flows only |
+
+## Approach
+
+- Mirror production package structure under `src/test/java`
+- Prefer fakes (`FakeUserRepository`) over heavy mocking
+- Inject fakes into UseCases and ViewModels under test
+- Add new testing libraries via version catalog only — with approval
+
+## ViewModel testing
+
+- Send Intents → assert StateFlow emissions and SharedFlow effects
+- Use `runTest` for coroutine tests
+- No real Android framework in unit tests
+
+## Naming convention
+
+```
+<Unit>_when_<condition>_then_<result>
+```
+
+Examples:
+- `GetUserUseCase_whenRepositoryReturnsNull_thenReturnsNull`
+- `LoginViewModel_whenCredentialsInvalid_thenEmitsShowError`
+
+## Instrumentation
+
+- Test user-visible behavior, not implementation details
+- Use project's `testInstrumentationRunner`
+- Keep tests independent — no shared mutable state between tests
+
+## When adding features
+
+- Add at minimum: UseCase unit test + ViewModel unit test
+- Do not add trivial tests that only assert constants or getters

@@ -1,0 +1,59 @@
+---
+description: Gradle, build config, and dependency management
+globs: ["**/*.gradle.kts", "**/libs.versions.toml", "**/gradle.properties"]
+alwaysApply: false
+---
+
+## Structure
+
+- Root `build.gradle.kts`: plugins with `apply false` only — no dependencies
+- Module scripts: Android plugin, namespace, SDK config, dependencies
+- `settings.gradle.kts`: `FAIL_ON_PROJECT_REPOS`, filtered repositories
+
+## Version catalog (mandatory)
+
+- All versions in `gradle/libs.versions.toml`
+- Reference as `libs.library.name` and `libs.plugins.name`
+- **Never** hardcode `"group:artifact:version"` in module scripts
+
+```kotlin
+// ✅ GOOD
+implementation(libs.androidx.core.ktx)
+
+// ❌ BAD
+implementation("androidx.core:core-ktx:1.12.0")
+```
+
+## SDK defaults (adjust only on project-wide request)
+
+- minSdk = 24
+- targetSdk / compileSdk = latest stable project uses
+- Java 17 compatibility (`compileOptions`)
+- Kotlin official code style
+
+## Dependency scope
+
+| Scope | When |
+|-------|------|
+| `implementation` | Default for almost everything |
+| `api` | Rare — only when types must leak to consumers |
+| `testImplementation` | Unit tests |
+| `androidTestImplementation` | Instrumentation tests |
+
+## Module rules
+
+- Keep modules independent — no circular deps
+- Feature modules must not depend on each other directly
+- Enable View Binding on UI modules
+- App release: minify + shrink; library modules: minify off
+
+## Build types
+
+- Debug: no minify, optional `applicationIdSuffix`
+- Release: minify + ProGuard/R8 on app module
+- Secrets and signing credentials in `local.properties` or CI env — not in source
+
+## ProGuard
+
+- Keep rules in app module only unless module-specific needs arise
+- Preserve domain entities and MVI state/intent/effect classes
