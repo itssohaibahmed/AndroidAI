@@ -13,7 +13,7 @@ alwaysApply: false
 ## Permission strategy
 
 - Declare in manifest; request dangerous permissions at runtime
-- Route permission UX: Intent → Effect → base permission helper Fragment
+- Route permission UX: Intent → Effect → `BasePermissionFragment` helpers (see `20-permissions-runtime`)
 - Handle denied / permanently denied / settings-required cases via Effects
 - `POST_NOTIFICATIONS` required for API 33+
 
@@ -23,7 +23,7 @@ alwaysApply: false
 |--------|------|
 | AndroidX libraries | Legacy support libraries |
 | SplashScreen API | Legacy splash-only themes |
-| View Binding | findViewById / Kotlin synthetics |
+| View Binding | findViewById / Kotlin synthetics / Data Binding |
 | Navigation Component | Manual FragmentTransactions for primary flow |
 | FusedLocationProvider + coroutines | Blocking location loops |
 

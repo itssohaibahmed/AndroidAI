@@ -1,0 +1,40 @@
+---
+description: Firebase, Analytics events, Remote Config, connectivity
+globs: ["**/firebase/**", "**/remoteConfig/**", "**/network/**", "**/core/platform/**", "**/core/common/**"]
+alwaysApply: false
+---
+
+## Module placement
+
+| Concern | Module |
+|---------|--------|
+| Connectivity helper (`InternetManager`) | `:core-platform` |
+| Firebase Analytics / Crashlytics wrappers | `:core-platform` |
+| Event name constants (`EventsProvider`) | `:core-common` |
+| Remote Config DataSource + Repository impl | `:data` |
+| Remote Config repository interface | `:domain` |
+
+## Analytics events
+
+- Define screen/event keys in one place (`EventsProvider` or equivalent) in `:core-common`
+- Log screen views via that API — do not scatter raw event string literals
+- Use `Constants.TAG_FIREBASE` for related logs
+
+## Remote Config
+
+- Fetch/activate in data layer; expose typed getters via repository/use case
+- Prefer typed domain accessors over reading raw RC keys in Fragments
+- Use `Constants.TAG_REMOTE_CONFIG` for fetch/activate logs
+- Drive feature flags (ads, paywall, experiments) from RC when the project uses it
+- Do not block first frame indefinitely on RC — follow existing startup timing
+
+## Connectivity
+
+- Check network via shared `InternetManager` (or equivalent) before remote calls when UI must show offline state
+- Map offline to typed error / Effect — not toast-only from random catch blocks
+
+## Forbidden
+
+- Firebase / RC SDK calls directly from feature Fragments when wrappers/repos exist
+- Inventing parallel event-name constants outside the shared provider
+- Logging PII in Analytics or RC debug logs

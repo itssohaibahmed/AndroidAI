@@ -32,7 +32,19 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 ## Resources
 
 - Layouts/drawables/strings: snake_case with type prefix
-- Modules for resources: screen layouts in `:presentation`, shared assets in `:core-ui`
+- Screen layouts in `:presentation`; shared drawables/themes in `:core-ui`
+- **All** strings in one `:core-ui` `strings.xml` (plus locale folders) — not per-feature string files
+- Backgrounds: `bg_shape_*` (shapes), `bg_svg_*` (svg backgrounds), `bg_*` otherwise
+
+## Logging tags
+
+- `Constants.TAG`, `Constants.TAG_ADS`, `Constants.TAG_FIREBASE`, `Constants.TAG_REMOTE_CONFIG`
+- Message: `ClassName: functionName: State: details`
+
+## Analytics events
+
+- Screen/event keys in shared provider (`EventsProvider` or equivalent) in `:core-common`
+- Prefer `EventsProvider.HOME_SCREEN.postFirebaseEvent()` over raw string literals
 
 ## Data layer
 
@@ -43,4 +55,5 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 | DataSource | `UserDataSource`, `UserRemoteDataSource` |
 | Entity (domain) | `User`, `GeoLocation` |
 | UI model | `UserUiItem` |
-| Mapper | `UserUiMapper.toUi(...)` |
+| Mapper | `UserUiMapper.toUi(...)` — call from ViewModel; heavy data mapping in Repo/UseCase |
+| Base UI | `ParentFragment`, `BaseFragment`, `ParentActivity`, `ParentDialog`, `ParentSheet` |

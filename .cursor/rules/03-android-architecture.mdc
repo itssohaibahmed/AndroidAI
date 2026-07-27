@@ -17,16 +17,30 @@ Dependencies always point inward.
 - UI logic and state rendering only
 - ViewModels manage state — no direct DB/API calls
 - Navigate via Effects, not direct Fragment transactions from ViewModel
+- Fragments / Activities / Adapters bind and render only — no heavy mapping
 
 ### Domain
 - Business logic and use cases
 - Repository **interfaces** only
 - No Android framework dependencies
+- Heavy domain transforms / aggregation / filtering belong in UseCases when relevant
 
 ### Data
 - Repository **implementations**
 - Local/remote DataSources
-- DTO ↔ entity mapping
+- DTO ↔ entity mapping (heavy parsing / list shaping belongs here when data-bound)
+
+## Mapping ownership
+
+| Mapping | Where |
+|---------|--------|
+| DTO / JSON / DB entity → domain | Repository (data) |
+| Domain transforms, filter, sort, aggregate | UseCase and/or Repository |
+| Domain → UI model (`toUi()`) | ViewModel (or dedicated mapper called from ViewModel) |
+| Never | Fragment, Activity, Adapter, XML |
+
+- If `toUi()` / list mapping may be heavy (large lists), run it with an appropriate dispatcher (`Default` / `IO`) inside the ViewModel (or lower layer before emitting)
+- Adapters receive already-mapped UI models — bind views only
 
 ## ViewModel
 
@@ -43,6 +57,7 @@ Dependencies always point inward.
 - Naming: `Get*`, `Save*`, `Check*`, `Schedule*` + `UseCase`
 - Depend only on repository interfaces
 - Live in `:domain`
+- Prefer putting reusable heavy business mapping here rather than in UI
 
 ## Repository
 
@@ -50,3 +65,4 @@ Dependencies always point inward.
 - Implementation in data: `LocationRepositoryImpl`
 - UI never accesses DataSources — only repositories via use cases
 - Repository decides local vs remote strategy
+- Do heavy data mapping (DTO → domain, large list prep) here when it is data-layer concern

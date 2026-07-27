@@ -1,0 +1,35 @@
+---
+description: Application class, SplashScreen, and AndroidX Startup
+globs: ["**/App.kt", "**/AndroidManifest.xml", "**/themes.xml", "**/MainActivity.kt"]
+alwaysApply: false
+---
+
+## Application class
+
+- Single `Application` in `:app` — **DI bootstrap only** (e.g. Koin `startKoin`)
+- Do not stuff analytics, ads, billing, or heavy init into `onCreate` unless project already does and must stay consistent
+- Prefer lazy / on-demand init for non-critical SDKs
+
+## Splash
+
+- Use AndroidX SplashScreen API
+- Splash theme on launcher Activity; `postSplashScreenTheme` → main Material3 DayNight theme
+- Install splash in Activity base (`installSplashScreen` / project `installSplashTheme()` helper)
+
+## AndroidX Startup / WorkManager
+
+- If WorkManager is **not** used: remove default `WorkManagerInitializer` via Startup provider `tools:node="remove"` to avoid startup DB crashes (pattern used when WM is unused)
+- Do not re-enable WorkManager initializer without fixing the crash root cause
+- If WorkManager **is** required later: add it deliberately with correct dependencies and keep rules
+
+## Manifest related
+
+- `allowBackup` explicit + backup/extraction XML
+- `supportsRtl="true"`
+- App Locales / language persistence metadata when multi-language is supported
+
+## Forbidden
+
+- Fat Application classes that initialize every SDK eagerly
+- Hardcoding API keys in Application or themes
+- Leaving Startup initializers that crash cold start

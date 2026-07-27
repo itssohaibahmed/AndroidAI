@@ -8,7 +8,7 @@ You are working on a production Android application.
 ## Stack (defaults — adapt to existing project if already established)
 
 - Kotlin only
-- XML UI + View Binding only (no Jetpack Compose)
+- XML UI + View Binding only (no Jetpack Compose, no Data Binding)
 - Clean Architecture (Presentation → Domain → Data)
 - MVVM + MVI (Intent / State / Effect)
 - Repository pattern
@@ -31,17 +31,21 @@ You are working on a production Android application.
 - Avoid duplicate logic — extract shared code to core modules
 - Prefer readable code over clever code
 - Minimize scope — change only what the task requires
+- Design for large datasets from day one — never assume small lists
+- UI must support portrait and landscape
+- Heavy mapping in Repository / UseCase; UI layers render only
 
 ## Golden dependency rule
 
 ```
 app (Composition Root)
-        |
-        ↓
-presentation  →  domain  ←  data
-        |
-        ↓
+ |
+ ↓
+presentation → domain ← data
+ |
+ ↓
 core modules (shared utilities)
 ```
 
-UI never imports data implementations. Domain never imports UI.
+- Create as many `:core-*` modules as needed (`core-common`, `core-ui`, `core-platform`, …)
+- UI never imports data implementations. Domain never imports UI.

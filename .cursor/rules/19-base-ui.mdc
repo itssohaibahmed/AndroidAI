@@ -1,0 +1,43 @@
+---
+description: Base UI classes, ViewBinding lifecycle, and Flow collection
+globs: ["**/ui/**/*.kt", "**/base/**/*.kt", "**/presentation/**/*.kt", "**/core/ui/**/*.kt"]
+alwaysApply: false
+---
+
+## Base hierarchy (create in `:core-ui` / `:presentation` when scaffolding)
+
+```
+ParentFragment / ParentActivity   ← ViewBinding inflate + clear on destroy
+  └── BasePermissionFragment      ← runtime permission / GPS helpers (presentation)
+        └── BaseFragment          ← shared injects (prefs, ads, billing) if project needs them
+              └── Feature Fragment
+```
+
+Also provide when needed: `ParentDialog`, `ParentBottomSheet` (and dismissal variants) in `:core-ui`.
+
+Rules:
+- Feature screens **extend** the project's existing base — do not reinvent ViewBinding lifecycle
+- Binding is only valid between `onCreateView`/`onViewCreated` and `onDestroyView` — never cache Binding in a ViewModel
+- Prefer constructor/`bindingFactory` pattern from Parent* over manual inflate in every screen
+
+## Flow collection (core-ui extensions)
+
+## Flow collection (core-ui extensions)
+
+- UI State: Collect `StateFlow` using `repeatOnLifecycle(Lifecycle.State.STARTED)` (or a shared `collectWhenStarted` extension) to ensure collection only happens while the UI is visible.
+- UI Effects/Events: Collect one-time events using `repeatOnLifecycle(Lifecycle.State.STARTED)` as well. Use `SharedFlow`/event patterns with proper replay or buffering configuration when events must not be lost.
+- Keep lifecycle-aware Flow collection extensions inside `:core-ui` and reuse them across modules instead of duplicating `lifecycleScope.launch { repeatOnLifecycle { collect } }` blocks.
+
+## Feature Fragment responsibilities
+
+- `initObservers()` / collect state + effects
+- Dispatch Intents only — no business logic
+- Call permission helpers via Effects from ViewModel when needed
+- Navigate with NavController only in UI layer
+
+## Forbidden
+
+- Holding View / Binding / Fragment references in ViewModel
+- `findViewById` / Data Binding
+- Inflating layouts in ViewModel
+- Skipping Parent* and managing Binding lifecycle ad hoc in every screen

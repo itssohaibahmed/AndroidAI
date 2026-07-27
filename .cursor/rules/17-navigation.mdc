@@ -1,0 +1,29 @@
+---
+description: Navigation Component, Safe Args, and nav graph conventions
+globs: ["**/navigation/**/*.xml", "**/presentation/**/*.kt", "**/ui/**/*.kt"]
+alwaysApply: false
+---
+
+## Architecture
+
+- Prefer single-Activity + Navigation Component + Safe Args
+- ViewModels emit navigation **Effects**; Fragments/Activities perform `NavController` calls
+- Never navigate from ViewModel (no NavController / FragmentManager there)
+
+## Resources
+
+- Graphs: `res/navigation/nav_*.xml` (e.g. primary `nav_graph.xml`, then `nav_dashboard.xml`, `nav_auth.xml`)
+- Include nested graphs for feature boundaries when useful
+- Action / destination IDs: snake_case matching feature (`action_home_to_detail`)
+
+## Safe Args
+
+- Pass only primitive / Parcelable / Serializable types approved by the project
+- Read args in UI or inject into ViewModel via DI `parametersOf` / SavedStateHandle
+- Do not pass large objects or domain repositories through nav args
+
+## Back stack / UX
+
+- Use `popUpTo` / `inclusive` deliberately for login and tab roots
+- Predictive back: OnBackPressedDispatcher / nav back — map to Intent/Effect when ViewModel must know
+- Deep links declared in nav graph + manifest; validate args before use (see `10-manifest`, `14-security-secrets`)

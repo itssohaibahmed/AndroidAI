@@ -20,11 +20,12 @@ alwaysApply: false
 
 ## Optional (add when feature requires — with approval)
 
-Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing, Mobile Ads, Shimmer, App Update KTX.
+Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing / Hypersoft BillingManager, Google Mobile Ads + mediation (`:gmaAds`), Shimmer, App Update KTX.
 
 ## Forbidden (unless project already uses or explicitly approved)
 
 - Jetpack Compose (UI is XML-only)
+- Data Binding (View Binding only)
 - Hilt / Dagger (when Koin is project standard)
 - RxJava (use coroutines/Flow)
 - Alternative navigation libs replacing Navigation Component
@@ -36,8 +37,9 @@ Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing, Mobi
 | Do not use | Use instead |
 |------------|-------------|
 | Compose UI | XML + View Binding + Material3 |
+| Data Binding / findViewById | View Binding |
+| Plain `TextView` / `Button` (when Material exists) | `MaterialTextView` / `MaterialButton` |
 | LiveData (new MVI screens) | StateFlow + SharedFlow |
-| findViewById | View Binding |
 | Hardcoded versions | `libs.versions.toml` |
 | God Utils classes | Focused extensions / use cases / repositories |
 

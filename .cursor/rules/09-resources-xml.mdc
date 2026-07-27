@@ -27,6 +27,7 @@ Example: `fragment_home.xml`, `item_language.xml`
 | `cl` | ConstraintLayout |
 | `rcv` | RecyclerView |
 | `fcv` | FragmentContainerView |
+| `bnv` | BottomNavigationView |
 
 Pattern: `{prefix}{Role}{Context}` → `mtvHeadingHome`, `mbContinueLogin`
 
@@ -36,27 +37,49 @@ Pattern: `{prefix}{Role}{Context}` → `mtvHeadingHome`, `mbContinueLogin`
 |--------|-------|
 | `ic_svg_` | Vector icons |
 | `ic_png_` | Raster icons |
-| `bg_` | Backgrounds / selectors |
+| `bg_shape_` | Shape / selector backgrounds (XML shapes) |
+| `bg_svg_` | Backgrounds imported as SVG/vector |
+| `bg_` | Other backgrounds / selectors (when not shape/svg) |
+| `fg_` | Foreground overlays / gradients |
 | `img_svg_` / `img_png_` | Large illustrations |
+| `flag_` | Language / country flags when used |
 
-## Strings
+Examples: `bg_shape_rounded_primary.xml`, `bg_svg_onboarding_header.xml`, `fg_gradient_header.xml`
 
+## Fonts and motion
+
+- Fonts in shared UI module (`res/font/`) + `preloaded_fonts.xml` when using downloadable/preloaded fonts
+- Transitions: `res/anim/` (and `anim-ldrtl/` for RTL flips)
+- Night-specific assets: `drawable-night/`, `values-night/` — avoid duplicating full layouts for dark mode
+
+## Strings (single source of truth)
+
+- **All** user-facing strings live in **one** shared module file (e.g. `:core-ui` `values/strings.xml`) — not scattered across `:presentation` or feature modules
+- Keeps localization simple: translate one file (plus `values-xx/` mirrors)
 - No hardcoded user-facing text in layouts or Kotlin
 - Patterns: `toast_*`, `action_*`, `{screen}_title`, `{feature}_*`
 - Non-translatable config: `translatable="false"`
-- Shared strings in `:core-ui` module
 
 ## Colors and themes
 
 - Material 3 DayNight theme as base
-- Semantic color names: `colorPrimary`, `bodyTextColor`
+- Semantic color names: `colorPrimary`, `colorTextTitle`, `colorTextBody`
 - Prefer theme attributes in layouts: `?attr/colorSurface`
 - Light/dark via `values` + `values-night` — avoid duplicating full layouts
 
+## Orientation (mandatory)
+
+- UI must support **both portrait and landscape**
+- Do not lock Activities to a single orientation unless explicitly required by product
+- Use ConstraintLayout / responsive constraints so layouts adapt; add `layout-land/` (or dimension/guideline tweaks) when portrait-only XML cannot adapt cleanly
+- Test critical screens in both orientations before considering a feature done
+
 ## Layout rules
 
-- ConstraintLayout as primary layout engine
-- Material components (`MaterialButton`, `MaterialCardView`, etc.)
+- Prefer **Material** widgets whenever possible (`MaterialTextView`, `MaterialButton`, `MaterialCardView`, …) — not plain `TextView`/`Button` when a Material equivalent exists
+- **View Binding only** — never `findViewById`, never Data Binding
+- Keep layouts **simple and shallow** — minimize nesting to avoid overdraw / measure performance issues
+- ConstraintLayout as primary layout engine; avoid deep LinearLayout/RelativeLayout trees
 - RecyclerView: `ListAdapter` + `DiffUtil`, inflate via View Binding
 - Shared styles in core-ui — reuse over one-off attributes
 - `dp` for layout, `sp` for text

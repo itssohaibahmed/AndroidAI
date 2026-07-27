@@ -24,6 +24,7 @@ alwaysApply: false
 - Launcher Activity: `exported="true"` + MAIN/LAUNCHER intent-filter
 - All other Activities: `exported="false"`
 - **Never leave `exported` unspecified** when intent-filters exist
+- Support **portrait and landscape** — do not set `android:screenOrientation="portrait"` (or landscape-only) unless product explicitly requires it
 
 ## Fragments
 
@@ -45,9 +46,13 @@ alwaysApply: false
 ## Secrets and placeholders
 
 - API keys via manifest placeholders sourced from `local.properties` or CI
-- Never commit production secrets in source or docs
 
 ## Themes
 
-- Splash theme on launcher Activity, post-splash Material3 DayNight theme
+- Splash theme on launcher Activity (SplashScreen API); post-splash Material3 DayNight theme
 - Themes defined in shared UI module
+
+## Startup providers
+
+- If WorkManager is unused, remove `WorkManagerInitializer` via AndroidX Startup `tools:node="remove"` (see `23-app-startup`)
+- Do not leave crashy default initializers enabled

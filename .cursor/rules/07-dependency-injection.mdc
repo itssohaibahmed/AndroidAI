@@ -10,17 +10,19 @@ Use the DI framework already in the project. Default stack: **Koin**.
 
 - Bootstrap in Application class — keep Application minimal
 - Aggregate modules in a single composition root (e.g. `KoinModules`)
-- Prefer constructor injection and `by inject()` over service locators
+- Prefer constructor injection and `by inject()` / `by viewModel()` over service locators
+- If the project already has a limited `DIComponent` / `KoinComponent` façade on base Fragments, follow it — do not expand it for new features without need
 
 ## Module organization
 
 | Location | Contents |
 |----------|----------|
-| `app/di/` | App-level singles, module aggregation |
+| `app/di/` | App-level singles, **module aggregation** (`KoinModules`) |
 | `data/di/` | Repository + DataSource bindings |
-| `domain/` | Use case factories (via app or domain DI module) |
+| `domain/` or `app` use-case module | Use case **factories** |
 | `presentation/<feature>/di/` | Feature ViewModels |
 | `core-*/di/` | Platform and UI dependencies |
+| ads module `di/` | Ad managers / ad ViewModels (named qualifiers per placement) |
 
 ## Binding types
 
@@ -33,9 +35,9 @@ Use the DI framework already in the project. Default stack: **Koin**.
 ## Rules
 
 - Declare modules with project's standard pattern (e.g. `lazyModule { }`)
-- Register every new module in the composition root
+- **Every new module must be registered** in the composition root list
 - Bind interfaces to implementations: `single<XRepository> { XRepositoryImpl(get()) }`
-- Use named qualifiers for parallel instances: `named("banner_main")`
+- Use named qualifiers for parallel instances: `named("banner_home")`
 - Presentation injects use cases and repository **interfaces** — never impl classes from `:data`
 
 ## ViewModel DI example

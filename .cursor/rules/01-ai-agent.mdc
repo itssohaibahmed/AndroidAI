@@ -6,31 +6,45 @@ alwaysApply: true
 ## Always
 
 1. Follow Clean Architecture + MVVM/MVI (Intent / State / Effect / ViewModel / UseCase / Repository)
-2. XML + View Binding only — never introduce Compose
+2. XML + View Binding only — never Compose, never Data Binding, never `findViewById`
 3. Use the project's DI framework — register new bindings in the composition root
 4. Use Version Catalog — no hardcoded dependency versions
 5. Respect module boundaries — presentation must not depend on `:data`
-6. Put user-facing text in string resources — no hardcoded UI strings
+6. Put **all** user-facing strings in the single shared strings file (e.g. `:core-ui`) — no hardcoded UI strings
 7. Match existing naming conventions (resources, packages, classes)
 8. Add unit tests for new UseCases and ViewModels when adding features
+9. Use proper dispatchers (`IO` / `Default`) — assume lists/files may have thousands of items; never block Main
+10. Log with `Constants.TAG*` and format `ClassName: functionName: State: details`
+11. Support **portrait and landscape** for all UI screens
+12. Do heavy mapping in Repository / UseCase; `toUi()` in ViewModel only when needed (with dispatcher if heavy)
 
 ## Never
 
 1. Never add libraries without explicit human approval
 2. Never add Hilt/Dagger/Compose/RxJava unless project already uses them
-3. Never put business logic in Fragments/Activities beyond render + intent dispatch
+3. Never put business logic or heavy mapping in Fragments/Activities/Adapters beyond render + intent dispatch
 4. Never access DataSources directly from presentation
-6. Never skip `android:exported` on manifest components with intent-filters
-7. Never use `GlobalScope` for feature work
-8. Never modify unrelated files when implementing a feature
+5. Never skip `android:exported` on manifest components with intent-filters
+6. Never use `GlobalScope` for feature work
+7. Never modify unrelated files when implementing a feature
+8. Never do heavy mapping/sorting/IO on the Main thread
+9. Never invent ad-hoc log tags — use `Constants.TAG*`
+10. Never lock the app to one orientation unless product explicitly requires it
 
 ## New feature checklist
 
-- [ ] Feature package: `{di,intent,state,effect,viewModel,ui}`
-- [ ] Layout: `fragment_<feature>.xml` with prefixed view IDs
+- [ ] Feature package: `{di,intent,state,effect,viewModel,ui}` (+ adapter/mapper as needed)
+- [ ] Extend `Parent*` / `Base*` UI bases; layouts work in **portrait and landscape**
 - [ ] Domain UseCase(s) + repository interface if new capability needed
-- [ ] Data repository impl + DataSource if needed
-- [ ] DI registration in composition root
-- [ ] Strings in shared UI module (+ translations if project localizes)
+- [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main)
+- [ ] Mapping: Repo/UseCase for heavy work; `toUi()` in ViewModel if needed — not in UI classes
+- [ ] DI: `lazyModule` + register in composition root (`KoinModules`)
+- [ ] Strings in the **single** shared strings file (+ translations)
+- [ ] Logs use `Constants.TAG*` with class/function/state format
+- [ ] Permissions via Intent → Effect → base permission helper when needed
+- [ ] Analytics event via shared EventsProvider when screen should be tracked
+- [ ] ProGuard packages covered if new `state`/`intent`/`effect`/`model` types
 - [ ] Unit tests for UseCase / ViewModel
 - [ ] Verify no `:presentation` → `:data` dependency
+- [ ] Large-list path: `ListAdapter` + DiffUtil / background mapping considered
+- [ ] If ads/premium: gate on entitlement + RC; use existing managers — not raw SDK in Fragments

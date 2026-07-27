@@ -12,12 +12,16 @@ alwaysApply: false
 | `:domain` | Entities, repository interfaces, use cases — no Android UI |
 | `:data` | Repository implementations, DataSources, platform I/O |
 | `:presentation` | Screens, ViewModels, navigation, feature MVI packages |
-| `:core-common` | Pure Kotlin shared types/constants — no Android UI or DI |
+| `:core-*` | Shared utilities — create as many core modules as needed |
+| `:core-common` | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI |
 | `:core-platform` | Network, location, Firebase helpers, platform services |
-| `:core-ui` | Base UI classes, themes, drawables, strings, extensions |
+| `:core-ui` | Base UI (`Parent*`), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions |
 | `:feature-*` | Optional self-contained feature libraries |
+| `:gmaAds` (optional) | AdMob / mediation — only when product has ads |
 
-Gradle module names: kebab-case (`:core-ui`, `:feature-auth`).
+- Use as many `:core-*` modules as the project needs; keep each focused
+- Gradle module names: kebab-case (`:core-ui`, `:feature-auth`, `:gmaAds`)
+- Billing / prefs / Remote Config implementations live in `:data`; Firebase helpers in `:core-platform`
 
 ## Feature package layout (presentation)
 
@@ -52,10 +56,21 @@ Feature folders: camelCase (`onBoarding`, `userProfile`).
 
 | From | To |
 |------|----|
-| `presentation` | `domain`, `core-*`, optional `feature-*` |
-| `data` | `domain`, `core-*` |
+| `presentation` | `domain`, any `core-*`, optional `feature-*`, optional ads module |
+| `data` | `domain`, any `core-*` (prefer **not** depending on `:core-ui`) |
 | `domain` | coroutines-core, optional pure feature libs |
-| `app` | all modules |
+| ads module | `data` and/or `core-*` when gating on premium/prefs (if project uses that pattern) |
+| `app` | all modules (composition root) |
+
+```
+app (Composition Root)
+ |
+ ↓
+presentation → domain ← data
+ |
+ ↓
+core modules (shared utilities)
+```
 
 ## Forbidden
 
@@ -63,3 +78,4 @@ Feature folders: camelCase (`onBoarding`, `userProfile`).
 - `domain` → `presentation`, `data`, Android UI libs
 - `core-common` → Android UI / DI frameworks
 - Circular module dependencies
+- Feature-specific strings outside the shared `:core-ui` strings file

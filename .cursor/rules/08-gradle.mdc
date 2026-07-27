@@ -44,16 +44,28 @@ implementation("androidx.core:core-ktx:1.12.0")
 
 - Keep modules independent — no circular deps
 - Feature modules must not depend on each other directly
-- Enable View Binding on UI modules
+- Enable View Binding on UI modules — never enable Data Binding
 - App release: minify + shrink; library modules: minify off
 
 ## Build types
 
-- Debug: no minify, optional `applicationIdSuffix`
+- Debug: no minify, optional `applicationIdSuffix = ".testing"`
 - Release: minify + ProGuard/R8 on app module
-- Secrets and signing credentials in `local.properties` or CI env — not in source
+- Secrets and signing credentials in `local.properties` or CI env — **never** hardcode keystore passwords in `build.gradle.kts`
+- Prefer no product flavors unless product requires them
 
 ## ProGuard
 
-- Keep rules in app module only unless module-specific needs arise
-- Preserve domain entities and MVI state/intent/effect classes
+- Keep rules in **app** module only unless module-specific needs arise
+- Preserve (adjust package to app id):
+  - `domain.entity.**`
+  - `presentation.**.state.**` / `intent.**` / `effect.**` / `model.**`
+  - ads entity packages when ads module exists
+- Keep Parcelable/Serializable names; keep SourceFile/LineNumberTable for Crashlytics
+- `android.enableR8.fullMode=true` when project uses it
+- Library modules: `isMinifyEnabled = false` typically
+
+## Other
+
+- Disable language bundle splits when shipping all locales in one APK (`bundle.language.enableSplit = false`) if that is the product choice
+- Enable core library desugaring when using `java.time` below API 26
