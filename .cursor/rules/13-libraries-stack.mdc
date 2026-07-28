@@ -39,7 +39,8 @@ Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing / Hyp
 | Compose UI | XML + View Binding + Material3 |
 | Data Binding / findViewById | View Binding |
 | Plain `TextView` / `Button` (when Material exists) | `MaterialTextView` / `MaterialButton` |
-| `ImageView` / `AppCompatImageView` | `ShapeableImageView` (`siv` id prefix) |
+| `ImageView` / `AppCompatImageView` | `ShapeableImageView` (`siv`) for display-only images |
+| Clickable `ShapeableImageView` / icon ImageView | `MaterialButton` + `ButtonStyle.Icon` / `Widget.Material3.Button.IconButton` (`mb`, `app:icon`) |
 | `dimens.xml` | Inline `dp`/`sp` in multiples of 4 |
 | LiveData (new MVI screens) | StateFlow + SharedFlow |
 | Hardcoded versions | `libs.versions.toml` |

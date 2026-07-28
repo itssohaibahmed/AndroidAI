@@ -60,9 +60,10 @@ class App : Application() {
 }
 ```
 
-- Aggregate: `appModule`, `coreModule`, `corePlatformModule`, `sharedPrefModule`, `remoteConfigModule`, `entrancePresentationModule`, …
+- Aggregate with **`lazyModule` only**: `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule`, …
 - Manifest: `android:name=".App"`, `android:theme="@style/Theme.App.Starting"`, `supportsRtl="true"`
 - Portrait **and** landscape — do not lock orientation
+- UseCases + repo interfaces → `:domain`; DataSources + repo impls → `:data` (`dataModule` with `//// DataSources` / `//// Repositories`)
 
 ## Step 3 — MainActivity + host
 
@@ -81,6 +82,26 @@ app:startDestination="@id/entranceFragment"
 - Class: `EntranceFragment` under `presentation/entrance/ui/`
 - Layout: `fragment_entrance.xml`
 - No Home/Splash/Main as start destination
+
+### Nav transition anims (reference — mandatory)
+
+Create in **`:core-ui`** (copy from [templates/anim/](templates/anim/) + [templates/anim-ldrtl/](templates/anim-ldrtl/)):
+
+```
+res/anim/slide_in_right.xml | slide_out_left.xml | slide_in_left.xml | slide_out_right.xml
+res/anim-ldrtl/… (same four names — RTL mirrors)
+```
+
+Every forward `<action>` must include:
+
+```xml
+app:enterAnim="@anim/slide_in_right"
+app:exitAnim="@anim/slide_out_left"
+app:popEnterAnim="@anim/slide_in_left"
+app:popExitAnim="@anim/slide_out_right"
+```
+
+See `17-navigation.mdc`.
 
 ## Step 5 — Entrance MVI
 
@@ -123,7 +144,7 @@ core/ui/base/
 - `ParentSheet` : inflate with `bindingFactory`, null-safe `_binding` (same as Fragment — **not** `!!`), `onSheetCreated()`, `initObservers()`
 - Improvements: remove unused dialog imports; optional `skipCollapsed` / expanded state in `onStart` when product needs it; keep Binding lifecycle identical to Fragment
 
-Also add: lifecycle Flow extensions (`collectWhenStarted` / `collectWhenCreated`), `themes.xml`, **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
+Also add: lifecycle Flow extensions (`collectWhenStarted` / `collectWhenCreated`), `themes.xml` (include `ButtonStyle.Icon` / `ButtonStyle.Icon.Only` parents of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
 
 ## Step 7 — `:core-platform`
 
@@ -131,8 +152,12 @@ Also add: lifecycle Flow extensions (`collectWhenStarted` / `collectWhenCreated`
 
 ```kotlin
 val corePlatformModule = lazyModule {
+
+    //// Dispatchers
     single { Dispatchers.IO }
     single { Dispatchers.Default }
+
+    //// Managers
     single { InternetManager(androidContext()) }
 }
 ```
@@ -202,13 +227,28 @@ data:
 
 **Read path for features:** Prefer **cached prefs** (`SharedPrefRepository` / managers) for flags used at runtime — not live RC SDK in UI.
 
-**DI:**
+**DI (`lazyModule` — sectioned by concern):**
 ```kotlin
-single { RemoteConfigDataSource() }
-single { SharedPrefManager(androidContext()) }
-single<SharedPrefRepository> { SharedPrefRepositoryImpl(get()) }
-single<RemoteConfigRepository> { RemoteConfigRepositoryImpl(get(), get(), get()) }
+val dataModule = lazyModule {
+
+    //// DataSources
+    single { RemoteConfigDataSource() }
+    single { SharedPrefManager(androidContext()) }
+
+    //// Repositories
+    single<SharedPrefRepository> { SharedPrefRepositoryImpl(get()) }
+    single<RemoteConfigRepository> { RemoteConfigRepositoryImpl(get(), get(), get()) }
+}
+
+val useCaseModule = lazyModule {
+
+    //// RemoteConfig
+    factory { FetchRemoteConfigUseCase(get()) }
+}
 ```
+
+- Interfaces + `FetchRemoteConfigUseCase` in **`:domain`**
+- Register both modules in `KoinModules`
 
 Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow (non-blocking UX).
 
@@ -217,7 +257,10 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
 - [ ] Modules: app, domain, data, presentation, core-common, core-ui, core-platform
+- [ ] UseCases + repo interfaces only in `:domain`; `dataModule` has `//// DataSources` then `//// Repositories`
+- [ ] All DI uses `lazyModule` (never `module { }`); `useCaseModule` in domain registered in `KoinModules`
 - [ ] `nav_graph` startDestination = `entranceFragment`
+- [ ] `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs
 - [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
 - [ ] `PlatformFirebase` is `object` without Context
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`

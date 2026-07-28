@@ -18,6 +18,7 @@ Follow `.cursor/rules/06-coroutines-flow.mdc`, `03`, `04`.
 
 ### RecyclerView
 - [ ] `ListAdapter` + `DiffUtil`
+- [ ] `app:layoutManager` / `android:orientation` / `app:spanCount` in XML — Kotlin only if dynamic
 - [ ] Stable IDs when beneficial
 - [ ] Avoid nested RecyclerViews with heavy child rebind
 - [ ] Glide/image loads cancelled on rebind

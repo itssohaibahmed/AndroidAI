@@ -35,7 +35,8 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 - Screen layouts in `:presentation`; shared drawables/themes in `:core-ui`
 - **All** strings in one `:core-ui` `strings.xml` (plus locale folders) — not per-feature string files
 - Resource file section order: **app → general/common → content descriptions → screen-wise** (see `09-resources-xml`)
-- Images: always `ShapeableImageView` (`siv`); contentDescription via `cd_*` strings
+- Images (display only): `ShapeableImageView` (`siv`); contentDescription via `cd_*` strings
+- Clickable icons: `MaterialButton` + `ButtonStyle.Icon` / `Icon.Only` (`mb`); `app:icon` — not clickable `siv`
 - **No `dimens.xml`** — inline sizes as multiples of 4 (`8dp`, `16dp`, `16sp`, …)
 - Backgrounds: `bg_shape_*` (shapes), `bg_svg_*` (svg backgrounds), `bg_*` otherwise
 
@@ -49,14 +50,16 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 - Screen/event keys in shared provider (`EventsProvider` or equivalent) in `:core-common`
 - Prefer `EventsProvider.HOME_SCREEN.postFirebaseEvent()` over raw string literals
 
-## Data layer
+## Data / domain types
 
 | Layer | Naming |
 |-------|--------|
-| Repository interface | `UserRepository` |
-| Repository impl | `UserRepositoryImpl` |
-| DataSource | `SharedPrefManager` (sync, Context only), `UserRemoteDataSource` |
+| Repository interface | `UserRepository` — **`:domain` only** |
+| Repository impl | `UserRepositoryImpl` — **`:data` only** |
+| UseCase | `GetUserUseCase` — **`:domain` only** (never `:data`) |
+| DataSource | `SharedPrefManager` (sync, Context only), `UserRemoteDataSource` — **`:data`** |
 | Entity (domain) | `User`, `GeoLocation` |
 | UI model | `UserUiItem` |
 | Mapper | `UserUiMapper.toUi(...)` — call from ViewModel; heavy data mapping in Repo/UseCase |
 | Base UI | `ParentFragment`, `BaseFragment`, `ParentActivity`, `ParentDialog`, `ParentSheet` |
+| DI modules | `dataModule` / `useCaseModule` / `*PresentationModule` — always `lazyModule { }` |

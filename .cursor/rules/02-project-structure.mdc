@@ -9,8 +9,8 @@ alwaysApply: false
 | Module | Responsibility |
 |--------|----------------|
 | `:app` | Application class, DI aggregation, manifest, composition root only — **no `res/values/`** (themes/strings/colors in `:core-ui`) |
-| `:domain` | Entities, repository interfaces, use cases — no Android UI |
-| `:data` | Repository implementations, DataSources, platform I/O |
+| `:domain` | Entities, repository **interfaces**, UseCases, `useCaseModule` (`lazyModule`) — no Android UI; **never** repo impls |
+| `:data` | Repository **impls**, DataSources, `dataModule` (`lazyModule` with `//// DataSources` then `//// Repositories`) — **never** UseCases or repo interfaces |
 | `:presentation` | Screens, ViewModels, navigation, feature MVI packages |
 | `:core-*` | Shared utilities — create as many core modules as needed |
 | `:core-common` | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI |
@@ -58,7 +58,7 @@ Feature folders: camelCase (`onBoarding`, `userProfile`).
 |------|----|
 | `presentation` | `domain`, any `core-*`, optional `feature-*`, optional ads module |
 | `data` | `domain`, any `core-*` (prefer **not** depending on `:core-ui`) |
-| `domain` | coroutines-core, optional pure feature libs |
+| `domain` | coroutines-core, Koin DSL (`lazyModule` for UseCases), optional pure feature libs |
 | ads module | `data` and/or `core-*` when gating on premium/prefs (if project uses that pattern) |
 | `app` | all modules (composition root) |
 

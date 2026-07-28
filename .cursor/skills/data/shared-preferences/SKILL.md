@@ -66,13 +66,22 @@ class SharedPrefRepositoryImpl(
 
 Prefer injecting `ioDispatcher` from DI when project provides dispatchers in `core-platform`.
 
-## DI
+## DI (`lazyModule` only)
 
 ```kotlin
-single { SharedPrefManager(androidContext()) }
-single<SharedPrefRepository> { SharedPrefRepositoryImpl(get()) }
-// SharedPrefRepositoryImpl(dataSource, ioDispatcher = Dispatchers.IO) — default param; no named()
+val dataModule = lazyModule {
+
+    //// DataSources
+    single { SharedPrefManager(androidContext()) }
+
+    //// Repositories
+    single<SharedPrefRepository> { SharedPrefRepositoryImpl(get()) }
+}
 ```
+
+- Interface `SharedPrefRepository` + any related UseCases live in **`:domain`**
+- `factory { …UseCase }` in domain `useCaseModule` — not in `:data`
+- Never `module { }` — always `lazyModule { }`
 
 Register in `data/di/DataModule.kt` (or split module val).
 
@@ -89,6 +98,8 @@ Register in `data/di/DataModule.kt` (or split module val).
 
 - `SharedPreferences` in Fragment / ViewModel
 - Dispatcher on DataSource / `SharedPrefManager`
+- UseCase or repository **interface** under `:data`
+- `module { }` — use `lazyModule { }` only
 - `suspend` on sync prefs data source class
 
 ## Tests

@@ -53,6 +53,7 @@ Examples: `bg_shape_rounded_primary.xml`, `bg_svg_onboarding_header.xml`, `fg_gr
 
 - Fonts in shared UI module (`res/font/`) + `preloaded_fonts.xml` when using downloadable/preloaded fonts
 - Transitions: `res/anim/` (and `anim-ldrtl/` for RTL flips)
+- Nav transitions: mandatory `slide_in_right` / `slide_out_left` / `slide_in_left` / `slide_out_right` on actions — see `17-navigation`
 - Night-specific assets: `drawable-night/`, `values-night/` — avoid duplicating full layouts for dark mode
 
 ## Spacing & text sizes (no dimens.xml)
@@ -117,7 +118,7 @@ Naming: `app_name`; `toast_*` / `action_*`; `cd_{what}`; `{screen}_title` / `{fe
 <string name="cd_app_logo">App logo</string>
 ```
 
-- Always set `android:contentDescription="@string/cd_…"` on `ShapeableImageView` and meaningful icons
+- Always set `android:contentDescription="@string/cd_…"` on `ShapeableImageView`, icon `MaterialButton`s, and meaningful icons
 - Decorative only: `android:contentDescription="@null"` + `android:importantForAccessibility="no"`
 - Never hardcode contentDescription in XML/Kotlin
 
@@ -141,7 +142,7 @@ File: `:core-ui` `values/colors.xml` (+ `values-night/colors.xml` when needed).
 | `themes.xml` | App base theme + common widget styles |
 | `splash.xml` | `Theme.App.Starting` only (`23-app-startup`) |
 
-Order in `themes.xml`: App theme → TextStyle/ButtonStyle → screen-specific styles only if needed.
+Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.Icon` / `Icon.Only`) → screen-specific styles only if needed.
 
 ## Orientation (mandatory)
 
@@ -151,9 +152,73 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle → screen-specific s
 
 ## Layout rules
 
-- Material widgets: `MaterialTextView`, `MaterialButton`, `MaterialCardView`, **`ShapeableImageView`**
-- **Always `ShapeableImageView`** — never `ImageView` / `AppCompatImageView`; IDs use `siv` prefix
+- Material widgets: `MaterialTextView`, `MaterialButton`, `MaterialCardView`, `ShapeableImageView`
+- **Images (non-clickable):** always `ShapeableImageView` — never `ImageView` / `AppCompatImageView`; IDs use `siv` prefix
+- **Clickable icons / icon-only actions:** always `MaterialButton` with IconButton style — **not** `ShapeableImageView` + click listener
+  - Prefer project style `ButtonStyle.Icon` / `ButtonStyle.Icon.Only` (parent `Widget.Material3.Button.IconButton`) when defined in `:core-ui` `themes.xml`
+  - Else `style="@style/Widget.Material3.Button.IconButton"`
+  - ID prefix `mb…`; use `app:icon` (not `app:srcCompat`); keep `android:contentDescription="@string/cd_…"`
 - **View Binding only** — never `findViewById`, never Data Binding
 - Shallow ConstraintLayout trees
-- RecyclerView: `ListAdapter` + `DiffUtil`
+- **Static layout config in XML** — not Kotlin — unless it must change at runtime:
+  - `RecyclerView`: set `app:layoutManager`, `android:orientation`, `app:spanCount` (grids) in XML
+  - `LinearLayout` / `LinearLayoutCompat`: `android:orientation` in XML
+  - Do **not** call `layoutManager = LinearLayoutManager(...)` / `setOrientation(...)` in Fragment/Activity for fixed lists
+  - Code only when dynamic (e.g. swap horizontal↔vertical or span count from state/config)
+- RecyclerView: `ListAdapter` + `DiffUtil`; declare manager in XML as above
 - Inline `dp`/`sp` multiples of 4 — **no `dimens.xml`**
+
+### RecyclerView XML example
+
+```xml
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/rcvLanguages"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:orientation="vertical"
+    android:clipToPadding="false"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    tools:listitem="@layout/item_language" />
+
+<!-- Grid -->
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/rcvCompassStyles"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+    app:spanCount="2"
+    tools:listitem="@layout/item_compass_style" />
+```
+
+
+### Icon button conversion example
+
+```xml
+<!-- BAD — clickable image pretending to be a button -->
+<com.google.android.material.imageview.ShapeableImageView
+    android:id="@+id/sivConfirmLanguage"
+    android:layout_width="32dp"
+    android:layout_height="32dp"
+    android:contentDescription="@string/cd_confirm_language"
+    android:scaleType="centerInside"
+    app:srcCompat="@drawable/ic_svg_check_language" />
+
+<!-- GOOD -->
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/mbConfirmLanguage"
+    style="@style/ButtonStyle.Icon.Only"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:contentDescription="@string/cd_confirm_language"
+    android:insetTop="0dp"
+    android:insetBottom="0dp"
+    app:icon="@drawable/ic_svg_check_language"
+    app:iconGravity="textStart"
+    app:iconPadding="0dp"
+    app:iconSize="24dp"
+    app:layout_constraintBottom_toBottomOf="@id/mtvSubtitleLanguage"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="@id/mtvTitleLanguage" />
+```
+
+If `ButtonStyle.Icon.Only` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `iconSize` as a multiple of 4 (`24dp` / `32dp`).

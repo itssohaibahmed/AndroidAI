@@ -12,14 +12,21 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 ### Module boundaries
 - [ ] `presentation` does not import `:data`
 - [ ] `domain` has no Android UI / presentation imports
+- [ ] UseCases + repository **interfaces** only in `:domain` — never in `:data`
 - [ ] No circular module dependencies
-- [ ] New `lazyModule` registered in composition root
+- [ ] All Koin modules use `lazyModule { }` (never `module { }`)
+- [ ] Each `lazyModule` has readable `//// Section` headers (SoC: DataSources / Repositories / ViewModels / area UseCases, etc.)
+- [ ] `dataModule` ordered: `//// DataSources` then `//// Repositories`
+- [ ] UseCase factories in domain `useCaseModule` (grouped by area)
+- [ ] New `lazyModule` registered in composition root (list also sectioned: Core / Data / Domain / Presentation / Ads)
 
 ### MVI
 - [ ] Intent / State / Effect / ViewModel pattern
+- [ ] `handleIntent` single launch + `suspend` `onX` handlers; `handleError` at end of ViewModel
 - [ ] Navigation via Effects — not NavController in ViewModel
 - [ ] No mutable state exposed publicly
 - [ ] Fragments render + dispatch intents only
+- [ ] ViewModel logs sparse — repo primary; failures via `handleError`
 
 ### Mapping
 - [ ] Heavy mapping in Repo / UseCase — not Fragment/Adapter
@@ -35,6 +42,7 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 - [ ] View Binding only — no findViewById / Data Binding
 - [ ] Material widgets; portrait + landscape
 - [ ] Strings in single `:core-ui` file
+- [ ] Static `layoutManager` / orientations / `spanCount` in XML — not Kotlin unless dynamic
 
 ### Security / logging (`14`, `16`)
 - [ ] No secrets in code/commits

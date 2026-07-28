@@ -171,7 +171,7 @@ dependencies {
 | `:core-ui` | projects → Android Core → Splash → Lifecycle → Navigation → Google → Firebase → Koin → Glide |
 | `:core-platform` | projects → Android Core → Firebase → Play Services Location → Koin |
 | `:gmaAds` | projects → Android Core → Lifecycle → Google (`api` ads) → Koin |
-| `:domain` | Coroutines (+ optional pure `project(":feature-*")`) |
+| `:domain` | Coroutines + Koin DSL for `useCaseModule` (+ optional pure `project(":feature-*")`) |
 
 ### Scopes while organizing
 

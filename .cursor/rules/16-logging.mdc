@@ -48,6 +48,21 @@ Rules:
 - Use the matching subsystem TAG (`TAG_ADS`, `TAG_FIREBASE`, …)
 - Prefer `Log.d` for flow/success, `Log.e`/`Log.w` for failures — stay consistent within a module
 
+## Where to log
+
+| Layer | Guidance |
+|-------|----------|
+| Repository / DataSource | Primary place for flow logs (`Started` / `Success` / `Failed` / sizes) |
+| UseCase | Only when useful for multi-repo orchestration |
+| ViewModel | **Sparse** — do not log every intent / `onX` start+success; prefer repo logs |
+| ViewModel errors | Always via `handleError` (`Log.e` + Crashlytics) |
+| ViewModel guards | Optional `Log.w` (e.g. empty selection) |
+| UI-only ViewModel work | Short log OK when no repo/domain call exists |
+
+Forbidden ViewModel noise:
+- `onScreenStarted: Started` + `Success` plus every click `Started`/`Success` when the repository already logs the same flow
+- Duplicate success logs in ViewModel and Repository for the same operation
+
 ## Forbidden
 
 - Random tags like `"Home"`, `"DEBUG"`, `"xxx"`

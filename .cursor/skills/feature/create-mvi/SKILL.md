@@ -32,31 +32,73 @@ presentation/<featureName>/
 1. **Intent** — sealed class; UI dispatches only via `handleIntent`
 2. **State** — data class, defaults, computed `show*` flags
 3. **Effect** — navigation, permissions, `@StringRes` errors
-4. **ViewModel** — `StateFlow` + `SharedFlow`, `CoroutineExceptionHandler`, inject dispatchers
+4. **ViewModel** — follow `04-mvi-presentation` structure:
+   - `handleIntent` = single `viewModelScope.launch(exceptionHandler) { when … }`
+   - handlers = `private suspend fun onX()`
+   - `exceptionHandler` → `handleError`; **`handleError` last** in the class
+   - sparse logs (repo primary; ViewModel failures/`Log.w` guards only)
 5. **Fragment** — extend `Parent*` / `Base*`; `collectWhenStarted` / `collectWhenCreated`; View Binding only
 6. **Mapping** — heavy work in Repo/UseCase; `toUi()` in ViewModel with dispatcher if large lists
-7. **Logs** — `Constants.TAG*` format: `ClassName: functionName: State: details`
+7. **Logs** — `Constants.TAG*` format; prefer Repository; ViewModel not every method
 
 ## Domain + data (if new capability)
 
-- Interface in `:domain`, impl + DataSource in `:data`
-- Register `single<Repo> { Impl }` + `factory { UseCase }`
+```
+domain/
+  repository/<area>/<Name>Repository.kt     # interface ONLY
+  usecase/<area>/<Name>UseCase.kt           # UseCase ONLY
+  di/UseCaseModule.kt                       # lazyModule { factory { … } }
+
+data/
+  <area>/dataSource/…                       # DataSource / manager
+  <area>/repository/<Name>RepositoryImpl.kt # impl ONLY
+  di/DataModule.kt                          # lazyModule { //// DataSources … //// Repositories … }
+```
+
+- **Never** create UseCase or repository interface under `:data`
+- Register `factory { UseCase }` in **domain** `useCaseModule`
+- Register DataSources then Repositories in **data** `dataModule` (two sections)
 - Presentation must **not** depend on `:data`
 
 ## DI
 
 ```kotlin
 val featurePresentationModule = lazyModule {
+
+    //// ViewModels
     viewModel { FeatureViewModel(get(), get()) }
+}
+
+val useCaseModule = lazyModule {
+
+    //// Feature
+    factory { GetFeatureUseCase(get()) }
+}
+
+val dataModule = lazyModule {
+
+    //// DataSources
+    single { FeatureDataSource() }
+
+    //// Repositories
+    single<FeatureRepository> { FeatureRepositoryImpl(get(), get()) }
 }
 ```
 
-Register in app composition root (`KoinModules`).
+Register **all** of the above in app composition root (`KoinModules`). Always `lazyModule` — never `module { }`. Use `//// Section` headers for separation of concerns (`07-dependency-injection`).
 
 ## Navigation
 
 - Add destination to `nav_*.xml`; Safe Args if needed
 - ViewModel emits navigation **Effect**; Fragment calls `NavController`
+- Every `<action>` must use reference slide anims (`17-navigation`):
+
+```xml
+app:enterAnim="@anim/slide_in_right"
+app:exitAnim="@anim/slide_out_left"
+app:popEnterAnim="@anim/slide_in_left"
+app:popExitAnim="@anim/slide_out_right"
+```
 
 ## Strings
 

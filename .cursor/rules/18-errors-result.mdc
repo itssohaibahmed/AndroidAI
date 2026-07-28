@@ -32,7 +32,9 @@ sealed interface Outcome<out T> {
 | Recoverable / inline | State flags or error message field |
 | One-shot (toast/snackbar/dialog) | `Effect` with `@StringRes` when possible |
 | Hard stop / logout | Effect → navigation |
+| Uncaught in intent coroutine | `handleError(throwable)` via `CoroutineExceptionHandler` (`04-mvi-presentation`) |
 
+- Centralize unexpected failures in **`handleError`** at end of ViewModel — log + Crashlytics + clear loading / emit Effect
 - Never show raw exception messages or stack traces to users
 - Never put `Throwable` / raw HTTP bodies in UI State — map to typed error + `@StringRes` / flags
 - Log failures with `Constants.TAG*` (see `16-logging`); omit PII/tokens

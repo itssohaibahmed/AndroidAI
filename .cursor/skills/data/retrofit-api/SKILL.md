@@ -41,13 +41,22 @@ interface UserApi {
 - All network on `IO` in **Repository** (`withContext`); DataSource stays thin
 - Repository returns domain models or typed failures
 
-## DI
+## DI (`lazyModule` only)
 
 ```kotlin
-single { provideRetrofit(get()) }
-single { get<Retrofit>().create(UserApi::class.java) }
-single<UserRepository> { UserRepositoryImpl(get(), get(), get()) }
+val dataModule = lazyModule {
+
+    //// DataSources
+    single { provideRetrofit(get()) }
+    single { get<Retrofit>().create(UserApi::class.java) }
+
+    //// Repositories
+    single<UserRepository> { UserRepositoryImpl(get(), get(), get()) }
+}
 ```
+
+- `UserRepository` interface + UseCases in `:domain` (`useCaseModule`)
+- Never put interfaces/UseCases in `:data`
 
 ## Forbidden
 

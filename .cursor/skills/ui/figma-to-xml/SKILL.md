@@ -26,8 +26,10 @@ Per `24-figma-assets`:
 
 ## Layout rules (quick)
 
-- `ShapeableImageView` only (`siv`)
+- `ShapeableImageView` (`siv`) for display-only images
+- Clickable icons → `MaterialButton` IconButton style (`mb` + `app:icon`), not clickable `siv`
 - Material text/buttons/cards
+- RecyclerView: `app:layoutManager` + orientation / `spanCount` in XML (not Kotlin unless dynamic)
 - `cd_*` content descriptions
 - No `dimens.xml` — spacing/text sizes multiples of 4
 - Portrait + landscape

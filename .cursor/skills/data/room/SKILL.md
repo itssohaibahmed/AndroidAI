@@ -44,13 +44,22 @@ abstract class AppDatabase : RoomDatabase() {
 - DTO → entity mapping in data layer
 - Expose `Flow<List<DomainEntity>>` or suspend APIs to domain
 
-## DI
+## DI (`lazyModule` only)
 
 ```kotlin
-single { provideDatabase(get()) }
-single { get<AppDatabase>().itemDao() }
-single<ItemRepository> { ItemRepositoryImpl(get(), get(), get()) }
+val dataModule = lazyModule {
+
+    //// DataSources
+    single { provideDatabase(get()) }
+    single { get<AppDatabase>().itemDao() }
+
+    //// Repositories
+    single<ItemRepository> { ItemRepositoryImpl(get(), get(), get()) }
+}
 ```
+
+- `ItemRepository` interface + UseCases in `:domain` (`useCaseModule`)
+- Never put interfaces/UseCases in `:data`
 
 ## ProGuard
 

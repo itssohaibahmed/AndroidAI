@@ -21,15 +21,16 @@ One layout file in `:presentation` `res/layout/`:
 ## Rules
 
 - **Material** widgets (`MaterialTextView`, `MaterialButton`, `MaterialCardView`, `ShapeableImageView`) — never plain `ImageView`
+- Clickable icons → `MaterialButton` `style="@style/ButtonStyle.Icon.Only"` (or `Widget.Material3.Button.IconButton`) with `app:icon` — **not** clickable `ShapeableImageView`
 - View Binding only (no Data Binding attributes)
 - **Portrait + landscape** — responsive ConstraintLayout; add `layout-land/` if needed
 - Shallow nesting — ConstraintLayout primary; avoid deep LinearLayout trees
-- View IDs: Hungarian prefix + camelCase (`mtvTitleHome`, `sivLogoHome`, `mbContinueLogin`, `clRootHome`)
+- View IDs: Hungarian prefix + camelCase (`mtvTitleHome`, `sivLogoHome`, `mbConfirmLanguage`, `clRootHome`)
 - Theme attrs: `?attr/colorSurface`, `?attr/colorOnBackground`
 - Inline `dp` / `sp` only — **no `dimens.xml`**; sizes in **multiples of 4** (`8dp`, `16dp`, `16sp`)
 - No hardcoded user-facing strings — `@string/` from `:core-ui`
 - Images: `android:contentDescription="@string/cd_…"` (add `cd_*` under Content Descriptions section)
-- RecyclerView rows: separate `item_<name>.xml`
+- RecyclerView: `app:layoutManager` + `android:orientation` / `app:spanCount` in XML — not in Kotlin unless dynamic; rows = `item_<name>.xml`
 
 ## Do not create
 
@@ -38,6 +39,7 @@ One layout file in `:presentation` `res/layout/`:
 - `dimens.xml`
 - `findViewById` references
 - Plain `ImageView`
+- Clickable `ShapeableImageView` used as a button
 
 ## After layout
 

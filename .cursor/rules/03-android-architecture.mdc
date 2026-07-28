@@ -21,15 +21,17 @@ Dependencies always point inward.
 
 ### Domain
 - Business logic and use cases
-- Repository **interfaces** only
-- No Android framework dependencies
+- Repository **interfaces** only — never implementations
+- UseCase classes live **only** here (`domain.usecase.*`) — never under `:data`
+- No Android framework / UI dependencies
 - Heavy domain transforms / aggregation / filtering belong in UseCases when relevant
 
 ### Data
-- Repository **implementations**
+- Repository **implementations** (`*RepositoryImpl`) only — never repository interfaces, never UseCases
 - Local/remote DataSources — **sync or thin SDK wrappers; no dispatcher injection**
 - DTO ↔ entity mapping (heavy parsing / list shaping belongs here when data-bound)
 - **IO dispatcher (`withContext`) on Repository impl** — not on DataSource
+- DI: `dataModule = lazyModule { //// DataSources … //// Repositories … }` (see `07-dependency-injection`)
 
 ## Mapping ownership
 
@@ -47,23 +49,27 @@ Dependencies always point inward.
 
 - Extend `androidx.lifecycle.ViewModel`
 - Expose `StateFlow<*State>` and `SharedFlow<*Effect>`
-- Single entry: `fun handleIntent(intent: *Intent)`
-- Use `viewModelScope` + `CoroutineExceptionHandler`
+- Single entry: `fun handleIntent(intent: *Intent) = viewModelScope.launch(exceptionHandler) { … }`
+- Intent handlers are `private suspend fun onX()` — not nested launches
+- `handleError(throwable)` at end of class; `CoroutineExceptionHandler` delegates to it
+- Use `viewModelScope` + `CoroutineExceptionHandler` (see `04-mvi-presentation`)
 - No View/Fragment/Context references
 - No layout inflation or View Binding inside ViewModel
+- Logging: prefer Repo; ViewModel logs sparingly (failures in `handleError`) — see `16-logging`
 
 ## UseCase
 
 - One class = one business action area
 - Naming: `Get*`, `Save*`, `Check*`, `Schedule*` + `UseCase`
-- Depend only on repository interfaces
-- Live in `:domain`
+- Depend only on repository **interfaces**
+- **Source + DI live in `:domain`** — never create UseCases under `:data`
+- Register with `factory { }` inside domain `useCaseModule = lazyModule { }`
 - Prefer putting reusable heavy business mapping here rather than in UI
 
 ## Repository
 
-- Interface in domain: `LocationRepository`
-- Implementation in data: `LocationRepositoryImpl`
+- **Interface in `:domain`:** `LocationRepository` — never define the interface in `:data`
+- **Implementation in `:data`:** `LocationRepositoryImpl`
 - UI never accesses DataSources — only repositories via use cases
 - Repository decides local vs remote strategy
 - Do heavy data mapping (DTO → domain, large list prep) here when it is data-layer concern

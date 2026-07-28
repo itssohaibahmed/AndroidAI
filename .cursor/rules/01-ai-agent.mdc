@@ -7,9 +7,9 @@ alwaysApply: true
 
 1. Follow Clean Architecture + MVVM/MVI (Intent / State / Effect / ViewModel / UseCase / Repository)
 2. XML + View Binding only — never Compose, never Data Binding, never `findViewById`
-3. Use the project's DI framework — register new bindings in the composition root
+3. Use the project's DI framework — **`lazyModule` everywhere**; register in composition root
 4. Use Version Catalog — no hardcoded dependency versions
-5. Respect module boundaries — presentation must not depend on `:data`
+5. Respect module boundaries — presentation must not depend on `:data`; UseCases + repo **interfaces** only in `:domain` (never in `:data`)
 6. Put **all** user-facing strings in the single shared strings file (e.g. `:core-ui`) — no hardcoded UI strings
 7. Match existing naming conventions (resources, packages, classes)
 8. Add unit tests for new UseCases and ViewModels when adding features
@@ -30,21 +30,23 @@ alwaysApply: true
 8. Never do heavy mapping/sorting/IO on the Main thread
 9. Never invent ad-hoc log tags — use `Constants.TAG*`
 10. Never lock the app to one orientation unless product explicitly requires it
+11. Never set static `RecyclerView` `layoutManager` / list `orientation` / `spanCount` in Kotlin — declare them in XML unless dynamic
+12. Never put UseCases or repository **interfaces** in `:data` — domain only; never use `module { }` — always `lazyModule { }`
 
 ## New feature checklist
 
 - [ ] Feature package: `{di,intent,state,effect,viewModel,ui}` (+ adapter/mapper as needed)
 - [ ] Extend `Parent*` / `Base*` UI bases; layouts work in **portrait and landscape**
-- [ ] Domain UseCase(s) + repository interface if new capability needed
+- [ ] Domain UseCase(s) + repository **interface** in `:domain` (never under `:data`)
 - [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main)
 - [ ] Mapping: Repo/UseCase for heavy work; `toUi()` in ViewModel if needed — not in UI classes
-- [ ] DI: `lazyModule` + register in composition root (`KoinModules`)
+- [ ] DI: **`lazyModule` only** with readable `//// Section` headers (SoC); `dataModule` = DataSources → Repositories; UseCases in domain `useCaseModule` by area; register in `KoinModules`
 - [ ] Strings in the **single** shared strings file (+ translations)
-- [ ] Logs use `Constants.TAG*` with class/function/state format
+- [ ] Logs use `Constants.TAG*` format; prefer Repository; ViewModel sparse (`handleError` for failures)
 - [ ] Permissions via Intent → Effect → base permission helper when needed
 - [ ] Analytics event via shared EventsProvider when screen should be tracked
 - [ ] ProGuard packages covered if new `state`/`intent`/`effect`/`model` types
 - [ ] Unit tests for UseCase / ViewModel
 - [ ] Verify no `:presentation` → `:data` dependency
-- [ ] Large-list path: `ListAdapter` + DiffUtil / background mapping considered
+- [ ] Large-list path: `ListAdapter` + DiffUtil / background mapping considered; `layoutManager` / orientation / spanCount in XML unless dynamic
 - [ ] If ads/premium: gate on entitlement + RC; use existing managers — not raw SDK in Fragments

@@ -39,7 +39,7 @@ Rules:
 - Do not put full thousand-item payloads in State when only a page/window is shown — prefer pagination / paging / windowed loads when the feature needs it
 - Avoid copying large collections on Main (`toList()`, deep `map` chains) without a background dispatcher
 - Prefer streaming (`Flow`) over loading entire datasets into memory when sources support it
-- RecyclerView: stable IDs when useful, avoid nested RecyclerViews that rebind huge children
+- RecyclerView: `ListAdapter` + DiffUtil; declare `app:layoutManager` / orientation / `spanCount` in XML unless dynamic; avoid nested RecyclerViews that rebind huge children
 - Image/list binding: cancel/reuse (e.g. Glide) — no unbounded bitmap work on Main
 
 ## Flow

@@ -43,19 +43,71 @@ sealed class FeatureEffect {
 - Navigation, toasts, permission prompts, dialogs
 - Prefer `@StringRes` for user-facing messages
 
-## ViewModel skeleton
+## ViewModel structure (mandatory)
 
 ```kotlin
-private val _state = MutableStateFlow(FeatureState())
-val state: StateFlow<FeatureState> = _state.asStateFlow()
+class FeatureViewModel(
+    private val getFeatureUseCase: GetFeatureUseCase,
+    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
+) : ViewModel() {
 
-private val _effect = MutableSharedFlow<FeatureEffect>()
-val effect: SharedFlow<FeatureEffect> = _effect.asSharedFlow()
+    private val _state = MutableStateFlow(FeatureState())
+    val state: StateFlow<FeatureState> = _state.asStateFlow()
 
-fun handleIntent(intent: FeatureIntent) = viewModelScope.launch(handler) {
-    when (intent) { /* ... */ }
+    private val _effect = MutableSharedFlow<FeatureEffect>()
+    val effect: SharedFlow<FeatureEffect> = _effect.asSharedFlow()
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        viewModelScope.launch { handleError(throwable) }
+    }
+
+    fun handleIntent(intent: FeatureIntent) = viewModelScope.launch(exceptionHandler) {
+        when (intent) {
+            FeatureIntent.ScreenStarted -> onScreenStarted()
+            is FeatureIntent.ItemClicked -> onItemClicked(intent.id)
+            FeatureIntent.ConfirmClicked -> onConfirmClicked()
+        }
+    }
+
+    private suspend fun onScreenStarted() {
+        EventsProvider.SCREEN_FEATURE.postFirebaseEvent()
+        val data = getFeatureUseCase()
+        val uiItems = withContext(defaultDispatcher) { FeatureUiMapper.toUi(data) }
+        _state.update { it.copy(items = uiItems, isLoading = false) }
+    }
+
+    private suspend fun onItemClicked(id: String) {
+        // update state / call use cases
+    }
+
+    private suspend fun onConfirmClicked() {
+        _effect.emit(FeatureEffect.NavigateNext)
+    }
+
+    private fun handleError(throwable: Throwable) {
+        val errorLog = "FeatureViewModel: handleError: Failed: ${throwable.message}"
+        Log.e(TAG, errorLog)
+        throwable.recordException(errorLog)
+        _state.update { it.copy(isLoading = false) }
+    }
 }
 ```
+
+### Structure rules
+
+1. **Single launch at the edge** — `handleIntent` = `viewModelScope.launch(exceptionHandler) { when … }`
+2. **Handlers are `suspend`** — `private suspend fun onX()`; do **not** nest another `viewModelScope.launch` per intent
+3. **`exceptionHandler`** → `viewModelScope.launch { handleError(throwable) }` (not inline logging/state updates in the handler lambda)
+4. **`handleError` last** in the class — log + Crashlytics + clear loading / emit error Effect as needed
+5. **No per-method `launch(exceptionHandler)`** inside each `onX`
+
+### Logging in ViewModels
+
+- Prefer **Repository** (and domain when useful) for flow logs — not every ViewModel step
+- Do **not** log `Started` / `Success` on every intent handler
+- ViewModel: **zero or one** meaningful log when helpful; always log failures in `handleError`
+- `Log.w` for empty/guard paths when useful (e.g. confirm with no selection)
+- If the screen has **no** repo/use-case path (UI-only logic), a short ViewModel log is OK
 
 ## Fragment / Activity / Adapter rules
 

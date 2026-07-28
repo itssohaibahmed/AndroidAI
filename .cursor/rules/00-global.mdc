@@ -13,7 +13,7 @@ You are working on a production Android application.
 - MVVM + MVI (Intent / State / Effect)
 - Repository pattern
 - Multi-module architecture
-- DI via the project's existing framework (default: Koin)
+- DI via the project's existing framework (default: Koin) — **`lazyModule` only**
 - Gradle Kotlin DSL + Version Catalog (`libs.versions.toml`)
 
 ## Before writing code
