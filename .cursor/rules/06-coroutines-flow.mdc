@@ -18,14 +18,16 @@ Assume every list/file/query may contain **thousands** of items. Never do heavy 
 
 | Work | Dispatcher |
 |------|------------|
-| Disk / DB / SharedPreferences / files | `Dispatchers.IO` |
+| Disk / DB / SharedPreferences / files | `Dispatchers.IO` in **Repository** (`withContext`) |
 | Network | `Dispatchers.IO` |
 | Parsing, mapping, filtering, sorting large lists | `Dispatchers.Default` |
 | UI collect / state render only | Main (default) |
 
 Rules:
-- Inject dispatchers via DI for testability — do not hardcode in production code paths when the project already injects them
-- Wrap heavy work: `withContext(ioDispatcher) { … }` / `flowOn(defaultDispatcher)`
+- Inject dispatchers via DI in **Repository** (and ViewModel for heavy `toUi`) — not in DataSource
+- DataSource: sync SharedPreferences / thin SDK — no `withContext` on DataSource
+- Wrap repository disk/prefs work: `withContext(ioDispatcher) { dataSource.xxx }`
+- Wrap heavy mapping: `withContext(defaultDispatcher) { … }` / `flowOn(defaultDispatcher)`
 - Heavy mapping belongs in Repository / UseCase; `toUi()` in ViewModel only when needed — never in Fragment/Activity/Adapter
 - Mapping domain → UI for large lists must run off Main (`withContext(defaultDispatcher)`)
 - DiffUtil / list prep for adapters: off Main before `submitList`

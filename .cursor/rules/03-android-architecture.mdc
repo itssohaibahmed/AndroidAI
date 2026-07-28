@@ -27,8 +27,9 @@ Dependencies always point inward.
 
 ### Data
 - Repository **implementations**
-- Local/remote DataSources
+- Local/remote DataSources — **sync or thin SDK wrappers; no dispatcher injection**
 - DTO ↔ entity mapping (heavy parsing / list shaping belongs here when data-bound)
+- **IO dispatcher (`withContext`) on Repository impl** — not on DataSource
 
 ## Mapping ownership
 
@@ -66,3 +67,10 @@ Dependencies always point inward.
 - UI never accesses DataSources — only repositories via use cases
 - Repository decides local vs remote strategy
 - Do heavy data mapping (DTO → domain, large list prep) here when it is data-layer concern
+- Inject `CoroutineDispatcher` in **Repository impl**; wrap disk/prefs/network access with `withContext(ioDispatcher)`
+
+## DataSource
+
+- Thin layer: SharedPreferences properties, Room DAO calls, Retrofit service, Firebase SDK
+- **No dispatcher** on DataSource classes (e.g. `SharedPrefManager` takes `Context` only)
+- Sync prefs: get/set properties; Repository exposes `suspend` + `withContext`

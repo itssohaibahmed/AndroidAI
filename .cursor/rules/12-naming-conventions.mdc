@@ -52,7 +52,7 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 |-------|--------|
 | Repository interface | `UserRepository` |
 | Repository impl | `UserRepositoryImpl` |
-| DataSource | `UserDataSource`, `UserRemoteDataSource` |
+| DataSource | `SharedPrefManager` (sync, Context only), `UserRemoteDataSource` |
 | Entity (domain) | `User`, `GeoLocation` |
 | UI model | `UserUiItem` |
 | Mapper | `UserUiMapper.toUi(...)` — call from ViewModel; heavy data mapping in Repo/UseCase |
