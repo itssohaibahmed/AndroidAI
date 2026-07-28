@@ -23,13 +23,16 @@ Example: `fragment_home.xml`, `item_language.xml`
 |--------|--------|
 | `mb` | MaterialButton |
 | `mtv` | MaterialTextView |
+| `siv` | ShapeableImageView |
 | `mcv` | MaterialCardView |
 | `cl` | ConstraintLayout |
 | `rcv` | RecyclerView |
 | `fcv` | FragmentContainerView |
 | `bnv` | BottomNavigationView |
+| `cpi` | CircularProgressIndicator |
+| `lpi` | LinearProgressIndicator |
 
-Pattern: `{prefix}{Role}{Context}` → `mtvHeadingHome`, `mbContinueLogin`
+Pattern: `{prefix}{Role}{Context}` → `mtvHeadingHome`, `sivLogoEntrance`, `mbContinueLogin`
 
 ## Drawable naming
 
@@ -52,34 +55,105 @@ Examples: `bg_shape_rounded_primary.xml`, `bg_svg_onboarding_header.xml`, `fg_gr
 - Transitions: `res/anim/` (and `anim-ldrtl/` for RTL flips)
 - Night-specific assets: `drawable-night/`, `values-night/` — avoid duplicating full layouts for dark mode
 
+## Spacing & text sizes (no dimens.xml)
+
+- **Never create `dimens.xml`** (or other dimens resource files)
+- Use inline `dp` / `sp` in layouts and styles
+- All sizes must be **multiples of 4**: `4dp`, `8dp`, `12dp`, `16dp`, `20dp`, `24dp`, `32dp`, `40dp`, `48dp`, …
+- Text: prefer multiples of 4 (`12sp`, `14sp` only if design requires; prefer `12sp`/`16sp`/`20sp`/`24sp`/`28sp`)
+- Prefer shared `TextStyle.*` / `ButtonStyle.*` over one-off sizes when possible
+
+```xml
+<!-- ✅ GOOD -->
+android:layout_margin="16dp"
+android:padding="8dp"
+android:textSize="16sp"
+
+<!-- ❌ BAD -->
+android:layout_margin="@dimen/margin_default"
+android:padding="10dp"
+android:textSize="15sp"
+```
+
+## Resource file sections (mandatory order)
+
+In `:core-ui` `strings.xml`, `colors.xml`, and `themes.xml`, organize with **XML comment section headers**. Always order:
+
+1. **App-level** (top) — identity, Material theme tokens, base app theme
+2. **General / common** — actions, toasts, dialogs, **content descriptions**, text/button styles, semantic colors
+3. **Screen-wise** (bottom) — per feature/screen blocks
+
+```xml
+<!-- _____________________________ App ______________________________ -->
+<!-- _____________________________ Actions ______________________________ -->
+<!-- ________________________ Content Descriptions ________________________ -->
+<!-- _______________________________ Home _______________________________ -->
+```
+
+When adding a string/color/style: put it in the correct section — do not append at the file end out of order. Mirror order in `values-night/` and `values-xx/` locale files.
+
 ## Strings (single source of truth)
 
-- **All** user-facing strings live in **one** shared module file (e.g. `:core-ui` `values/strings.xml`) — not scattered across `:presentation` or feature modules
-- Keeps localization simple: translate one file (plus `values-xx/` mirrors)
+- **All** user-facing strings live in **one** shared module file (`:core-ui` `values/strings.xml`)
 - No hardcoded user-facing text in layouts or Kotlin
-- Patterns: `toast_*`, `action_*`, `{screen}_title`, `{feature}_*`
 - Non-translatable config: `translatable="false"`
 
-## Colors and themes
+### Strings section order
 
-- Material 3 DayNight theme as base
-- Semantic color names: `colorPrimary`, `colorTextTitle`, `colorTextBody`
-- Prefer theme attributes in layouts: `?attr/colorSurface`
-- Light/dark via `values` + `values-night` — avoid duplicating full layouts
+| Order | Section | Examples |
+|-------|---------|----------|
+| 1 | App | `app_name` |
+| 2 | General — Ads / Toast / Actions / Dialogs / Bottom sheets | `toast_*`, `action_*` |
+| 3 | **Content Descriptions** (dedicated) | `cd_*` |
+| 4 | Screen-wise UI | `<!-- Entrance -->`, `<!-- Home -->`, … |
+
+Naming: `app_name`; `toast_*` / `action_*`; `cd_{what}`; `{screen}_title` / `{feature}_*`
+
+### Content descriptions (mandatory section)
+
+```xml
+<!-- ________________________ Content Descriptions ________________________ -->
+<string name="cd_back">Back</string>
+<string name="cd_app_logo">App logo</string>
+```
+
+- Always set `android:contentDescription="@string/cd_…"` on `ShapeableImageView` and meaningful icons
+- Decorative only: `android:contentDescription="@null"` + `android:importantForAccessibility="no"`
+- Never hardcode contentDescription in XML/Kotlin
+
+## Colors
+
+File: `:core-ui` `values/colors.xml` (+ `values-night/colors.xml` when needed).
+
+| Order | Section | Examples |
+|-------|---------|----------|
+| 1 | App — Material 3 tokens | `md_theme_primary`, … |
+| 2 | General / common | `colorPrimary`, `colorTextBody`, … |
+| 3 | Screen / feature-wise | `premiumGradientStart`, … |
+
+- Prefer `?attr/colorSurface` in layouts
+- Light/dark via `values` + `values-night`
+
+## Themes
+
+| File | Contents |
+|------|----------|
+| `themes.xml` | App base theme + common widget styles |
+| `splash.xml` | `Theme.App.Starting` only (`23-app-startup`) |
+
+Order in `themes.xml`: App theme → TextStyle/ButtonStyle → screen-specific styles only if needed.
 
 ## Orientation (mandatory)
 
-- UI must support **both portrait and landscape**
-- Do not lock Activities to a single orientation unless explicitly required by product
-- Use ConstraintLayout / responsive constraints so layouts adapt; add `layout-land/` (or dimension/guideline tweaks) when portrait-only XML cannot adapt cleanly
-- Test critical screens in both orientations before considering a feature done
+- Support **portrait and landscape**
+- ConstraintLayout / `layout-land/` when needed
+- Do not lock orientation unless product requires it
 
 ## Layout rules
 
-- Prefer **Material** widgets whenever possible (`MaterialTextView`, `MaterialButton`, `MaterialCardView`, …) — not plain `TextView`/`Button` when a Material equivalent exists
+- Material widgets: `MaterialTextView`, `MaterialButton`, `MaterialCardView`, **`ShapeableImageView`**
+- **Always `ShapeableImageView`** — never `ImageView` / `AppCompatImageView`; IDs use `siv` prefix
 - **View Binding only** — never `findViewById`, never Data Binding
-- Keep layouts **simple and shallow** — minimize nesting to avoid overdraw / measure performance issues
-- ConstraintLayout as primary layout engine; avoid deep LinearLayout/RelativeLayout trees
-- RecyclerView: `ListAdapter` + `DiffUtil`, inflate via View Binding
-- Shared styles in core-ui — reuse over one-off attributes
-- `dp` for layout, `sp` for text
+- Shallow ConstraintLayout trees
+- RecyclerView: `ListAdapter` + `DiffUtil`
+- Inline `dp`/`sp` multiples of 4 — **no `dimens.xml`**

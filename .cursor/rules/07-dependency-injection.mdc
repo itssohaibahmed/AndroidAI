@@ -37,7 +37,8 @@ Use the DI framework already in the project. Default stack: **Koin**.
 - Declare modules with project's standard pattern (e.g. `lazyModule { }`)
 - **Every new module must be registered** in the composition root list
 - Bind interfaces to implementations: `single<XRepository> { XRepositoryImpl(get()) }`
-- Use named qualifiers for parallel instances: `named("banner_home")`
+- Dispatchers: `single { Dispatchers.IO }` and `single { Dispatchers.Default }` — **no** `named("io")` / `named("default")`; repos often use `ioDispatcher: CoroutineDispatcher = Dispatchers.IO`
+- Use named qualifiers only for true parallel instances (e.g. multiple ad placements): `named("banner_home")`
 - Presentation injects use cases and repository **interfaces** — never impl classes from `:data`
 
 ## ViewModel DI example

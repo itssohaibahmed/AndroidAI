@@ -1,5 +1,5 @@
 ---
-description: Firebase, Analytics events, Remote Config, connectivity
+description: Firebase, Analytics events, Remote Config cache, connectivity
 globs: ["**/firebase/**", "**/remoteConfig/**", "**/network/**", "**/core/platform/**", "**/core/common/**"]
 alwaysApply: false
 ---
@@ -8,33 +8,50 @@ alwaysApply: false
 
 | Concern | Module |
 |---------|--------|
-| Connectivity helper (`InternetManager`) | `:core-platform` |
-| Firebase Analytics / Crashlytics wrappers | `:core-platform` |
+| `InternetManager` | `:core-platform` |
+| `PlatformFirebase` object | `:core-platform` |
 | Event name constants (`EventsProvider`) | `:core-common` |
-| Remote Config DataSource + Repository impl | `:data` |
-| Remote Config repository interface | `:domain` |
+| Remote Config DataSource | `:data` |
+| RC cache in `SharedPrefManager` | `:data` |
+| `RemoteConfigRepository` / `SharedPrefRepository` | domain interface + data impl |
+
+## PlatformFirebase
+
+```kotlin
+object PlatformFirebase {
+    fun Throwable.recordException(log: String)
+    fun String.postFirebaseEvent()
+    fun getDeviceToken()
+}
+```
+
+- **`object` — no Context** field/constructor
+- Logs: `TAG_FIREBASE` / `TAG` per `16-logging`
+- Do not call Firebase SDKs from Fragments when this wrapper exists
 
 ## Analytics events
 
-- Define screen/event keys in one place (`EventsProvider` or equivalent) in `:core-common`
-- Log screen views via that API — do not scatter raw event string literals
-- Use `Constants.TAG_FIREBASE` for related logs
+- Keys in `EventsProvider` (`:core-common`)
+- `EventsProvider.HOME_SCREEN.postFirebaseEvent()` — no raw event string literals in UI
 
-## Remote Config
+## Remote Config + SharedPreferences cache
 
-- Fetch/activate in data layer; expose typed getters via repository/use case
-- Prefer typed domain accessors over reading raw RC keys in Fragments
-- Use `Constants.TAG_REMOTE_CONFIG` for fetch/activate logs
-- Drive feature flags (ads, paywall, experiments) from RC when the project uses it
-- Do not block first frame indefinitely on RC — follow existing startup timing
+1. `RemoteConfigDataSource`: Firebase RC only; **`minimumFetchIntervalInSeconds(0)`**; fetch/activate + live listener; typed getters
+2. `RemoteConfigRepositoryImpl` (IO dispatcher): fetch → **`saveValues()` into `SharedPrefManager`** → register listener to re-cache
+3. Runtime feature flags: read from **prefs cache** (`SharedPrefRepository` / `SharedPrefManager`), not from Fragments talking to RC SDK
+4. Offline / failed fetch: keep last cached prefs values
+5. Logs: `TAG_REMOTE_CONFIG`
+
+DataSource: **no** dispatcher. Repository: `withContext(ioDispatcher)`.
 
 ## Connectivity
 
-- Check network via shared `InternetManager` (or equivalent) before remote calls when UI must show offline state
-- Map offline to typed error / Effect — not toast-only from random catch blocks
+- Check `InternetManager` before RC/network when UI must show offline state
+- Map offline to typed error / Effect
 
 ## Forbidden
 
-- Firebase / RC SDK calls directly from feature Fragments when wrappers/repos exist
-- Inventing parallel event-name constants outside the shared provider
-- Logging PII in Analytics or RC debug logs
+- `PlatformFirebase` holding `Context`
+- RC SDK calls from feature Fragments
+- Parallel event-name constants outside `EventsProvider`
+- Logging PII in Analytics / RC logs

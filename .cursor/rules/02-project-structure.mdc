@@ -1,6 +1,6 @@
 ---
 description: Multi-module project structure and package layout
-globs: ["settings.gradle.kts", "**/build.gradle.kts"]
+globs: ["settings.gradle.kts", "**/build.gradle.kts", "**/.gitignore"]
 alwaysApply: false
 ---
 
@@ -8,7 +8,7 @@ alwaysApply: false
 
 | Module | Responsibility |
 |--------|----------------|
-| `:app` | Application class, DI aggregation, manifest, composition root only |
+| `:app` | Application class, DI aggregation, manifest, composition root only — **no `res/values/`** (themes/strings/colors in `:core-ui`) |
 | `:domain` | Entities, repository interfaces, use cases — no Android UI |
 | `:data` | Repository implementations, DataSources, platform I/O |
 | `:presentation` | Screens, ViewModels, navigation, feature MVI packages |
@@ -72,6 +72,29 @@ presentation → domain ← data
 core modules (shared utilities)
 ```
 
+## Module `.gitignore` (mandatory)
+
+Every Gradle module must include its own `.gitignore` (in addition to the root `.gitignore`).
+
+| Module type | Typical contents |
+|-------------|------------------|
+| Library (`:domain`, `:data`, `:presentation`, `:core-*`, `:feature-*`, ads) | `/build` |
+| Application (`:app`) | `/build` and `/release` |
+
+```gitignore
+/build
+```
+
+```gitignore
+# :app
+/build
+/release
+```
+
+- Add `.gitignore` whenever creating a new module
+- Root `.gitignore` still covers `local.properties`, `.gradle`, IDE files, etc.
+- Never commit module `/build` or `:app` `/release` outputs
+
 ## Forbidden
 
 - `presentation` → `data`
@@ -79,3 +102,4 @@ core modules (shared utilities)
 - `core-common` → Android UI / DI frameworks
 - Circular module dependencies
 - Feature-specific strings outside the shared `:core-ui` strings file
+- Modules without a local `.gitignore`

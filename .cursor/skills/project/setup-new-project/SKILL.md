@@ -1,34 +1,32 @@
 ---
 name: setup-new-project
-description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, and mandatory EntranceFragment as start destination. Use when starting a new project, converting a single-module app, or scaffolding the standard architecture.
+description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, and Remote Config → SharedPreferences cache. Use when starting a new project or converting a single-module app.
 ---
 
 # Setup New Project
 
-Follow `.cursor/rules/` — especially `00-global`, `02-project-structure`, `07`, `08`, `17`, `19`, `23`.
+Follow `.cursor/rules/` — especially `00-global`, `02`, `07`, `08`, `09`, `17`, `19`, `22`, `23`.
 
 ## Preconditions (ask if missing)
 
 1. `applicationId` / root package (e.g. `com.company.app`)
 2. App display name
-3. Optional extras: ads (`:gmaAds`), Firebase — **do not add without approval**
+3. Optional: Firebase / ads — **do not add SDKs without approval**; still scaffold stubs/interfaces as below when Firebase is approved
 
 ## Module set (mandatory)
 
 | Module | Required | Role |
 |--------|----------|------|
-| `:app` | Must | `App`, manifest, DI aggregation (`KoinModules`) |
+| `:app` | Must | `App`, manifest, DI aggregation only — **no `res/values/`** |
 | `:domain` | Must | Entities, repository interfaces, use cases |
-| `:data` | Must | Repository impls, DataSources |
-| `:presentation` | Must | Screens, MVI, **nav graphs**, MainActivity host UI |
-| `:core-common` | Required | `Constants` (TAGs), pure Kotlin shared types |
-| `:core-ui` | Required | Themes, strings, Parent*, extensions, drawables |
-| `:core-platform` | Required | InternetManager stub, dispatchers DI, platform helpers |
-
-Optional later: `:feature-*`, `:gmaAds`.
+| `:data` | Must | Repository impls, DataSources, SharedPref + RC cache |
+| `:presentation` | Must | Screens, MVI, nav graphs, MainActivity host UI |
+| `:core-common` | Required | `Constants` (TAGs), `EventsProvider` |
+| `:core-ui` | Required | **All** themes/strings/colors/splash, Parent*, extensions |
+| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI |
 
 ```
-app (Composition Root)
+app (Composition Root) — no values resources
  |
  ↓
 presentation → domain ← data
@@ -40,22 +38,17 @@ core-common / core-ui / core-platform
 ## Step 1 — Gradle
 
 1. `settings.gradle.kts` — `include` all modules above
-2. Root `build.gradle.kts` — plugins `apply false` via catalog
-3. `libs.versions.toml` — add if missing: AndroidX Core/AppCompat/Material/ConstraintLayout, Fragment KTX, Lifecycle, Navigation (+ Safe Args), Koin, Coroutines, SplashScreen
-4. Each library module: `alias(libs.plugins.android.library)`, `namespace = "<applicationId>.<layer>"`, minSdk 24, Java 17, View Binding on UI modules
-5. Dependency graph:
-   - `app` → presentation, data, domain, core-*
-   - `presentation` → domain, core-* (**never** `:data`)
-   - `data` → domain, core-* (prefer not `:core-ui`)
-   - `domain` → coroutines-core only (+ optional pure feature libs)
-   - `core-common` → no Android UI / Koin
-6. Enable Navigation Safe Args on `:presentation`
-7. Move launcher theme / strings into `:core-ui` (single `strings.xml`)
+2. Root plugins `apply false` via catalog; **latest stable** versions
+3. Catalog sections/naming per `08-gradle.mdc`
+4. Dependency graph: `presentation` **never** → `:data`; `domain` → coroutines only
+5. View Binding on UI modules; Safe Args on `:presentation`
+6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
+7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
+8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
 
 ## Step 2 — Application + DI
 
 ```kotlin
-// :app App.kt — DI only
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
@@ -67,117 +60,180 @@ class App : Application() {
 }
 ```
 
-- `KoinModules.getKoinModules()` aggregates: `appModule`, `coreModule`, `corePlatformModule`, `data` modules, `entrancePresentationModule`, …
-- Manifest: `android:name=".App"`, `supportsRtl="true"`, splash theme on launcher if using SplashScreen API
-- Prefer portrait **and** landscape — do not lock orientation
+- Aggregate: `appModule`, `coreModule`, `corePlatformModule`, `sharedPrefModule`, `remoteConfigModule`, `entrancePresentationModule`, …
+- Manifest: `android:name=".App"`, `android:theme="@style/Theme.App.Starting"`, `supportsRtl="true"`
+- Portrait **and** landscape — do not lock orientation
 
-## Step 3 — MainActivity + host layout
+## Step 3 — MainActivity + host
 
-- Prefer `MainActivity` in `:presentation` (FQN in `:app` manifest) or thin Activity in `:app` hosting presentation graph — match project convention once chosen
-- Layout `activity_main.xml`:
-
-```xml
-<androidx.fragment.app.FragmentContainerView
-    android:id="@+id/fcvContainerMain"
-    android:name="androidx.navigation.fragment.NavHostFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:defaultNavHost="true"
-    app:navGraph="@navigation/nav_graph" />
-```
-
-- View Binding only; Material / ConstraintLayout; works in portrait + landscape
+- `MainActivity` extends `ParentActivity` in `:presentation`
+- `activity_main.xml` with `fcvContainerMain` + `NavHostFragment` + `@navigation/nav_graph`
+- Call `installSplashTheme()` in `onPreCreated()` when using splash
 
 ## Step 4 — Navigation (mandatory Entrance)
 
-Create `presentation/.../res/navigation/nav_graph.xml`:
+`nav_graph.xml` **must** use:
 
 ```xml
-<navigation
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/entranceFragment">
-
-    <fragment
-        android:id="@+id/entranceFragment"
-        android:name="<applicationId>.presentation.entrance.ui.EntranceFragment"
-        android:label="fragment_entrance"
-        tools:layout="@layout/fragment_entrance" />
-</navigation>
+app:startDestination="@id/entranceFragment"
 ```
 
-**Rules (every new project):**
-
-- Start destination **must** be `entranceFragment`
-- Class name **must** be `EntranceFragment`
-- Feature folder: `presentation/entrance/`
+- Class: `EntranceFragment` under `presentation/entrance/ui/`
 - Layout: `fragment_entrance.xml`
-- Do not use Home/Splash/Main as start destination — Entrance routes onward via Effects
+- No Home/Splash/Main as start destination
 
-## Step 5 — Entrance feature (minimal MVI)
+## Step 5 — Entrance MVI
 
-Use `feature/create-mvi` patterns under `presentation/entrance/`:
+Scaffold `presentation/entrance/{di,intent,state,effect,viewModel,ui}` via create-mvi patterns.
 
-```
-entrance/
-  di/EntrancePresentationModule.kt
-  intent/EntranceIntent.kt
-  state/EntranceState.kt
-  effect/EntranceEffect.kt
-  viewModel/EntranceViewModel.kt
-  ui/EntranceFragment.kt
-```
-
-- Extend `ParentFragment` / `BaseFragment` when bases exist; otherwise create thin `ParentFragment` in `:core-ui` first
-- Collect state/effects with lifecycle-aware collectors
-- Typical Effects later: navigate to language / onboarding / dashboard — leave actions empty until those screens exist
+- `EntranceFragment` extends `ParentFragment` (then `BaseFragment` when that layer exists)
 - Register `entrancePresentationModule` in `KoinModules`
-- Strings in `:core-ui` only
+- Strings only in `:core-ui`
 
-## Step 6 — Core stubs (required)
+## Step 6 — `:core-ui` Parent* bases (required)
 
-### `:core-common`
+Mirror reference hierarchy; improve Dialog/Sheet slightly for safety.
+
+```
+core/ui/base/
+  activity/ParentActivity.kt
+  fragment/ParentFragment.kt
+  dialog/ParentDialogDismissal.kt + ParentDialog.kt
+  sheet/ParentSheetDismissal.kt + ParentSheet.kt
+```
+
+### ParentFragment
+- Generic `ViewBinding` + `bindingFactory`
+- Clear `_binding` in `onDestroyView`
+- Hooks: `initObservers()`, `onViewCreated()`, abstract `onViewCreated()`
+
+### ParentActivity
+- Generic `ViewBinding` + edge-to-edge + window insets padding flags
+- `installSplashTheme()` → `installSplashScreen()`
+- Abstract `onCreated()`; optional `onPreCreated()` / `initObservers()`
+
+### ParentDialog (+ Dismissal)
+- `ParentDialogDismissal` : `DialogFragment` with `onDismissCallback` + `safeShow` / `safeDismiss` helpers
+- `ParentDialog` : ViewBinding via `MaterialAlertDialogBuilder.setView(binding.root)`
+- Null-safe binding; clear in `onDestroyView`
+- Improvements vs fragile patterns: never access binding after destroy; use `dismissAllowingStateLoss` only via `safeDismiss`
+
+### ParentSheet (+ Dismissal)
+- `ParentSheetDismissal` : `BottomSheetDialogFragment` with `dismissCallback` + `safeShow` / `safeDismiss`
+- `ParentSheet` : inflate with `bindingFactory`, null-safe `_binding` (same as Fragment — **not** `!!`), `onSheetCreated()`, `initObservers()`
+- Improvements: remove unused dialog imports; optional `skipCollapsed` / expanded state in `onStart` when product needs it; keep Binding lifecycle identical to Fragment
+
+Also add: lifecycle Flow extensions (`collectWhenStarted` / `collectWhenCreated`), `themes.xml`, **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
+
+## Step 7 — `:core-platform`
+
+### Dispatchers (no named qualifiers)
+
 ```kotlin
-object Constants {
-    const val TAG = "TAG_App"
-    const val TAG_ADS = "TAG_ADS"
-    const val TAG_FIREBASE = "TAG_FIREBASE"
-    const val TAG_REMOTE_CONFIG = "TAG_REMOTE_CONFIG"
+val corePlatformModule = lazyModule {
+    single { Dispatchers.IO }
+    single { Dispatchers.Default }
+    single { InternetManager(androidContext()) }
 }
 ```
 
-### `:core-ui`
-- Material3 DayNight theme
-- Empty/minimal `ParentFragment` + `ParentActivity` with ViewBinding lifecycle
-- `strings.xml` (app_name + entrance placeholders)
-- Lifecycle Flow collection extensions (`collectWhenStarted` / `collectWhenCreated`)
+Repository injects by type:
 
-### `:core-platform`
-- DI module providing `Dispatchers.IO` / `Dispatchers.Default` (named if project uses named dispatchers)
-- Optional `InternetManager` stub
+```kotlin
+class XRepositoryImpl(
+    private val dataSource: XDataSource,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+)
+```
 
-### `:data` / `:domain`
-- Empty packages + `DataModule` / placeholder ready for `SharedPrefManager` later
-- No fake business logic
+Koin resolves `Dispatchers.IO` / `Dispatchers.Default` as distinct `CoroutineDispatcher` instances — **do not** use `named("io")` / `named("default")`.
 
-## Step 7 — Verify
+> If both are type `CoroutineDispatcher`, prefer constructor defaults `= Dispatchers.IO` in repos (reference style) **or** inject only IO via DI and use `Dispatchers.Default` explicitly for CPU work. Do **not** introduce named qualifiers.
 
-- [ ] `settings.gradle.kts` includes app, domain, data, presentation, core-common, core-ui, core-platform
-- [ ] `presentation` does not depend on `:data`
-- [ ] `nav_graph` `startDestination` = `@id/entranceFragment`
-- [ ] `EntranceFragment` + `fragment_entrance.xml` exist
-- [ ] MainActivity hosts `fcvContainerMain` + `nav_graph`
-- [ ] App starts Koin; `entrancePresentationModule` registered
-- [ ] Strings/themes in `:core-ui`
-- [ ] Project builds (`assembleDebug`)
-- [ ] Portrait + landscape OK on entrance
+### PlatformFirebase — `object`, no Context
+
+```kotlin
+object PlatformFirebase {
+
+    fun Throwable.recordException(log: String) { /* Crashlytics + Log */ }
+
+    fun String.postFirebaseEvent() { /* Analytics bundle + TAG_FIREBASE log */ }
+
+    fun getDeviceToken() { /* FirebaseInstallations token log */ }
+}
+```
+
+- **No** `Context` constructor / property on the object
+- Live in `:core-platform` `firebase/PlatformFirebase.kt`
+- Event name constants in `:core-common` `EventsProvider`
+- Ads revenue logging (if needed later): keep out of this object or pass primitives only — do not bake Context into `PlatformFirebase`
+
+### InternetManager
+- Connectivity check used by RC / network repos
+
+## Step 8 — SharedPreferences + Remote Config cache
+
+### SharedPref (`data/sharedPreferences/`)
+
+- `SharedPrefManager(context)` — **sync only, no dispatcher** (see `data/shared-preferences` skill)
+- Domain `SharedPrefRepository` + `SharedPrefRepositoryImpl` with `withContext(ioDispatcher)`
+- Include RC cache properties (ints/bools/strings) written by RC repository
+
+### Remote Config (cache-to-prefs architecture)
+
+```
+domain: RemoteConfigRepository { suspend fun fetchAndCache(): Boolean }
+data:
+  remoteConfig/dataSource/RemoteConfigDataSource.kt   # Firebase RC only
+  remoteConfig/repository/RemoteConfigRepositoryImpl.kt
+```
+
+**RemoteConfigDataSource** (no dispatcher):
+- `minimumFetchIntervalInSeconds(0)` always
+- `fetchAndActivate()`, live update listener, typed `getInt` / `getBoolean` / `getString`
+- Mutex around fetch; log with `TAG_REMOTE_CONFIG`
+
+**RemoteConfigRepositoryImpl** (dispatcher here):
+1. Check `InternetManager`
+2. `remoteDataSource.fetchAndActivate()`
+3. **`saveValues()`** — copy every needed RC key into `SharedPrefManager` properties (cache)
+4. Register live listener → `saveValues()` again on update
+5. If fetch fails, prefs still hold last cache — app reads cache via `SharedPrefRepository`
+
+**Read path for features:** Prefer **cached prefs** (`SharedPrefRepository` / managers) for flags used at runtime — not live RC SDK in UI.
+
+**DI:**
+```kotlin
+single { RemoteConfigDataSource() }
+single { SharedPrefManager(androidContext()) }
+single<SharedPrefRepository> { SharedPrefRepositoryImpl(get()) }
+single<RemoteConfigRepository> { RemoteConfigRepositoryImpl(get(), get(), get()) }
+```
+
+Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow (non-blocking UX).
+
+## Step 9 — Verify
+
+- [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
+- [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
+- [ ] Modules: app, domain, data, presentation, core-common, core-ui, core-platform
+- [ ] `nav_graph` startDestination = `entranceFragment`
+- [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
+- [ ] `PlatformFirebase` is `object` without Context
+- [ ] Dispatchers registered **without** `named("io")` / `named("default")`
+- [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager`
+- [ ] `presentation` ↛ `:data`
+- [ ] `assembleDebug` succeeds; portrait + landscape OK
 
 ## Do not
 
-- Start with Compose / Data Binding / Hilt
-- Put start destination on any screen other than Entrance
-- Add Room / Retrofit / Ads / Firebase unless approved
-- Hardcode secrets or lock `screenOrientation` unless product requires it
+- Compose / Data Binding / Hilt
+- App-level `values` resources
+- Named dispatcher qualifiers
+- `PlatformFirebase` holding Context
+- Reading RC only from SDK in Fragments (use prefs cache)
+- Hardcode secrets / lock orientation unless product requires
 
 ## After setup
 
-Next features: language / onboarding / home via `feature/create-mvi` + wire actions from Entrance Effects in `nav_graph.xml`.
+Next: language / onboarding / home via `create-mvi`; wire Entrance Effects in `nav_graph.xml`.

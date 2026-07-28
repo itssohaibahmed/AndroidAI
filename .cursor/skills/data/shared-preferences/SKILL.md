@@ -28,8 +28,7 @@ domain/repository/<area>/SharedPrefRepository.kt   # suspend API
 ```kotlin
 class SharedPrefManager(context: Context) {
 
-    private val sharedPreferences =
-        context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+    private val sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
 
     var isFeatureEnabled: Boolean
         get() = sharedPreferences.getBoolean(KEY_FEATURE, false)
@@ -72,7 +71,7 @@ Prefer injecting `ioDispatcher` from DI when project provides dispatchers in `co
 ```kotlin
 single { SharedPrefManager(androidContext()) }
 single<SharedPrefRepository> { SharedPrefRepositoryImpl(get()) }
-// or SharedPrefRepositoryImpl(get(), get(named("io")))
+// SharedPrefRepositoryImpl(dataSource, ioDispatcher = Dispatchers.IO) — default param; no named()
 ```
 
 Register in `data/di/DataModule.kt` (or split module val).

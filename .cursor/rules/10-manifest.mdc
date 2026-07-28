@@ -49,8 +49,10 @@ alwaysApply: false
 
 ## Themes
 
-- Splash theme on launcher Activity (SplashScreen API); post-splash Material3 DayNight theme
-- Themes defined in shared UI module
+- Splash: create `:core-ui` `res/values/splash.xml` with `Theme.App.Starting` (`Theme.SplashScreen`)
+- Apply `@style/Theme.App.Starting` on Application / launcher Activity
+- `postSplashScreenTheme` → main Material3 DayNight theme (defined in `themes.xml`)
+- See `23-app-startup` for full splash wiring
 
 ## Startup providers
 

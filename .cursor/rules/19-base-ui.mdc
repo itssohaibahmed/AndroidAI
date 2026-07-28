@@ -4,40 +4,53 @@ globs: ["**/ui/**/*.kt", "**/base/**/*.kt", "**/presentation/**/*.kt", "**/core/
 alwaysApply: false
 ---
 
-## Base hierarchy (create in `:core-ui` / `:presentation` when scaffolding)
+## Base hierarchy (`:core-ui`)
 
 ```
-ParentFragment / ParentActivity   ← ViewBinding inflate + clear on destroy
-  └── BasePermissionFragment      ← runtime permission / GPS helpers (presentation)
-        └── BaseFragment          ← shared injects (prefs, ads, billing) if project needs them
-              └── Feature Fragment
+ParentActivity / ParentFragment     ← ViewBinding + lifecycle hooks
+ParentDialogDismissal → ParentDialog
+ParentSheetDismissal  → ParentSheet   ← BottomSheetDialogFragment
+
+presentation (optional layers):
+  BasePermissionFragment → BaseFragment → Feature Fragment
 ```
 
-Also provide when needed: `ParentDialog`, `ParentBottomSheet` (and dismissal variants) in `:core-ui`.
+### ParentFragment
+- `bindingFactory: (LayoutInflater) -> T`
+- Clear `_binding` in `onDestroyView`; throw if accessed outside view lifecycle
+- `initObservers()`, `onViewCreated(Bundle?)`, abstract `onViewCreated()`
 
-Rules:
-- Feature screens **extend** the project's existing base — do not reinvent ViewBinding lifecycle
-- Binding is only valid between `onCreateView`/`onViewCreated` and `onDestroyView` — never cache Binding in a ViewModel
-- Prefer constructor/`bindingFactory` pattern from Parent* over manual inflate in every screen
+### ParentActivity
+- Edge-to-edge + insets padding flags (`includeTopPadding` / `includeBottomPadding` / `enableKeyboardInsets`)
+- `installSplashTheme()` → SplashScreen API
+- Abstract `onCreated()`; `onPreCreated()` before `super.onCreate`
 
-## Flow collection (core-ui extensions)
+### ParentDialog
+- Dismissal base: `onDismissCallback` + `safeShow` / `safeDismiss`
+- Dialog: `MaterialAlertDialogBuilder` + ViewBinding; null-safe binding; clear on destroy
 
-## Flow collection (core-ui extensions)
+### ParentSheet
+- Dismissal base: `BottomSheetDialogFragment` + `dismissCallback` + `safeShow` / `safeDismiss`
+- Sheet: ViewBinding via factory; **null-safe** `_binding` (same as Fragment — never `!!`)
+- `onSheetCreated()`, optional `initObservers()`
+- Prefer expanded/skip-collapsed helpers in `onStart` when needed — keep Binding lifecycle strict
 
-- UI State: Collect `StateFlow` using `repeatOnLifecycle(Lifecycle.State.STARTED)` (or a shared `collectWhenStarted` extension) to ensure collection only happens while the UI is visible.
-- UI Effects/Events: Collect one-time events using `repeatOnLifecycle(Lifecycle.State.STARTED)` as well. Use `SharedFlow`/event patterns with proper replay or buffering configuration when events must not be lost.
-- Keep lifecycle-aware Flow collection extensions inside `:core-ui` and reuse them across modules instead of duplicating `lifecycleScope.launch { repeatOnLifecycle { collect } }` blocks.
+## Flow collection (`:core-ui` extensions)
+
+- State: `collectWhenStarted` / `repeatOnLifecycle(STARTED)`
+- Effects: `collectWhenCreated` (or STARTED with SharedFlow that must not drop — follow project helper)
+- Reuse extensions — do not copy-paste collectors
 
 ## Feature Fragment responsibilities
 
 - `initObservers()` / collect state + effects
 - Dispatch Intents only — no business logic
-- Call permission helpers via Effects from ViewModel when needed
-- Navigate with NavController only in UI layer
+- Permissions via Effects → base helpers
+- Navigate only in UI layer
 
 ## Forbidden
 
-- Holding View / Binding / Fragment references in ViewModel
+- Holding View / Binding / Fragment in ViewModel
 - `findViewById` / Data Binding
-- Inflating layouts in ViewModel
-- Skipping Parent* and managing Binding lifecycle ad hoc in every screen
+- Skipping Parent* for ad-hoc Binding lifecycle
+- Accessing dialog/sheet binding after `onDestroyView`
