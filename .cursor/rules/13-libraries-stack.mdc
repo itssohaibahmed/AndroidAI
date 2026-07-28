@@ -45,7 +45,8 @@ Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing / Hyp
 
 ## Adding any library
 
-1. Add version to `[versions]` in catalog
-2. Add library alias to `[libraries]`
-3. Use `implementation(libs.alias)` in module script
-4. Get human approval before merging
+1. Resolve the **latest stable** version (do not reuse outdated versions from other projects)
+2. Add version to `[versions]` in catalog (correct section header)
+3. Add library alias to `[libraries]` (kebab-case, matching section)
+4. Use `implementation(libs.alias)` in the matching module `dependencies` section
+5. Get human approval before merging (new libraries still need approval — version must still be latest stable)

@@ -1,5 +1,5 @@
 ---
-description: Gradle, build config, and dependency management
+description: Gradle, build config, catalog sections/naming, and dependency management
 globs: ["**/*.gradle.kts", "**/libs.versions.toml", "**/gradle.properties"]
 alwaysApply: false
 ---
@@ -7,13 +7,108 @@ alwaysApply: false
 ## Structure
 
 - Root `build.gradle.kts`: plugins with `apply false` only — no dependencies
-- Module scripts: Android plugin, namespace, SDK config, dependencies
+- Module scripts: plugins → `android { }` → `dependencies { }`
 - `settings.gradle.kts`: `FAIL_ON_PROJECT_REPOS`, filtered repositories
 
-## Version catalog (mandatory)
+## Module `build.gradle.kts` order
 
-- All versions in `gradle/libs.versions.toml`
-- Reference as `libs.library.name` and `libs.plugins.name`
+1. `plugins { }` — catalog aliases only
+2. `android { }` — namespace, compileSdk, defaultConfig, buildTypes, compileOptions, buildFeatures, …
+3. `dependencies { }` — **project modules first**, then libraries by section
+
+## Dependencies block — sections (mandatory)
+
+Group with **comment headers**. Prefer this order (omit empty sections):
+
+```kotlin
+dependencies {
+    // Project modules (or list without a header if few)
+    implementation(project(":core-common"))
+    implementation(project(":core-ui"))
+    implementation(project(":domain"))
+
+    // Android Core
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+
+    // Splash Screen Api
+    // Lifecycle
+    // Fragment Ktx
+    // Navigational Components
+    // Google
+    // Google Play Services, Maps & Location
+    // Firebase
+    // Dependency Injection -> Koin
+    // Kotlin Coroutines
+    // CameraView / Glide / Lottie / Shimmer (feature libs)
+    // Testing
+    // Core library desugaring (java.time APIs support on older APIs)
+}
+```
+
+Rules:
+- One blank line between section groups when helpful
+- Keep related libs together under the matching header
+- Comment out unused deps with `#` / `//` — do not leave orphan versions without a section
+
+## Version catalog (`libs.versions.toml`)
+
+### File sections
+
+Keep **three** TOML tables. Inside `[versions]` and `[libraries]`, use the **same comment section headers** as module scripts:
+
+```toml
+[versions]
+# -------------- Plugins -------------- #
+agp = "…"
+kotlin = "…"
+
+# -------------- Dependencies -------------- #
+coreKtx = "…"
+# Splash Screen Api
+# Fragment Ktx
+# Navigational Components
+# Lifecycle
+# Google
+# Firebase
+# Location & Coroutine (for await) calls
+# Kotlin Coroutines
+# Dependency Injection -> Koin
+# Testing
+# …
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+# …
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+
+# Splash Screen Api
+androidx-core-splashscreen = { … }
+
+# Dependency Injection -> Koin
+koin-android = { … }
+# …
+```
+
+### Catalog naming
+
+| Kind | Convention | Example |
+|------|------------|---------|
+| Version keys | camelCase | `coreKtx`, `koinAndroid`, `playServicesLocation` |
+| Library aliases | kebab-case | `androidx-core-ktx`, `koin-android`, `play-services-location` |
+| Plugin aliases | kebab-case | `android-application`, `navigation-safe-args` |
+| Gradle accessor | dots from kebab | `libs.androidx.core.ktx`, `libs.koin.android` |
+
+Rules:
+- Alias name mirrors artifact intent (`androidx-fragment-ktx`, not `fragment`)
+- Prefer `group` + `name` + `version.ref`; `module = "g:a"` only when matching existing style for that lib
+- Plugins and libraries that share a version family share one version key (e.g. one `lifecycle` for viewmodel/runtime/process)
 - **Never** hardcode `"group:artifact:version"` in module scripts
 
 ```kotlin
@@ -24,10 +119,19 @@ implementation(libs.androidx.core.ktx)
 implementation("androidx.core:core-ktx:1.12.0")
 ```
 
+### Always use latest stable versions
+
+- When **adding** or **updating** any dependency/plugin, use the **latest stable** release available at that time
+- Look up current versions (Maven Central / Google Maven / library docs) — do not copy stale versions from memory or old projects
+- Prefer stable over alpha/beta/rc unless the user explicitly asks for a pre-release
+- Keep AGP, Kotlin, and related plugins compatible with each other when bumping
+- Update the version in `[versions]` only — all aliases using `version.ref` pick it up
+- When scaffolding a new project (`setup-new-project`), seed the catalog with latest stable for the whole core stack
+
 ## SDK defaults (adjust only on project-wide request)
 
 - minSdk = 24
-- targetSdk / compileSdk = latest stable project uses
+- targetSdk / compileSdk = latest stable the project adopts
 - Java 17 compatibility (`compileOptions`)
 - Kotlin official code style
 
@@ -39,6 +143,7 @@ implementation("androidx.core:core-ktx:1.12.0")
 | `api` | Rare — only when types must leak to consumers |
 | `testImplementation` | Unit tests |
 | `androidTestImplementation` | Instrumentation tests |
+| `coreLibraryDesugaring` | `desugar_jdk_libs` when using `java.time` |
 
 ## Module rules
 
