@@ -1,0 +1,29 @@
+# Parent* / Base* templates
+
+Copy into the new app and replace `YOUR.PACKAGE` with the real applicationId root.
+
+| File | Target module | Target package |
+|------|---------------|----------------|
+| `ParentActivity.kt` | `:core-ui` | `…core.ui.base.activity` |
+| `ParentFragment.kt` | `:core-ui` | `…core.ui.base.fragment` |
+| `ParentDialogDismissal.kt` + `ParentDialog.kt` | `:core-ui` | `…core.ui.base.dialog` |
+| `ParentSheetDismissal.kt` + `ParentSheet.kt` | `:core-ui` | `…core.ui.base.sheet` |
+| `FlowCollectionExtensions.kt` | `:core-ui` | `…core.ui.extensions` |
+| `BaseActivity.kt` | `:presentation` | `…presentation.base.activity` |
+| `BaseFragment.kt` | `:presentation` | `…presentation.base.fragment` |
+| `BasePermissionFragment.kt` | `:presentation` | `…presentation.base.fragment` |
+| `BaseDialog.kt` / `BaseSheet.kt` | `:presentation` | `…presentation.base.sheets` |
+
+Hierarchy (same as Qibla reference):
+
+```
+core-ui:    ParentActivity / ParentFragment / ParentDialog* / ParentSheet*
+presentation: BasePermissionFragment → BaseFragment → Feature
+              BaseActivity / BaseDialog / BaseSheet
+```
+
+Notes:
+- `ParentSheet` uses **null-safe** binding (improved vs Qibla `!!`)
+- `BaseFragment` is intentionally thin — add ads/billing injects only when the product needs them
+- Permission dialog copy must move to `:core-ui` `strings.xml` (`cd_*` / screen strings) before release
+- Logging uses `Constants.TAG` — wire package to `:core-common`

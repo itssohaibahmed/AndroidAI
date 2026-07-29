@@ -4,16 +4,22 @@ globs: ["**/ui/**/*.kt", "**/base/**/*.kt", "**/presentation/**/*.kt", "**/core/
 alwaysApply: false
 ---
 
-## Base hierarchy (`:core-ui`)
+## Base hierarchy
 
 ```
-ParentActivity / ParentFragment     ← ViewBinding + lifecycle hooks
-ParentDialogDismissal → ParentDialog
-ParentSheetDismissal  → ParentSheet   ← BottomSheetDialogFragment
+:core-ui
+  ParentActivity / ParentFragment     ← ViewBinding + lifecycle hooks
+  ParentDialogDismissal → ParentDialog
+  ParentSheetDismissal  → ParentSheet   ← BottomSheetDialogFragment
 
-presentation (optional layers):
+:presentation (optional product layer)
   BasePermissionFragment → BaseFragment → Feature Fragment
+  BaseActivity / BaseDialog / BaseSheet
 ```
+
+**Templates (copy + replace `YOUR.PACKAGE`):**  
+`.cursor/skills/project/setup-new-project/templates/base/`  
+See that folder’s `README.md`. Same shape as Qibla; `ParentSheet` is null-safe (not `!!`).
 
 ### ParentFragment
 - `bindingFactory: (LayoutInflater) -> T`
@@ -35,14 +41,21 @@ presentation (optional layers):
 - `onSheetCreated()`, optional `initObservers()`
 - Prefer expanded/skip-collapsed helpers in `onStart` when needed — keep Binding lifecycle strict
 
+### Base* (presentation)
+- Thin wrappers over Parent* for shared product helpers
+- Put ads/billing injects on `BaseFragment` / `BaseActivity` only when the app has those modules — keep Parent* free of ads
+- Permission helpers live on `BasePermissionFragment`; dialog copy must use `:core-ui` strings before release
+
 ## Flow collection (`:core-ui` extensions)
 
+- Template: `templates/base/FlowCollectionExtensions.kt`
 - State: `collectWhenStarted` / `repeatOnLifecycle(STARTED)`
 - Effects: `collectWhenCreated` (or STARTED with SharedFlow that must not drop — follow project helper)
 - Reuse extensions — do not copy-paste collectors
 
 ## Feature Fragment responsibilities
 
+- Extend `BaseFragment` (or `ParentFragment` if no Base layer yet)
 - `initObservers()` / collect state + effects
 - Dispatch Intents only — no business logic
 - Permissions via Effects → base helpers
@@ -54,3 +67,4 @@ presentation (optional layers):
 - `findViewById` / Data Binding
 - Skipping Parent* for ad-hoc Binding lifecycle
 - Accessing dialog/sheet binding after `onDestroyView`
+- Hardcoding ads SDK into Parent* classes

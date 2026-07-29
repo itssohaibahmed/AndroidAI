@@ -113,15 +113,26 @@ Scaffold `presentation/entrance/{di,intent,state,effect,viewModel,ui}` via creat
 
 ## Step 6 — `:core-ui` Parent* bases (required)
 
-Mirror reference hierarchy; improve Dialog/Sheet slightly for safety.
+**Canonical source:** [templates/base/](templates/base/) (Qibla-aligned; `ParentSheet` null-safe).
+
+Copy templates → replace `YOUR.PACKAGE` with applicationId root:
 
 ```
-core/ui/base/
+core-ui …/base/
   activity/ParentActivity.kt
   fragment/ParentFragment.kt
   dialog/ParentDialogDismissal.kt + ParentDialog.kt
   sheet/ParentSheetDismissal.kt + ParentSheet.kt
+core-ui …/extensions/
+  FlowCollectionExtensions.kt   # collectWhenStarted / collectWhenCreated
+
+presentation …/base/
+  activity/BaseActivity.kt
+  fragment/BasePermissionFragment.kt + BaseFragment.kt
+  sheets/BaseDialog.kt + BaseSheet.kt
 ```
+
+See [templates/base/README.md](templates/base/README.md) for hierarchy and notes.
 
 ### ParentFragment
 - Generic `ViewBinding` + `bindingFactory`
@@ -137,14 +148,16 @@ core/ui/base/
 - `ParentDialogDismissal` : `DialogFragment` with `onDismissCallback` + `safeShow` / `safeDismiss` helpers
 - `ParentDialog` : ViewBinding via `MaterialAlertDialogBuilder.setView(binding.root)`
 - Null-safe binding; clear in `onDestroyView`
-- Improvements vs fragile patterns: never access binding after destroy; use `dismissAllowingStateLoss` only via `safeDismiss`
 
 ### ParentSheet (+ Dismissal)
 - `ParentSheetDismissal` : `BottomSheetDialogFragment` with `dismissCallback` + `safeShow` / `safeDismiss`
 - `ParentSheet` : inflate with `bindingFactory`, null-safe `_binding` (same as Fragment — **not** `!!`), `onSheetCreated()`, `initObservers()`
-- Improvements: remove unused dialog imports; optional `skipCollapsed` / expanded state in `onStart` when product needs it; keep Binding lifecycle identical to Fragment
 
-Also add: lifecycle Flow extensions (`collectWhenStarted` / `collectWhenCreated`), `themes.xml` (include `ButtonStyle.Icon` / `ButtonStyle.Icon.Only` parents of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
+### presentation Base*
+- `BasePermissionFragment` → `BaseFragment` → feature screens
+- `BaseActivity` / `BaseDialog` / `BaseSheet` — thin wrappers; add ads/billing injects on `BaseFragment`/`BaseActivity` only when product needs them
+
+Also add: `themes.xml` (include `ButtonStyle.Icon` / `ButtonStyle.Icon.Only`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
 
 ## Step 7 — `:core-platform`
 
@@ -261,7 +274,8 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] All DI uses `lazyModule` (never `module { }`); `useCaseModule` in domain registered in `KoinModules`
 - [ ] `nav_graph` startDestination = `entranceFragment`
 - [ ] `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs
-- [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
+- [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) copied from `templates/base/`
+- [ ] BaseActivity / BaseFragment / BasePermissionFragment / BaseDialog / BaseSheet + Flow collection extensions
 - [ ] `PlatformFirebase` is `object` without Context
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager`
