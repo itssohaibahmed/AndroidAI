@@ -11,28 +11,30 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
  */
 open class ParentSheetDismissal : BottomSheetDialogFragment() {
 
-    var dismissCallback: (() -> Unit)? = null
+    var onDismissCallback: (() -> Unit)? = null
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        dismissCallback?.invoke()
+        onDismissCallback?.invoke()
+        onDismissCallback = null
     }
 }
 
 fun AppCompatActivity.safeShow(sheet: BottomSheetDialogFragment, tag: String) {
-    if (!supportFragmentManager.isStateSaved) {
-        sheet.show(supportFragmentManager, tag)
-    }
+    if (isFinishing || isDestroyed) return
+    val fm = supportFragmentManager
+    if (fm.isStateSaved || fm.findFragmentByTag(tag) != null) return
+    sheet.show(fm, tag)
 }
 
 fun Fragment.safeShow(sheet: BottomSheetDialogFragment, tag: String) {
-    if (isAdded && !childFragmentManager.isStateSaved) {
-        sheet.show(childFragmentManager, tag)
-    }
+    if (!isAdded) return
+    val fm = parentFragmentManager
+    if (fm.isStateSaved || fm.findFragmentByTag(tag) != null) return
+    sheet.show(fm, tag)
 }
 
 fun BottomSheetDialogFragment.safeDismiss() {
-    if (isAdded) {
-        dismissAllowingStateLoss()
-    }
+    if (!isAdded) return
+    if (isStateSaved) dismissAllowingStateLoss() else dismiss()
 }

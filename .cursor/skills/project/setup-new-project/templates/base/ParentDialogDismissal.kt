@@ -16,23 +16,25 @@ open class ParentDialogDismissal : DialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         onDismissCallback?.invoke()
+        onDismissCallback = null
     }
 }
 
 fun AppCompatActivity.safeShow(dialog: DialogFragment, tag: String) {
-    if (!supportFragmentManager.isStateSaved) {
-        dialog.show(supportFragmentManager, tag)
-    }
+    if (isFinishing || isDestroyed) return
+    val fm = supportFragmentManager
+    if (fm.isStateSaved || fm.findFragmentByTag(tag) != null) return
+    dialog.show(fm, tag)
 }
 
 fun Fragment.safeShow(dialog: DialogFragment, tag: String) {
-    if (isAdded && !childFragmentManager.isStateSaved) {
-        dialog.show(childFragmentManager, tag)
-    }
+    if (!isAdded) return
+    val fm = parentFragmentManager
+    if (fm.isStateSaved || fm.findFragmentByTag(tag) != null) return
+    dialog.show(fm, tag)
 }
 
 fun DialogFragment.safeDismiss() {
-    if (isAdded) {
-        dismissAllowingStateLoss()
-    }
+    if (!isAdded) return
+    if (isStateSaved) dismissAllowingStateLoss() else dismiss()
 }

@@ -150,7 +150,7 @@ See [templates/base/README.md](templates/base/README.md) for hierarchy and notes
 - Null-safe binding; clear in `onDestroyView`
 
 ### ParentSheet (+ Dismissal)
-- `ParentSheetDismissal` : `BottomSheetDialogFragment` with `dismissCallback` + `safeShow` / `safeDismiss`
+- `ParentSheetDismissal` : `BottomSheetDialogFragment` with `onDismissCallback` + `safeShow` / `safeDismiss` helpers
 - `ParentSheet` : inflate with `bindingFactory`, null-safe `_binding` (same as Fragment — **not** `!!`), `onSheetCreated()`, `initObservers()`
 
 ### presentation Base*

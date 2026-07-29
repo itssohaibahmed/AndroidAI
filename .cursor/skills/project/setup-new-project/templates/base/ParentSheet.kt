@@ -25,8 +25,7 @@ abstract class ParentSheet<T : ViewBinding>(
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        _binding = bindingFactory(layoutInflater)
-        (binding.root.parent as? ViewGroup)?.removeView(binding.root)
+        _binding = bindingFactory(inflater)
         return binding.root
     }
 
