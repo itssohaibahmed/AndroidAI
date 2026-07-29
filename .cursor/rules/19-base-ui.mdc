@@ -61,6 +61,56 @@ See that folder’s `README.md`. Same shape as Qibla; `ParentSheet` is null-safe
 - Permissions via Effects → base helpers
 - Navigate only in UI layer
 
+## Feature Fragment member order (mandatory)
+
+Keep class members in this order. Omit unused lifecycle overrides.
+
+```kotlin
+class FeatureFragment : BaseFragment<FragmentFeatureBinding>(FragmentFeatureBinding::inflate) {
+
+    private val viewModel: FeatureViewModel by viewModel()
+    // other properties / lazy adapters…
+
+    override fun onViewCreated() {
+        // setup helpers + click listeners + ScreenStarted intent
+        setupUi()
+        screenStarted()
+
+        binding.mbAction.setOnClickListener { viewModel.handleIntent(FeatureIntent.ActionClicked) }
+    }
+
+    // override fun onStart() { … }   // only if needed
+    // override fun onResume() { … }  // only if needed
+
+    private fun setupUi() { /* helper implementations */ }
+
+    private fun screenStarted() {
+        viewModel.handleIntent(FeatureIntent.ScreenStarted)
+    }
+
+    override fun initObservers() {
+        collectWhenStarted(viewModel.state, ::renderState)
+        collectWhenCreated(viewModel.effect, ::handleEffect)
+    }
+
+    private fun renderState(state: FeatureState) { /* bind UI */ }
+
+    private fun handleEffect(effect: FeatureEffect) { /* navigate / one-shots */ }
+
+    // override fun onPause() { … }        // only if needed
+    // override fun onStop() { … }         // only if needed
+    // override fun onDestroyView() { … }  // only if needed (unregister listeners, then super)
+}
+```
+
+1. Properties / ViewModels / adapters
+2. `onViewCreated()` — wire UI, click listeners, dispatch start intents
+3. `onStart` / `onResume` — only when required
+4. Private helper method implementations (`setupX`, `screenStarted`, …)
+5. `initObservers()` — `collectWhenStarted` / `collectWhenCreated`
+6. `renderState` then `handleEffect`
+7. `onPause` / `onStop` / `onDestroyView` — only when required (`onDestroyView` last among them)
+
 ## Forbidden
 
 - Holding View / Binding / Fragment in ViewModel

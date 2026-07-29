@@ -2,17 +2,17 @@
 
 Copy into the new app and replace `YOUR.PACKAGE` with the real applicationId root.
 
-| File | Target module | Target package |
-|------|---------------|----------------|
-| `ParentActivity.kt` | `:core-ui` | `…core.ui.base.activity` |
-| `ParentFragment.kt` | `:core-ui` | `…core.ui.base.fragment` |
-| `ParentDialogDismissal.kt` + `ParentDialog.kt` | `:core-ui` | `…core.ui.base.dialog` |
-| `ParentSheetDismissal.kt` + `ParentSheet.kt` | `:core-ui` | `…core.ui.base.sheet` |
-| `FlowCollectionExtensions.kt` | `:core-ui` | `…core.ui.extensions` |
-| `BaseActivity.kt` | `:presentation` | `…presentation.base.activity` |
-| `BaseFragment.kt` | `:presentation` | `…presentation.base.fragment` |
-| `BasePermissionFragment.kt` | `:presentation` | `…presentation.base.fragment` |
-| `BaseDialog.kt` / `BaseSheet.kt` | `:presentation` | `…presentation.base.sheets` |
+| File                                           | Target module   | Target package                |
+|------------------------------------------------|-----------------|-------------------------------|
+| `ParentActivity.kt`                            | `:core-ui`      | `…core.ui.base.activity`      |
+| `ParentFragment.kt`                            | `:core-ui`      | `…core.ui.base.fragment`      |
+| `ParentDialogDismissal.kt` + `ParentDialog.kt` | `:core-ui`      | `…core.ui.base.dialog`        |
+| `ParentSheetDismissal.kt` + `ParentSheet.kt`   | `:core-ui`      | `…core.ui.base.sheet`         |
+| `FlowCollectionExtensions.kt`                  | `:core-ui`      | `…core.ui.extensions`         |
+| `BaseActivity.kt`                              | `:presentation` | `…presentation.base.activity` |
+| `BaseFragment.kt`                              | `:presentation` | `…presentation.base.fragment` |
+| `BasePermissionFragment.kt`                    | `:presentation` | `…presentation.base.fragment` |
+| `BaseDialog.kt` / `BaseSheet.kt`               | `:presentation` | `…presentation.base.sheets`   |
 
 Hierarchy (same as Qibla reference):
 

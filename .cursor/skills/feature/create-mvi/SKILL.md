@@ -37,7 +37,7 @@ presentation/<featureName>/
    - handlers = `private suspend fun onX()`
    - `exceptionHandler` → `handleError`; **`handleError` last** in the class
    - sparse logs (repo primary; ViewModel failures/`Log.w` guards only)
-5. **Fragment** — extend `Parent*` / `Base*`; `collectWhenStarted` / `collectWhenCreated`; View Binding only
+5. **Fragment** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (setup + clicks) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown lifecycle (if any); `collectWhenStarted` / `collectWhenCreated`
 6. **Mapping** — heavy work in Repo/UseCase; `toUi()` in ViewModel with dispatcher if large lists
 7. **Logs** — `Constants.TAG*` format; prefer Repository; ViewModel not every method
 

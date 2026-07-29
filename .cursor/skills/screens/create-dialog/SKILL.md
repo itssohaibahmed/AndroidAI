@@ -21,7 +21,7 @@ One layout file in `:presentation` `res/layout/`:
 ## Rules
 
 - **Material** widgets (`MaterialTextView`, `MaterialButton`, `MaterialCardView`, `ShapeableImageView`) — never plain `ImageView`
-- Clickable icons → `MaterialButton` `style="@style/ButtonStyle.Icon.Only"` (or `Widget.Material3.Button.IconButton`) with `app:icon` — **not** clickable `ShapeableImageView`
+- Clickable icons → `MaterialButton` `style="@style/ButtonStyle.IconButton"` (or `Widget.Material3.Button.IconButton`) with `app:icon` — **not** clickable `ShapeableImageView`
 - View Binding only (no Data Binding attributes)
 - **Portrait + landscape** — responsive ConstraintLayout; add `layout-land/` if needed
 - Shallow nesting — ConstraintLayout primary; avoid deep LinearLayout trees

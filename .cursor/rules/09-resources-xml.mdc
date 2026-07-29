@@ -142,7 +142,7 @@ File: `:core-ui` `values/colors.xml` (+ `values-night/colors.xml` when needed).
 | `themes.xml` | App base theme + common widget styles |
 | `splash.xml` | `Theme.App.Starting` only (`23-app-startup`) |
 
-Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.Icon` / `Icon.Only`) → screen-specific styles only if needed.
+Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.IconButton`) → screen-specific styles only if needed.
 
 ## Orientation (mandatory)
 
@@ -154,10 +154,11 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
 
 - Material widgets: `MaterialTextView`, `MaterialButton`, `MaterialCardView`, `ShapeableImageView`
 - **Images (non-clickable):** always `ShapeableImageView` — never `ImageView` / `AppCompatImageView`; IDs use `siv` prefix
-- **Clickable icons / icon-only actions:** always `MaterialButton` with IconButton style — **not** `ShapeableImageView` + click listener
-  - Prefer project style `ButtonStyle.Icon` / `ButtonStyle.Icon.Only` (parent `Widget.Material3.Button.IconButton`) when defined in `:core-ui` `themes.xml`
-  - Else `style="@style/Widget.Material3.Button.IconButton"`
+- **Clickable icons / icon-only actions:** always `MaterialButton` with `ButtonStyle.IconButton` — **not** `ShapeableImageView` + click listener
+  - Project style: `style="@style/ButtonStyle.IconButton"` (parent `Widget.Material3.Button.IconButton` in `:core-ui` `themes.xml`)
+  - Else fallback: `style="@style/Widget.Material3.Button.IconButton"`
   - ID prefix `mb…`; use `app:icon` (not `app:srcCompat`); keep `android:contentDescription="@string/cd_…"`
+  - Typical attrs: `android:padding="4dp"`, `app:iconSize` (`0dp`); set `app:iconTint` only when the icon should follow theme color
 - **View Binding only** — never `findViewById`, never Data Binding
 - Shallow ConstraintLayout trees
 - **Static layout config in XML** — not Kotlin — unless it must change at runtime:
@@ -196,29 +197,25 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
 ```xml
 <!-- BAD — clickable image pretending to be a button -->
 <com.google.android.material.imageview.ShapeableImageView
-    android:id="@+id/sivConfirmLanguage"
-    android:layout_width="32dp"
-    android:layout_height="32dp"
-    android:contentDescription="@string/cd_confirm_language"
+    android:id="@+id/sivMenuHome"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:contentDescription="@string/cd_menu"
     android:scaleType="centerInside"
-    app:srcCompat="@drawable/ic_svg_check_language" />
+    app:srcCompat="@drawable/ic_svg_menu_home" />
 
-<!-- GOOD -->
+<!-- GOOD — ButtonStyle.IconButton -->
 <com.google.android.material.button.MaterialButton
-    android:id="@+id/mbConfirmLanguage"
-    style="@style/ButtonStyle.Icon.Only"
+    android:id="@+id/mbMenuHome"
+    style="@style/ButtonStyle.IconButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:contentDescription="@string/cd_confirm_language"
-    android:insetTop="0dp"
-    android:insetBottom="0dp"
-    app:icon="@drawable/ic_svg_check_language"
-    app:iconGravity="textStart"
-    app:iconPadding="0dp"
-    app:iconSize="24dp"
-    app:layout_constraintBottom_toBottomOf="@id/mtvSubtitleLanguage"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toTopOf="@id/mtvTitleLanguage" />
+    android:contentDescription="@string/cd_menu"
+    android:padding="4dp"
+    app:icon="@drawable/ic_svg_menu_home"
+    app:layout_constraintBottom_toBottomOf="@id/mtvTitleHome"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@id/mtvTitleHome" />
 ```
 
-If `ButtonStyle.Icon.Only` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `iconSize` as a multiple of 4 (`24dp` / `32dp`).
+If `ButtonStyle.IconButton` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `iconSize` as (`0dp`), & use `iconTint` as (@null)`.

@@ -23,7 +23,7 @@ Example: `bottom_sheet_filter_options.xml`, `bottom_sheet_compass_guidelines.xml
 ## Rules
 
 - Material widgets; View Binding IDs (`mtvSheetTitle`, `mbSheetApply`)
-- Clickable icons → `MaterialButton` IconButton (`ButtonStyle.Icon.Only` + `app:icon`), not clickable `siv`
+- Clickable icons → `MaterialButton` IconButton (`ButtonStyle.IconButton` + `app:icon`), not clickable `siv`
 - Portrait + landscape — avoid fixed heights that break landscape
 - Strings from `:core-ui` `@string/`
 - No Kotlin `BottomSheetDialogFragment` unless user requests separately
