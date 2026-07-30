@@ -10,6 +10,7 @@ Copy into the new app and replace `YOUR.PACKAGE` with the real applicationId roo
 | `ParentSheetDismissal.kt` + `ParentSheet.kt`   | `:core-ui`      | `…core.ui.base.sheet`         |
 | `FragmentExtensions.kt`                        | `:core-ui`      | `…core.ui.extensions`         |
 | `ActivityExtensions.kt`                        | `:core-ui`      | `…core.ui.extensions`         |
+| `ContextExtensions.kt`                         | `:core-ui`      | `…core.ui.extensions`         |
 | `BaseActivity.kt`                              | `:presentation` | `…presentation.base.activity` |
 | `BaseFragment.kt`                              | `:presentation` | `…presentation.base.fragment` |
 | `BasePermissionFragment.kt`                    | `:presentation` | `…presentation.base.fragment` |
@@ -28,6 +29,7 @@ Notes:
 - Theme: apply after `startKoin` in Application; no `GlobalContext` probes (`07`, `23`)
 - `FragmentExtensions` collectors use **`viewLifecycleOwner`** (avoids duplicate collectors after navigate away / back)
 - Prefer `navigateTo` / `popFrom` over raw `findNavController()` calls
+- `ContextExtensions.showToast(String)` / `showToast(@StringRes)` — call as `context?.showToast(...)`
 - Naming: `<Receiver>Extensions.kt` only — never a shared `FlowCollectionExtensions.kt` / `LifecycleFlowExtensions.kt`
 - `BaseFragment` is intentionally thin — add ads/billing injects only when the product needs them
 - Permission dialog copy must move to `:core-ui` `strings.xml` (`cd_*` / screen strings) before release

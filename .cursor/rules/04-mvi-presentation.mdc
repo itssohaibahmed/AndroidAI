@@ -114,6 +114,7 @@ class FeatureViewModel(
 - Collect state with lifecycle-aware collectors (`collectWhenStarted` on **`viewLifecycleOwner`** via `FragmentExtensions`)
 - Collect effects separately from state (`collectWhenCreated`)
 - Navigate with `navigateTo` / `popFrom` — not raw `findNavController()` when helpers exist
+- Toasts: `context?.showToast(R.string.x)` / `context?.showToast("…")` via `ContextExtensions` — prefer `@StringRes`
 - Extend project `Parent*` / `Base*` Fragment classes when available
 - View Binding only — never `findViewById` / Data Binding
 - **Render only** — no DTO/domain mapping, filtering, or sorting in Fragment / Activity / Adapter

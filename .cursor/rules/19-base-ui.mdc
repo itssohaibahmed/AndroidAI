@@ -53,6 +53,8 @@ See that folder’s `README.md`. Same shape as Qibla; `ParentSheet` is null-safe
   Uses **`viewLifecycleOwner`** for `collectWhen*` / `repeatWhen` / `launchWhen*` (survives only with the view — avoids duplicate collectors after navigate away / back)  
   Safe nav: `navigateTo(fragmentId, action)` / `popFrom(fragmentId)` — only when `isAdded` and current destination matches
 - Activity helpers: `templates/base/ActivityExtensions.kt` → `…core.ui.extensions.ActivityExtensions.kt`
+- Context helpers: `templates/base/ContextExtensions.kt` → `…core.ui.extensions.ContextExtensions.kt`  
+  `context?.showToast("…")` / `context?.showToast(R.string.x)` — prefer `@StringRes` for user-facing copy
 - State: `collectWhenStarted` / `repeatOnLifecycle(STARTED)`
 - Effects: `collectWhenCreated` (or STARTED with SharedFlow that must not drop — follow project helper)
 - Reuse extensions — do not copy-paste collectors
