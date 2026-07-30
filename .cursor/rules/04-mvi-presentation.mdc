@@ -111,8 +111,9 @@ class FeatureViewModel(
 
 ## Fragment / Activity / Adapter rules
 
-- Collect state with lifecycle-aware collectors (`repeatOnLifecycle`)
-- Collect effects separately from state
+- Collect state with lifecycle-aware collectors (`collectWhenStarted` on **`viewLifecycleOwner`** via `FragmentExtensions`)
+- Collect effects separately from state (`collectWhenCreated`)
+- Navigate with `navigateTo` / `popFrom` — not raw `findNavController()` when helpers exist
 - Extend project `Parent*` / `Base*` Fragment classes when available
 - View Binding only — never `findViewById` / Data Binding
 - **Render only** — no DTO/domain mapping, filtering, or sorting in Fragment / Activity / Adapter

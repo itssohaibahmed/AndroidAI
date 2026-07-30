@@ -49,10 +49,15 @@ See that folder’s `README.md`. Same shape as Qibla; `ParentSheet` is null-safe
 
 ## Flow collection (`:core-ui` extensions)
 
-- Template: `templates/base/FlowCollectionExtensions.kt`
+- Fragment helpers: `templates/base/FragmentExtensions.kt` → `…core.ui.extensions.FragmentExtensions.kt`  
+  Uses **`viewLifecycleOwner`** for `collectWhen*` / `repeatWhen` / `launchWhen*` (survives only with the view — avoids duplicate collectors after navigate away / back)  
+  Safe nav: `navigateTo(fragmentId, action)` / `popFrom(fragmentId)` — only when `isAdded` and current destination matches
+- Activity helpers: `templates/base/ActivityExtensions.kt` → `…core.ui.extensions.ActivityExtensions.kt`
 - State: `collectWhenStarted` / `repeatOnLifecycle(STARTED)`
 - Effects: `collectWhenCreated` (or STARTED with SharedFlow that must not drop — follow project helper)
 - Reuse extensions — do not copy-paste collectors
+- Naming: `<Receiver>Extensions.kt` only — never a shared `FlowCollectionExtensions.kt` / `LifecycleFlowExtensions.kt`
+- Prefer `navigateTo` / `popFrom` over raw `findNavController().navigate` / `popBackStack` in Fragments
 
 ## Feature Fragment responsibilities
 
@@ -119,3 +124,5 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>(FragmentFeatureBind
 - Skipping Parent* for ad-hoc Binding lifecycle
 - Accessing dialog/sheet binding after `onDestroyView`
 - Hardcoding ads SDK into Parent* classes
+- Collecting on Fragment `lifecycleScope` instead of `viewLifecycleOwner`
+- Shared `FlowCollectionExtensions.kt` — use `FragmentExtensions` + `ActivityExtensions`

@@ -125,7 +125,8 @@ core/ui/base/
   dialog/ParentDialogDismissal.kt + ParentDialog.kt
   sheet/ParentSheetDismissal.kt + ParentSheet.kt
 core-ui …/extensions/
-  FlowCollectionExtensions.kt   # collectWhenStarted / collectWhenCreated
+  FragmentExtensions.kt   # viewLifecycleOwner collectWhen* / launchWhen* + navigateTo / popFrom
+  ActivityExtensions.kt   # Activity collectWhen* / launchWhen*
 
 presentation …/base/
   activity/BaseActivity.kt
@@ -156,7 +157,7 @@ See [templates/base/README.md](templates/base/README.md) for hierarchy and notes
 - `ParentSheet` : inflate with `bindingFactory`, null-safe `_binding` (same as Fragment — **not** `!!`), `onSheetCreated()`, `initObservers()`
 - Improvements: remove unused dialog imports; optional `skipCollapsed` / expanded state in `onStart` when product needs it; keep Binding lifecycle identical to Fragment
 
-Also add: lifecycle Flow extensions (`collectWhenStarted` / `collectWhenCreated`), `themes.xml` (include `ButtonStyle.IconButton` parent of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
+Also add: Fragment/Activity Flow extensions (`FragmentExtensions.kt` / `ActivityExtensions.kt` — `collectWhenStarted` / `collectWhenCreated`; Fragment uses `viewLifecycleOwner`), `themes.xml` (include `ButtonStyle.IconButton` parent of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
 
 ## Step 7 — `:core-platform`
 
@@ -274,6 +275,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] `nav_graph` startDestination = `entranceFragment`
 - [ ] `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs
 - [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
+- [ ] `FragmentExtensions.kt` + `ActivityExtensions.kt` (Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
 - [ ] `PlatformFirebase` is `object` without Context
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager`

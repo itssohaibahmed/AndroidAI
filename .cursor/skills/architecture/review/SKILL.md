@@ -27,6 +27,8 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 - [ ] Navigation via Effects — not NavController in ViewModel
 - [ ] No mutable state exposed publicly
 - [ ] Fragments render + dispatch intents only
+- [ ] Fragment member order (`19`): `onViewCreated` → helpers → `initObservers` → `renderState` → `handleEffect` → teardown
+- [ ] Collectors use `viewLifecycleOwner` (`FragmentExtensions`); nav via `navigateTo` / `popFrom`
 - [ ] ViewModel logs sparse — repo primary; failures via `handleError`
 
 ### Mapping
@@ -42,6 +44,7 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 ### UI (`09`, `19`)
 - [ ] View Binding only — no findViewById / Data Binding
 - [ ] Material widgets; portrait + landscape
+- [ ] Clickable icons → `ButtonStyle.IconButton` (`mb`, `app:icon`) — not clickable `siv`
 - [ ] Strings in single `:core-ui` file
 - [ ] Static `layoutManager` / orientations / `spanCount` in XML — not Kotlin unless dynamic
 
