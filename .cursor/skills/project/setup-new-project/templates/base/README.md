@@ -24,6 +24,7 @@ presentation: BasePermissionFragment → BaseFragment → Feature
 
 Notes:
 - `ParentSheet` uses **null-safe** binding (improved vs Qibla `!!`)
+- Theme: apply after `startKoin` in Application; no `GlobalContext` probes (`07`, `23`)
 - `BaseFragment` is intentionally thin — add ads/billing injects only when the product needs them
 - Permission dialog copy must move to `:core-ui` `strings.xml` (`cd_*` / screen strings) before release
 - Logging uses `Constants.TAG` — wire package to `:core-common`

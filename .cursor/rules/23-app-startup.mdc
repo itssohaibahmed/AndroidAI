@@ -6,9 +6,30 @@ alwaysApply: false
 
 ## Application class
 
-- Single `Application` in `:app` — **DI bootstrap only** (e.g. Koin `startKoin`)
+- Single `Application` in `:app` — **DI bootstrap only** (e.g. Koin `startKoin` + `lazyModules`)
+- Use **`lazyModule` / `lazyModules` only** — convert any leftover `module` / `modules` (see `07-dependency-injection`)
+- Call `startKoin` **once** here — never from Activity; never guard with `GlobalContext.getOrNull()`
 - Do not stuff analytics, ads, billing, or heavy init into `onCreate` unless project already does and must stay consistent
 - Prefer lazy / on-demand init for non-critical SDKs
+
+```kotlin
+override fun onCreate() {
+    super.onCreate()
+    startKoin {
+        androidContext(this@App)
+        lazyModules(KoinModules().getKoinModules())
+    }
+    // Any app-level theme / DynamicColors that needs DI — after startKoin
+    applyAppTheme()
+}
+```
+
+## Theme vs Koin
+
+- Sequence: **Koin first**, then theme apply in `Application.onCreate`
+- **Forbidden:** `GlobalContext.getOrNull()` (or other GlobalContext probes) as a theme/DI gate
+- Activity `enableMaterialDynamicTheme()` may apply DynamicColors directly — no GlobalContext check
+- Never call `startKoin` from Activity — theme toggles recreate the Activity and will crash with `KoinAppAlreadyStartedException`
 
 ## Splash
 
@@ -52,3 +73,5 @@ android:theme="@style/Theme.App.Starting"
 - Hardcoding API keys in Application or themes
 - Leaving Startup initializers that crash cold start
 - Defining splash theme only ad hoc in Kotlin — use `splash.xml`
+- `startKoin` in Activity; leftover `module { }` / `modules(...)` after lazyModule migration
+- `GlobalContext.getOrNull()` (or any GlobalContext probe) to gate theme / DI

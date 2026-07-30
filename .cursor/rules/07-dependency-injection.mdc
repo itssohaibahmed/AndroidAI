@@ -16,8 +16,52 @@ Use the DI framework already in the project. Default stack: **Koin**.
 ## Mandatory: `lazyModule` everywhere
 
 - **Every** Koin module is declared with `lazyModule { }` — never `module { }`
-- Application loads them via `lazyModules(...)` (or the project’s equivalent)
+- Application loads them via `lazyModules(...)` — never `modules(...)` for these definitions
 - Applies to `:app`, `:data`, `:domain`, `:presentation`, `:core-*`, ads, features
+- Do **not** mix `module` + `lazyModule` in the same composition root
+
+### Migrating an existing project
+
+When converting from eager Koin modules:
+
+1. Replace every `module { }` → `lazyModule { }` (all layers)
+2. Replace `modules(…)` → `lazyModules(…)` in `startKoin`
+3. Keep `//// Section` headers while converting
+4. Register the same list in `KoinModules` — do not drop modules mid-migration
+5. Apply any DI-backed or Dynamic Colors theme **after** `startKoin` finishes (see below) — never probe Koin via `GlobalContext`
+
+### Bootstrap (`Application`)
+
+```kotlin
+class App : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        initKoin()
+        // Theme / Dynamic Colors that need a live process — only AFTER Koin start
+        applyAppTheme()
+    }
+
+    private fun initKoin() {
+        startKoin {
+            androidContext(this@App)
+            lazyModules(KoinModules().getKoinModules())
+        }
+    }
+
+    private fun applyAppTheme() {
+        // e.g. DynamicColors.applyToActivitiesIfAvailable(this)
+        // or read prefs via inject() — safe here because startKoin already returned
+    }
+}
+```
+
+### Theme apply — after Koin start (mandatory)
+
+- **Do not** use `GlobalContext.getOrNull()` (or any GlobalContext probe) to gate theme / DI
+- **Do** sequence work: `startKoin { lazyModules(...) }` first, then theme apply in the same `Application.onCreate`
+- Activity helpers (`enableMaterialDynamicTheme`) may call `DynamicColors.applyToActivityIfAvailable(this)` directly — Application always starts Koin before any Activity
+- Keep `startKoin` **only** in `Application` — never in Activity (theme change recreates Activity → `KoinAppAlreadyStartedException`)
+- If you must `get()` a dependency right after `lazyModules`, use `waitAllStartJobs()` / `awaitAllStartJobs()` — not GlobalContext checks
 
 ## Readable sections (mandatory)
 

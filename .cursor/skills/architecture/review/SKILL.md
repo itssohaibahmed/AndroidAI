@@ -14,7 +14,8 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 - [ ] `domain` has no Android UI / presentation imports
 - [ ] UseCases + repository **interfaces** only in `:domain` — never in `:data`
 - [ ] No circular module dependencies
-- [ ] All Koin modules use `lazyModule { }` (never `module { }`)
+- [ ] All Koin modules use `lazyModule { }` (never `module { }`); load via `lazyModules` only
+- [ ] Theme applied after `startKoin` in Application; no `GlobalContext.getOrNull()` gates; `startKoin` never in Activity
 - [ ] Each `lazyModule` has readable `//// Section` headers (SoC: DataSources / Repositories / ViewModels / area UseCases, etc.)
 - [ ] `dataModule` ordered: `//// DataSources` then `//// Repositories`
 - [ ] UseCase factories in domain `useCaseModule` (grouped by area)

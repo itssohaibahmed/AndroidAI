@@ -56,11 +56,14 @@ class App : Application() {
             androidContext(this@App)
             lazyModules(KoinModules().getKoinModules())
         }
+        // Theme / DynamicColors after Koin — never use GlobalContext.getOrNull()
+        applyAppTheme()
     }
 }
 ```
 
-- Aggregate with **`lazyModule` only**: `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule`, …
+- Aggregate with **`lazyModule` only** (convert any `module` → `lazyModule`, `modules` → `lazyModules`): `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule`, …
+- Theme: apply **after** `startKoin` in Application; Activity DynamicColors needs no GlobalContext gate (`07`, `23`)
 - Manifest: `android:name=".App"`, `android:theme="@style/Theme.App.Starting"`, `supportsRtl="true"`
 - Portrait **and** landscape — do not lock orientation
 - UseCases + repo interfaces → `:domain`; DataSources + repo impls → `:data` (`dataModule` with `//// DataSources` / `//// Repositories`)
@@ -267,7 +270,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
 - [ ] Modules: app, domain, data, presentation, core-common, core-ui, core-platform
 - [ ] UseCases + repo interfaces only in `:domain`; `dataModule` has `//// DataSources` then `//// Repositories`
-- [ ] All DI uses `lazyModule` (never `module { }`); `useCaseModule` in domain registered in `KoinModules`
+- [ ] All DI uses `lazyModule` / `lazyModules` only; theme applied after `startKoin` (no `GlobalContext` probes)
 - [ ] `nav_graph` startDestination = `entranceFragment`
 - [ ] `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs
 - [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist

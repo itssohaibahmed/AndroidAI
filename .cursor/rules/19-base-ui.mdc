@@ -29,6 +29,7 @@ See that folder’s `README.md`. Same shape as Qibla; `ParentSheet` is null-safe
 ### ParentActivity
 - Edge-to-edge + insets padding flags (`includeTopPadding` / `includeBottomPadding` / `enableKeyboardInsets`)
 - `installSplashTheme()` → SplashScreen API
+- `enableMaterialDynamicTheme()` — `DynamicColors.applyToActivityIfAvailable(this)`; no `GlobalContext` checks (Koin starts in Application before any Activity — see `07`, `23`)
 - Abstract `onCreated()`; `onPreCreated()` before `super.onCreate`
 
 ### ParentDialog

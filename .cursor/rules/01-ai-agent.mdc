@@ -40,7 +40,7 @@ alwaysApply: true
 - [ ] Domain UseCase(s) + repository **interface** in `:domain` (never under `:data`)
 - [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main)
 - [ ] Mapping: Repo/UseCase for heavy work; `toUi()` in ViewModel if needed — not in UI classes
-- [ ] DI: **`lazyModule` only** with readable `//// Section` headers (SoC); `dataModule` = DataSources → Repositories; UseCases in domain `useCaseModule` by area; register in `KoinModules`
+- [ ] DI: **`lazyModule` / `lazyModules` only** with `//// Section` headers; theme after `startKoin` (never `GlobalContext` probes); UseCases in domain `useCaseModule`
 - [ ] Strings in the **single** shared strings file (+ translations)
 - [ ] Logs use `Constants.TAG*` format; prefer Repository; ViewModel sparse (`handleError` for failures)
 - [ ] Permissions via Intent → Effect → base permission helper when needed
