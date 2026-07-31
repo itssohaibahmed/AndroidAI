@@ -40,6 +40,7 @@ presentation/<featureName>/
 5. **Fragment** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (setup + clicks) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown lifecycle (if any); `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`** (`FragmentExtensions`); navigate with `navigateTo` / `popFrom`
 6. **Mapping** — heavy work in Repo/UseCase; `toUi()` in ViewModel with dispatcher if large lists
 7. **Logs** — `Constants.TAG*` format; prefer Repository; ViewModel not every method
+8. **Images** — adapters/Fragments bind with `siv.loadImage(...)` (Glide / `ImageViewExtensions`); never `setImageResource` for dynamic list/remote assets
 
 ## Domain + data (if new capability)
 

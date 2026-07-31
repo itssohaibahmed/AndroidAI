@@ -51,4 +51,5 @@ alwaysApply: true
 - [ ] Unit tests for UseCase / ViewModel
 - [ ] Verify no `:presentation` → `:data` dependency
 - [ ] Large-list path: `ListAdapter` + DiffUtil / background mapping considered; `layoutManager` / orientation / spanCount in XML unless dynamic
+- [ ] Images: `ShapeableImageView` + Glide `loadImage` for programmatic binds (not `setImageResource` in adapters)
 - [ ] If ads/premium: gate on entitlement + RC; use existing managers — not raw SDK in Fragments

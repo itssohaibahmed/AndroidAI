@@ -32,7 +32,7 @@ alwaysApply: false
 | Booleans | `is`/`has`/`should`/`show` prefix | `isLoading`, `showError` |
 | Constants | UPPER_SNAKE in object/companion | `TAG`, `MAX_RETRY` |
 | Files | Match primary public type | `HomeViewModel.kt` |
-| Extensions | `<Receiver>Extensions.kt` | `FragmentExtensions.kt` |
+| Extensions | `<Receiver>Extensions.kt` | `FragmentExtensions.kt`, `ImageViewExtensions.kt` |
 
 ## File rules
 

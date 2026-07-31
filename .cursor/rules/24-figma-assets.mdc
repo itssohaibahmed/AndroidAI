@@ -37,6 +37,7 @@ Then name with `ic_png_*` / `img_png_*` / `bg_*` per `09-resources-xml`.
 
 - Always `ShapeableImageView` (`siv`) for **display-only** images — never plain `ImageView`
 - Clickable icons / toolbar actions → `MaterialButton` + `ButtonStyle.IconButton` (`app:icon`) — not clickable `ShapeableImageView`
+- Bind images in code with `siv.loadImage(...)` (Glide / `ImageViewExtensions`) — not `setImageResource` for list/remote/dynamic assets
 - `android:contentDescription="@string/cd_*"` (Content Descriptions section in `strings.xml`)
 - Do not invent icons by hand when Figma provided an export — use the downloaded asset
 

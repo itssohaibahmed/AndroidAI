@@ -21,7 +21,7 @@ Follow `.cursor/rules/06-coroutines-flow.mdc`, `03`, `04`.
 - [ ] `app:layoutManager` / `android:orientation` / `app:spanCount` in XML — Kotlin only if dynamic
 - [ ] Stable IDs when beneficial
 - [ ] Avoid nested RecyclerViews with heavy child rebind
-- [ ] Glide/image loads cancelled on rebind
+- [ ] Images via `loadImage` (Glide); cancelled/cleared on rebind — no `setImageBitmap` for remote/list art
 
 ### State / memory
 - [ ] State does not hold full raw megabyte datasets unnecessarily

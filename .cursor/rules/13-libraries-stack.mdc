@@ -14,7 +14,7 @@ alwaysApply: false
 | Lifecycle | viewmodel-ktx, runtime-ktx |
 | DI | Koin (default) |
 | Coroutines | kotlinx-coroutines-core, play-services integration |
-| Images | Glide |
+| Images | Glide — **always** load via `ImageView.loadImage(...)` (`ImageViewExtensions`; works on `ShapeableImageView`) |
 | Splash | core-splashscreen |
 | Desugaring | desugar_jdk_libs (for java.time on older APIs) |
 
@@ -41,6 +41,8 @@ Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing / Hyp
 | Plain `TextView` / `Button` (when Material exists) | `MaterialTextView` / `MaterialButton` |
 | `ImageView` / `AppCompatImageView` | `ShapeableImageView` (`siv`) for display-only images |
 | Clickable `ShapeableImageView` / icon ImageView | `MaterialButton` + `ButtonStyle.IconButton` (`mb`, `app:icon`) |
+| `setImageResource` / `setImageDrawable` / raw `Glide.with` in adapters | `siv.loadImage(source)` (`ImageViewExtensions`) |
+| Picasso / Coil when Glide is standard | Glide + `loadImage` |
 | `dimens.xml` | Inline `dp`/`sp` in multiples of 4 |
 | LiveData (new MVI screens) | StateFlow + SharedFlow |
 | Hardcoded versions | `libs.versions.toml` |

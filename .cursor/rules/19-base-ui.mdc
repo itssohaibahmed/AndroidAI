@@ -55,6 +55,8 @@ See that folder’s `README.md`. Same shape as Qibla; `ParentSheet` is null-safe
 - Activity helpers: `templates/base/ActivityExtensions.kt` → `…core.ui.extensions.ActivityExtensions.kt`
 - Context helpers: `templates/base/ContextExtensions.kt` → `…core.ui.extensions.ContextExtensions.kt`  
   `context?.showToast("…")` / `context?.showToast(R.string.x)` — prefer `@StringRes` for user-facing copy
+- Image helpers: `templates/base/ImageViewExtensions.kt` → `…core.ui.extensions.ImageViewExtensions.kt`  
+  Always `siv.loadImage(source)` (Glide) for programmatic loads — never `setImageResource` / scattered `Glide.with` in UI
 - State: `collectWhenStarted` / `repeatOnLifecycle(STARTED)`
 - Effects: `collectWhenCreated` (or STARTED with SharedFlow that must not drop — follow project helper)
 - Reuse extensions — do not copy-paste collectors
@@ -128,3 +130,4 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>(FragmentFeatureBind
 - Hardcoding ads SDK into Parent* classes
 - Collecting on Fragment `lifecycleScope` instead of `viewLifecycleOwner`
 - Shared `FlowCollectionExtensions.kt` — use `FragmentExtensions` + `ActivityExtensions`
+- `setImageResource` / raw `Glide.with` for dynamic/list/remote images — use `loadImage`

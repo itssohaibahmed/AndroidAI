@@ -128,6 +128,7 @@ core-ui …/extensions/
   FragmentExtensions.kt   # viewLifecycleOwner collectWhen* / launchWhen* + navigateTo / popFrom
   ActivityExtensions.kt   # Activity collectWhen* / launchWhen*
   ContextExtensions.kt    # showToast(String) / showToast(@StringRes)
+  ImageViewExtensions.kt  # loadImage via Glide (ShapeableImageView / ImageView)
 
 presentation …/base/
   activity/BaseActivity.kt
@@ -158,7 +159,7 @@ See [templates/base/README.md](templates/base/README.md) for hierarchy and notes
 - `ParentSheet` : inflate with `bindingFactory`, null-safe `_binding` (same as Fragment — **not** `!!`), `onSheetCreated()`, `initObservers()`
 - Improvements: remove unused dialog imports; optional `skipCollapsed` / expanded state in `onStart` when product needs it; keep Binding lifecycle identical to Fragment
 
-Also add: Fragment/Activity/Context extensions (`FragmentExtensions` / `ActivityExtensions` / `ContextExtensions.showToast`; Fragment uses `viewLifecycleOwner`), `themes.xml` (include `ButtonStyle.IconButton` parent of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`).
+Also add: Fragment/Activity/Context/ImageView extensions (`FragmentExtensions` / `ActivityExtensions` / `ContextExtensions.showToast` / `ImageViewExtensions.loadImage` via Glide; Fragment uses `viewLifecycleOwner`), `themes.xml` (include `ButtonStyle.IconButton` parent of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`). Add Glide to version catalog + `implementation(libs.glide)` on `:core-ui`.
 
 ## Step 7 — `:core-platform`
 
@@ -276,7 +277,8 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] `nav_graph` startDestination = `entranceFragment`
 - [ ] `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs
 - [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
-- [ ] `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` (`showToast`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
+- [ ] `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
+- [ ] Glide on `:core-ui` (+ presentation if needed); all programmatic image binds use `loadImage`
 - [ ] `PlatformFirebase` is `object` without Context
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager`
