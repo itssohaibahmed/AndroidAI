@@ -24,25 +24,21 @@ fun ImageView.loadImage(
     @DrawableRes error: Int? = null,
     cachePolicy: CachePolicy = CachePolicy.DEFAULT,
 ) {
-    val request = Glide.with(this)
+    var request = Glide.with(this)
         .load(source)
         .transition(DrawableTransitionOptions.withCrossFade(crossFadeDuration))
 
-    when (cachePolicy) {
+    request = when (cachePolicy) {
         CachePolicy.CACHE_ONLY -> request.onlyRetrieveFromCache(true)
-        CachePolicy.NETWORK_ONLY -> {
-            request.skipMemoryCache(true)
-            request.diskCacheStrategy(DiskCacheStrategy.NONE)
-        }
-        CachePolicy.NO_CACHE -> {
-            request.skipMemoryCache(true)
-            request.diskCacheStrategy(DiskCacheStrategy.NONE)
-        }
-        CachePolicy.DEFAULT -> Unit
+        CachePolicy.NETWORK_ONLY,
+        CachePolicy.NO_CACHE,
+            -> request.skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE)
+
+        CachePolicy.DEFAULT -> request
     }
 
-    placeholder?.let { request.placeholder(it) }
-    error?.let { request.error(it) }
+    placeholder?.let { request = request.placeholder(it) }
+    error?.let { request = request.error(it) }
 
     request.into(this)
 }
