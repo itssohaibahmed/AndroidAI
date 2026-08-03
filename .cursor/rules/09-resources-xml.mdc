@@ -164,7 +164,12 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
   - ID prefix `mb…`; use `app:icon` (not `app:srcCompat`); keep `android:contentDescription="@string/cd_…"`
   - Typical attrs: `android:padding="4dp"`, `app:iconSize` (`0dp`); set `app:iconTint` only when the icon should follow theme color
 - **View Binding only** — never `findViewById`, never Data Binding
-- Shallow ConstraintLayout trees
+- Shallow ConstraintLayout trees — avoid extra wrappers
+- **Text + static trailing/leading icon (chips, selectors):** prefer **one** `MaterialTextView` with compound drawables — **not** `LinearLayout` + `MaterialTextView` + `ShapeableImageView`
+  - Use `android:drawableEnd` / `android:drawableStart` (or `app:drawableEndCompat` / `app:drawableStartCompat`)
+  - Size with `android:drawablePadding`; optional tint via `android:drawableTint` / `app:drawableTint`
+  - Put `android:background`, padding, and `android:contentDescription` on the **text view** (or make the chip a clickable `MaterialButton` with `app:icon` / `app:iconGravity` when it behaves as a button)
+  - Keep a separate `ShapeableImageView` only when the image is dynamic (Glide), large, or independently clickable
 - **Static layout config in XML** — not Kotlin — unless it must change at runtime:
   - `RecyclerView`: set `app:layoutManager`, `android:orientation`, `app:spanCount` (grids) in XML
   - `LinearLayout` / `LinearLayoutCompat`: `android:orientation` in XML
@@ -222,3 +227,53 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
 ```
 
 If `ButtonStyle.IconButton` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `iconSize` as (`0dp`), & use `iconTint` as (@null)`.
+
+### Text + static end icon (chips / language selectors)
+
+```xml
+<!-- BAD — LinearLayout + TextView + decorative ImageView -->
+<LinearLayout
+    android:id="@+id/llToLanguageTranslate"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_shape_translate_lang_chip"
+    android:contentDescription="@string/cd_target_language"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    app:layout_constraintHorizontal_weight="1"
+    …>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/mtvToLanguageTranslate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="Spanish" />
+    <com.google.android.material.imageview.ShapeableImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/ic_svg_translate_arrow_down" />
+</LinearLayout>
+
+<!-- GOOD — single MaterialTextView + drawableEnd -->
+<com.google.android.material.textview.MaterialTextView
+    android:id="@+id/mtvToLanguageTranslate"
+    style="@style/TextStyle.Heading.H6.Medium"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_shape_translate_lang_chip"
+    android:contentDescription="@string/cd_target_language"
+    android:drawablePadding="8dp"
+    android:ellipsize="end"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:padding="10dp"
+    android:textColor="?attr/colorOnSurface"
+    app:drawableEndCompat="@drawable/ic_svg_translate_arrow_down"
+    app:layout_constraintHorizontal_weight="1"
+    tools:text="Spanish" />
+```

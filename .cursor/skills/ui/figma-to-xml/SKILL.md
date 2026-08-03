@@ -28,6 +28,7 @@ Per `24-figma-assets`:
 
 - `ShapeableImageView` (`siv`) for display-only images
 - Programmatic loads → `siv.loadImage(...)` (Glide / `ImageViewExtensions`)
+- Text + static end/start icon → `MaterialTextView` + `drawableEndCompat` / `drawableStartCompat` (no LL + ImageView wrapper)
 - Clickable icons → `MaterialButton` + `style="@style/ButtonStyle.IconButton"` (`mb` + `app:icon`, `android:padding="4dp"`) — not clickable `siv`
 - Material text/buttons/cards
 - RecyclerView: `app:layoutManager` + orientation / `spanCount` in XML (not Kotlin unless dynamic)

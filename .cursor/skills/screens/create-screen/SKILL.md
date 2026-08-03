@@ -21,6 +21,7 @@ One layout file in `:presentation` `res/layout/`:
 
 - **Material** widgets (`MaterialTextView`, `MaterialButton`, `MaterialCardView`, `ShapeableImageView`) — never plain `ImageView`
 - Clickable icons → `MaterialButton` `style="@style/ButtonStyle.IconButton"` with `app:icon`, `android:padding="4dp"` — **not** clickable `ShapeableImageView`
+- Text + static trailing/leading icon (chips/selectors) → **one** `MaterialTextView` with `app:drawableEndCompat` / `app:drawableStartCompat` — **not** `LinearLayout` + Text + ImageView
 - View Binding only (no Data Binding attributes)
 - **Portrait + landscape** — responsive ConstraintLayout; add `layout-land/` if needed
 - Shallow nesting — ConstraintLayout primary; avoid deep LinearLayout trees
