@@ -37,7 +37,7 @@ presentation/<featureName>/
    - handlers = `private suspend fun onX()`
    - `exceptionHandler` → `handleError`; **`handleError` last** in the class
    - sparse logs (repo primary; ViewModel failures/`Log.w` guards only)
-5. **Fragment** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (setup + clicks) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown lifecycle (if any); `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`** (`FragmentExtensions`); navigate with `navigateTo` / `popFrom`
+5. **Fragment** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (`screenStarted` + **inline** `setOnClickListener` — no `setupClicks()`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown lifecycle (if any); `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`** (`FragmentExtensions`); navigate with `navigateTo` / `popFrom`
 6. **Mapping** — heavy work in Repo/UseCase; `toUi()` in ViewModel with dispatcher if large lists
 7. **Logs** — `Constants.TAG*` format; prefer Repository; ViewModel not every method
 8. **Images** — adapters/Fragments bind with `siv.loadImage(...)` (Glide / `ImageViewExtensions`); never `setImageResource` for dynamic list/remote assets
@@ -118,6 +118,6 @@ app:popExitAnim="@anim/slide_out_right"
 - [ ] No business logic in Fragment beyond render + intent dispatch
 - [ ] Fragment collectors use `viewLifecycleOwner`; nav via `navigateTo` / `popFrom`
 - [ ] Fragment member order per `19-base-ui`
-- [ ] Fragment member order per `19-base-ui` (`onViewCreated` → helpers → `initObservers` → `renderState` → `handleEffect`)
+- [ ] Fragment member order per `19-base-ui` (`onViewCreated` with inline clicks — no `setupClicks()` → helpers → `initObservers` → `renderState` → `handleEffect`)
 - [ ] ViewModel: single `handleIntent` launch, `suspend` handlers, `handleError` last
 - [ ] Icon buttons use `ButtonStyle.IconButton` when applicable

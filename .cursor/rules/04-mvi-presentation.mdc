@@ -120,7 +120,7 @@ class FeatureViewModel(
 - **Render only** — no DTO/domain mapping, filtering, or sorting in Fragment / Activity / Adapter
 - Adapters bind pre-mapped UI models (`*UiItem`) only
 - Log screen analytics via shared `EventsProvider` (or equivalent) when the project uses Firebase events
-- **Fragment member order** (see `19-base-ui`): `onViewCreated` (setup + clicks) → `onStart`/`onResume` (if any) → helper implementations → `initObservers` → `renderState` → `handleEffect` → `onPause`/`onStop`/`onDestroyView` (if any)
+- **Fragment member order** (see `19-base-ui`): `onViewCreated` (`screenStarted` + **inline** clicks — no `setupClicks()`) → `onStart`/`onResume` (if any) → helper implementations → `initObservers` → `renderState` → `handleEffect` → `onPause`/`onStop`/`onDestroyView` (if any)
 
 ## Mapping (`toUi`)
 

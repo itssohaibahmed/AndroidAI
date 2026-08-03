@@ -82,17 +82,14 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>(FragmentFeatureBind
     // other properties / lazy adapters…
 
     override fun onViewCreated() {
-        // setup helpers + click listeners + ScreenStarted intent
-        setupUi()
         screenStarted()
 
+        // Click listeners inline here — do NOT extract a setupClicks() / setupListeners() helper
         binding.mbAction.setOnClickListener { viewModel.handleIntent(FeatureIntent.ActionClicked) }
     }
 
     // override fun onStart() { … }   // only if needed
     // override fun onResume() { … }  // only if needed
-
-    private fun setupUi() { /* helper implementations */ }
 
     private fun screenStarted() {
         viewModel.handleIntent(FeatureIntent.ScreenStarted)
@@ -114,9 +111,9 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>(FragmentFeatureBind
 ```
 
 1. Properties / ViewModels / adapters
-2. `onViewCreated()` — wire UI, click listeners, dispatch start intents
+2. `onViewCreated()` — `screenStarted()` (or other start intents) then **inline** `setOnClickListener` → `handleIntent`; optional non-click UI helpers only when non-trivial
 3. `onStart` / `onResume` — only when required
-4. Private helper method implementations (`setupX`, `screenStarted`, …)
+4. Private helper method implementations (`screenStarted`, camera/setup helpers, …) — **never** a dedicated `setupClicks()` / `setupListeners()` that only wires clicks
 5. `initObservers()` — `collectWhenStarted` / `collectWhenCreated`
 6. `renderState` then `handleEffect`
 7. `onPause` / `onStop` / `onDestroyView` — only when required (`onDestroyView` last among them)
@@ -131,3 +128,4 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>(FragmentFeatureBind
 - Collecting on Fragment `lifecycleScope` instead of `viewLifecycleOwner`
 - Shared `FlowCollectionExtensions.kt` — use `FragmentExtensions` + `ActivityExtensions`
 - `setImageResource` / raw `Glide.with` for dynamic/list/remote images — use `loadImage`
+- Extracting click wiring into `setupClicks()` / `setupListeners()` — keep `setOnClickListener` inline in `onViewCreated()`

@@ -37,7 +37,7 @@ alwaysApply: true
 
 - [ ] Feature package: `{di,intent,state,effect,viewModel,ui}` (+ adapter/mapper as needed)
 - [ ] Extend `Parent*` / `Base*` UI bases; layouts work in **portrait and landscape**
-- [ ] Fragment member order per `19-base-ui`: `onViewCreated` → helpers → `initObservers` → `renderState` → `handleEffect` → teardown (if any)
+- [ ] Fragment member order per `19-base-ui`: `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown (if any)
 - [ ] Icon actions use `ButtonStyle.IconButton` (`mb` + `app:icon`) — not clickable `siv`
 - [ ] Domain UseCase(s) + repository **interface** in `:domain` (never under `:data`)
 - [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main)

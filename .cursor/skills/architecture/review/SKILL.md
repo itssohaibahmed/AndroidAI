@@ -27,7 +27,7 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 - [ ] Navigation via Effects — not NavController in ViewModel
 - [ ] No mutable state exposed publicly
 - [ ] Fragments render + dispatch intents only
-- [ ] Fragment member order (`19`): `onViewCreated` → helpers → `initObservers` → `renderState` → `handleEffect` → teardown
+- [ ] Fragment member order (`19`): `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown
 - [ ] Collectors use `viewLifecycleOwner` (`FragmentExtensions`); nav via `navigateTo` / `popFrom`
 - [ ] ViewModel logs sparse — repo primary; failures via `handleError`
 
