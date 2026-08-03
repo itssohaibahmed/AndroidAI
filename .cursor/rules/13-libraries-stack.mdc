@@ -43,6 +43,7 @@ Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing / Hyp
 | Clickable `ShapeableImageView` / icon ImageView | `MaterialButton` + `ButtonStyle.IconButton` (`mb`, `app:icon`) |
 | `setImageResource` / `setImageDrawable` / raw `Glide.with` in adapters | `siv.loadImage(source)` (`ImageViewExtensions`) |
 | Picasso / Coil when Glide is standard | Glide + `loadImage` |
+| Fixed `MaterialButton` height + `insetTop`/`insetBottom` `0dp` | `android:layout_height="wrap_content"` (no inset hacks) |
 | `LinearLayout` + `mtv` + decorative `siv` for text+static icon | Single `MaterialTextView` + `app:drawableEndCompat` / `drawableStartCompat` |
 | `dimens.xml` | Inline `dp`/`sp` in multiples of 4 |
 | LiveData (new MVI screens) | StateFlow + SharedFlow |

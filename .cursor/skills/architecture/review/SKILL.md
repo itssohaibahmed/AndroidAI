@@ -45,6 +45,7 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 - [ ] View Binding only — no findViewById / Data Binding
 - [ ] Material widgets; portrait + landscape
 - [ ] Clickable icons → `ButtonStyle.IconButton` (`mb`, `app:icon`) — not clickable `siv`
+- [ ] Filled/text `MaterialButton` → `wrap_content` height — no fixed height + inset 0dp hacks
 - [ ] Text + static icon chips → `MaterialTextView` compound drawables — not `LinearLayout` + Text + ImageView
 - [ ] Programmatic images via Glide `siv.loadImage(...)` — not `setImageResource` / raw Glide in adapters
 - [ ] Strings in single `:core-ui` file

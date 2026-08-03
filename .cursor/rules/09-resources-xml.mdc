@@ -163,6 +163,9 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
   - Else fallback: `style="@style/Widget.Material3.Button.IconButton"`
   - ID prefix `mb…`; use `app:icon` (not `app:srcCompat`); keep `android:contentDescription="@string/cd_…"`
   - Typical attrs: `android:padding="4dp"`, `app:iconSize` (`0dp`); set `app:iconTint` only when the icon should follow theme color
+- **MaterialButton height (filled / tonal / outlined text buttons):** use `android:layout_height="wrap_content"` — **do not** force a fixed height (e.g. `40dp`) with `android:insetTop` / `android:insetBottom` `0dp` to fake it
+  - Let Material min height + padding/`textAppearance` define size; override via theme/`ButtonStyle.*` if product needs a shorter button globally
+  - Icon-only `ButtonStyle.IconButton` stays `wrap_content` (already)
 - **View Binding only** — never `findViewById`, never Data Binding
 - Shallow ConstraintLayout trees — avoid extra wrappers
 - **Text + static trailing/leading icon (chips, selectors):** prefer **one** `MaterialTextView` with compound drawables — **not** `LinearLayout` + `MaterialTextView` + `ShapeableImageView`
@@ -227,6 +230,31 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
 ```
 
 If `ButtonStyle.IconButton` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `iconSize` as (`0dp`), & use `iconTint` as (@null)`.
+
+### MaterialButton height (filled / text actions)
+
+```xml
+<!-- BAD — fixed height + inset hacks -->
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/mbTranslateTranslate"
+    style="@style/Widget.Material3.Button"
+    android:layout_width="0dp"
+    android:layout_height="40dp"
+    android:insetTop="0dp"
+    android:insetBottom="0dp"
+    android:text="@string/translate_action_translate"
+    … />
+
+<!-- GOOD — wrap_content, no insets -->
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/mbTranslateTranslate"
+    style="@style/Widget.Material3.Button"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:text="@string/translate_action_translate"
+    android:textAppearance="@style/TextStyle.Heading.H6.Medium"
+    … />
+```
 
 ### Text + static end icon (chips / language selectors)
 
