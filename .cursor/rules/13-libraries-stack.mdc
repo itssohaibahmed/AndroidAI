@@ -44,7 +44,10 @@ Lottie, CameraX, Play Services Location/Maps, Firebase suite, Play Billing / Hyp
 | `setImageResource` / `setImageDrawable` / raw `Glide.with` in adapters | `siv.loadImage(source)` (`ImageViewExtensions`) |
 | Picasso / Coil when Glide is standard | Glide + `loadImage` |
 | Fixed `MaterialButton` height + `insetTop`/`insetBottom` `0dp` | `android:layout_height="wrap_content"` (no inset hacks) |
-| `LinearLayout` + `mtv` + decorative `siv` for text+static icon | Single `MaterialTextView` + `app:drawableEndCompat` / `drawableStartCompat` |
+| `bg_shape_*` oval/rect for button solid + stroke | `app:backgroundTint` + `app:strokeColor`/`strokeWidth` + `app:cornerRadius` on `MaterialButton` |
+| `android:background` + `backgroundTint="@null"` on `MaterialButton` | Same — Material surface attrs only |
+| `MaterialTextView` + `bg_shape_*` / `drawableEnd` for language chips | `MaterialButton` + Material style + `app:icon` / `iconGravity="end"` (no custom chip bg) |
+| `LinearLayout` + `mtv` + `siv` for tappable selectors | Same — `MaterialButton` with end icon |
 | `dimens.xml` | Inline `dp`/`sp` in multiples of 4 |
 | LiveData (new MVI screens) | StateFlow + SharedFlow |
 | Hardcoded versions | `libs.versions.toml` |

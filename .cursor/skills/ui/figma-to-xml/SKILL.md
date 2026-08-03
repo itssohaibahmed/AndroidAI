@@ -28,8 +28,12 @@ Per `24-figma-assets`:
 
 - `ShapeableImageView` (`siv`) for display-only images
 - Programmatic loads → `siv.loadImage(...)` (Glide / `ImageViewExtensions`)
-- Text + static end/start icon → `MaterialTextView` + `drawableEndCompat` / `drawableStartCompat` (no LL + ImageView wrapper)
+- Clickable language/chip selectors → `MaterialButton` + Material style + `app:icon` / `iconGravity="end"` (no `bg_shape_*` chip bg, no MTV + drawableEnd)
 - Clickable icons → `MaterialButton` + `style="@style/ButtonStyle.IconButton"` (`mb` + `app:icon`, `android:padding="4dp"`) — not clickable `siv`
+- **Button fill + stroke from Figma:** apply on `MaterialButton` with `app:backgroundTint`, `app:strokeColor`, `app:strokeWidth`, `app:cornerRadius` — **do not** export/create `bg_shape_*` oval/rect (solid+stroke only), and **do not** use `android:background` + `backgroundTint="@null"` + inset hacks
+  - Circle icon button: `cornerRadius` ≈ half of width/height
+  - Colors → `:core-ui` `colors.xml`; skip the shape XML file entirely when Material attrs cover it
+  - Only create `bg_shape_*` for non-button surfaces, gradients, or selectors Material cannot express
 - Material text/buttons/cards
 - RecyclerView: `app:layoutManager` + orientation / `spanCount` in XML (not Kotlin unless dynamic)
 - `cd_*` content descriptions

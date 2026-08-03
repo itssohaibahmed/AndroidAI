@@ -66,7 +66,7 @@ res/anim-ldrtl/slide_out_right.xml
 - Prefer Fragment helpers `navigateTo(...)` / `popFrom(...)` from `FragmentExtensions` — only navigate when `isAdded` and current destination matches (see `19-base-ui`)
 - Do not call raw `findNavController().navigate` / `popBackStack` in feature Fragments when the helpers exist
 - Use `popUpTo` / `inclusive` deliberately for login and tab roots (onboarding funnel often `popUpToInclusive="true"`)
-- Predictive back: OnBackPressedDispatcher / nav back — map to Intent/Effect when ViewModel must know
+- Predictive back / `OnBackPressedDispatcher`: **only add when the feature explicitly asks for custom `onBackPressed`** — map to Intent/Effect when ViewModel must know; otherwise leave default Nav back alone
 - Deep links declared in nav graph + manifest; validate args before use (see `10-manifest`, `14-security-secrets`)
 
 ## Forbidden

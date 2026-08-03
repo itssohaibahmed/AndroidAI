@@ -24,7 +24,8 @@ Example: `bottom_sheet_filter_options.xml`, `bottom_sheet_compass_guidelines.xml
 
 - Material widgets; View Binding IDs (`mtvSheetTitle`, `mbSheetApply`)
 - Clickable icons → `MaterialButton` IconButton (`ButtonStyle.IconButton` + `app:icon` + `android:padding="4dp"`), not clickable `siv`
-- Text + static trailing icon → `MaterialTextView` + `drawableEndCompat` — not `LinearLayout` + ImageView
+- Button solid + stroke → tint / stroke / `cornerRadius` on the button — no `bg_shape_*` for that
+- Clickable language/chip selectors → `MaterialButton` + Material background + `app:icon` end — not `MaterialTextView` + `bg_shape_*` / `drawableEnd`
 - Portrait + landscape — avoid fixed heights that break landscape
 - Strings from `:core-ui` `@string/`
 - No Kotlin `BottomSheetDialogFragment` unless user requests separately

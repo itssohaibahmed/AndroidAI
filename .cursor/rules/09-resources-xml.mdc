@@ -163,16 +163,22 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
   - Else fallback: `style="@style/Widget.Material3.Button.IconButton"`
   - ID prefix `mb…`; use `app:icon` (not `app:srcCompat`); keep `android:contentDescription="@string/cd_…"`
   - Typical attrs: `android:padding="4dp"`, `app:iconSize` (`0dp`); set `app:iconTint` only when the icon should follow theme color
+- **MaterialButton fill + stroke (glass / outlined / tinted surfaces):** set attrs **on the button** — **do not** create `bg_shape_*` oval/rect drawables just for solid + stroke
+  - Fill: `app:backgroundTint`
+  - Stroke: `app:strokeColor` + `app:strokeWidth`
+  - Shape: `app:cornerRadius` (circle ≈ half of width/height) or `app:shapeAppearance`
+  - **Forbidden for this case:** `android:background="@drawable/bg_shape_…"`, `app:backgroundTint="@null"`, and `insetTop`/`insetBottom` `0dp` only to force a custom drawable to fit
+  - Reserve `bg_shape_*` for non-button views (roots, cards wrappers, RecyclerView items) or gradients / selectors Material attrs cannot express
 - **MaterialButton height (filled / tonal / outlined text buttons):** use `android:layout_height="wrap_content"` — **do not** force a fixed height (e.g. `40dp`) with `android:insetTop` / `android:insetBottom` `0dp` to fake it
   - Let Material min height + padding/`textAppearance` define size; override via theme/`ButtonStyle.*` if product needs a shorter button globally
-  - Icon-only `ButtonStyle.IconButton` stays `wrap_content` (already)
+  - Icon-only `ButtonStyle.IconButton` stays `wrap_content` unless design needs a fixed tap target (still use tint/stroke/cornerRadius — no shape drawable)
+- **Clickable chips / language selectors (text + trailing arrow):** use **`MaterialButton`** — **not** `MaterialTextView` + `drawableEnd`, and **not** `LinearLayout` + text + `ShapeableImageView`
+  - ID prefix `mb…`; `android:layout_height="wrap_content"`; no `insetTop`/`insetBottom` hacks
+  - Icon on the **right**: `app:icon` + `app:iconGravity="end"` (+ `app:iconPadding` as needed)
+  - Surface via Material style + `backgroundTint` / stroke attrs — **do not** set `android:background="@drawable/bg_shape_…"`
+  - Non-clickable text + decorative icon only: compound drawables on `MaterialTextView` are OK; interactive selectors must be buttons
 - **View Binding only** — never `findViewById`, never Data Binding
 - Shallow ConstraintLayout trees — avoid extra wrappers
-- **Text + static trailing/leading icon (chips, selectors):** prefer **one** `MaterialTextView` with compound drawables — **not** `LinearLayout` + `MaterialTextView` + `ShapeableImageView`
-  - Use `android:drawableEnd` / `android:drawableStart` (or `app:drawableEndCompat` / `app:drawableStartCompat`)
-  - Size with `android:drawablePadding`; optional tint via `android:drawableTint` / `app:drawableTint`
-  - Put `android:background`, padding, and `android:contentDescription` on the **text view** (or make the chip a clickable `MaterialButton` with `app:icon` / `app:iconGravity` when it behaves as a button)
-  - Keep a separate `ShapeableImageView` only when the image is dynamic (Glide), large, or independently clickable
 - **Static layout config in XML** — not Kotlin — unless it must change at runtime:
   - `RecyclerView`: set `app:layoutManager`, `android:orientation`, `app:spanCount` (grids) in XML
   - `LinearLayout` / `LinearLayoutCompat`: `android:orientation` in XML
@@ -231,6 +237,47 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
 
 If `ButtonStyle.IconButton` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `iconSize` as (`0dp`), & use `iconTint` as (@null)`.
 
+### MaterialButton solid + stroke (no shape drawable)
+
+```xml
+<!-- BAD — extra oval drawable + background override + inset hacks -->
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/mbCloseOcr"
+    style="@style/ButtonStyle.IconButton"
+    android:layout_width="44dp"
+    android:layout_height="44dp"
+    android:background="@drawable/bg_shape_ocr_glass_circle"
+    android:insetTop="0dp"
+    android:insetBottom="0dp"
+    android:padding="4dp"
+    app:backgroundTint="@null"
+    app:icon="@drawable/ic_svg_back"
+    app:iconTint="@color/white"
+    … />
+
+<!-- BAD drawable — do not create for button solid+stroke -->
+<!-- bg_shape_ocr_glass_circle.xml: oval + solid + stroke -->
+
+<!-- GOOD — tint + stroke + cornerRadius on the button -->
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/mbCloseOcr"
+    style="@style/ButtonStyle.IconButton"
+    android:layout_width="44dp"
+    android:layout_height="44dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="16dp"
+    android:contentDescription="@string/cd_ocr_close"
+    android:padding="4dp"
+    app:backgroundTint="@color/color_ocr_glass"
+    app:cornerRadius="22dp"
+    app:icon="@drawable/ic_svg_back"
+    app:iconTint="@color/white"
+    app:strokeColor="@color/color_ocr_glass_stroke"
+    app:strokeWidth="1dp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+```
+
 ### MaterialButton height (filled / text actions)
 
 ```xml
@@ -256,52 +303,42 @@ If `ButtonStyle.IconButton` is missing, add it under General button styles in `:
     … />
 ```
 
-### Text + static end icon (chips / language selectors)
+### Clickable language / chip selectors (text + end icon)
 
 ```xml
-<!-- BAD — LinearLayout + TextView + decorative ImageView -->
-<LinearLayout
-    android:id="@+id/llToLanguageTranslate"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_shape_translate_lang_chip"
-    android:contentDescription="@string/cd_target_language"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="10dp"
-    app:layout_constraintHorizontal_weight="1"
-    …>
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/mtvToLanguageTranslate"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ellipsize="end"
-        android:maxLines="1"
-        tools:text="Spanish" />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:contentDescription="@null"
-        android:importantForAccessibility="no"
-        app:srcCompat="@drawable/ic_svg_translate_arrow_down" />
-</LinearLayout>
-
-<!-- GOOD — single MaterialTextView + drawableEnd -->
+<!-- BAD — MaterialTextView + custom chip background + drawableEnd -->
 <com.google.android.material.textview.MaterialTextView
-    android:id="@+id/mtvToLanguageTranslate"
+    android:id="@+id/mtvFromLanguageTranslate"
     style="@style/TextStyle.Heading.H6.Medium"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_shape_translate_lang_chip"
-    android:contentDescription="@string/cd_target_language"
-    android:drawablePadding="8dp"
+    android:drawableEnd="@drawable/ic_svg_translate_arrow_down"
     android:ellipsize="end"
-    android:gravity="center_vertical"
     android:maxLines="1"
-    android:padding="10dp"
+    android:padding="12dp"
     android:textColor="?attr/colorOnSurface"
-    app:drawableEndCompat="@drawable/ic_svg_translate_arrow_down"
     app:layout_constraintHorizontal_weight="1"
-    tools:text="Spanish" />
+    tools:text="English" />
+
+<!-- ALSO BAD — LinearLayout + TextView + ImageView -->
+<!-- Prefer neither wrapper nor MTV chip for tappable selectors -->
+
+<!-- GOOD — MaterialButton + Material surface + icon end (no bg_shape_*) -->
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/mbFromLanguageTranslate"
+    style="@style/Widget.Material3.Button.OutlinedButton"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:contentDescription="@string/cd_source_language"
+    android:ellipsize="end"
+    android:maxLines="1"
+    android:textAppearance="@style/TextStyle.Heading.H6.Medium"
+    app:icon="@drawable/ic_svg_translate_arrow_down"
+    app:iconGravity="end"
+    app:iconPadding="8dp"
+    app:layout_constraintHorizontal_weight="1"
+    tools:text="English" />
 ```
+
+Use project `ButtonStyle.*` when available instead of raw `Widget.Material3.*`. Do **not** assign `android:background="@drawable/bg_shape_…"` — delete those chip backgrounds for button selectors.

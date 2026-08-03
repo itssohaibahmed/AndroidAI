@@ -38,9 +38,9 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 - Images (display only): `ShapeableImageView` (`siv`); contentDescription via `cd_*` strings
 - Programmatic image loads: `siv.loadImage(...)` via Glide (`ImageViewExtensions`) — not `setImageResource` in adapters
 - Clickable icons: `MaterialButton` + `ButtonStyle.IconButton` (`mb`); `app:icon` — not clickable `siv`
-- Text + static end/start icon: single `mtv` + `drawableEndCompat` / `drawableStartCompat` — not `ll` + `mtv` + `siv`
+- Clickable language/chip selectors: `mb…` `MaterialButton` + `app:icon` end — not `mtv` + `bg_shape_*` / `drawableEnd`, not `ll` + `mtv` + `siv`
 - **No `dimens.xml`** — inline sizes as multiples of 4 (`8dp`, `16dp`, `16sp`, …)
-- Backgrounds: `bg_shape_*` (shapes), `bg_svg_*` (svg backgrounds), `bg_*` otherwise
+- Backgrounds: `bg_shape_*` (shapes for **non-button** surfaces / gradients / selectors), `bg_svg_*` (svg backgrounds), `bg_*` otherwise — **not** for `MaterialButton` solid+stroke (use tint/stroke/cornerRadius)
 
 ## Logging tags
 

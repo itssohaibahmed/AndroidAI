@@ -45,8 +45,9 @@ Read `.cursor/rules/` and apply systematically. Output a structured report.
 - [ ] View Binding only — no findViewById / Data Binding
 - [ ] Material widgets; portrait + landscape
 - [ ] Clickable icons → `ButtonStyle.IconButton` (`mb`, `app:icon`) — not clickable `siv`
+- [ ] `MaterialButton` solid+stroke → tint/stroke/`cornerRadius` — not `bg_shape_*` + `background` override
 - [ ] Filled/text `MaterialButton` → `wrap_content` height — no fixed height + inset 0dp hacks
-- [ ] Text + static icon chips → `MaterialTextView` compound drawables — not `LinearLayout` + Text + ImageView
+- [ ] Clickable language/chip selectors → `MaterialButton` + Material bg + end `app:icon` — not MTV + `bg_shape_*` / `drawableEnd`
 - [ ] Programmatic images via Glide `siv.loadImage(...)` — not `setImageResource` / raw Glide in adapters
 - [ ] Strings in single `:core-ui` file
 - [ ] Static `layoutManager` / orientations / `spanCount` in XML — not Kotlin unless dynamic
