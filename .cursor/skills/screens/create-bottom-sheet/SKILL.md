@@ -30,6 +30,7 @@ Example: `bottom_sheet_filter_options.xml`, `bottom_sheet_compass_guidelines.xml
 - Strings from `:core-ui` `@string/`
 - No Kotlin `BottomSheetDialogFragment` unless user requests separately
 - Prefer `ParentSheet` / project base sheet when wiring later
+- Closing tags: blank line between nested container closes; **no** extra blank line after the root closing tag
 
 ## vs dialog
 

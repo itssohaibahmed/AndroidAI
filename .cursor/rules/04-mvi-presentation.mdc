@@ -135,6 +135,19 @@ class FeatureViewModel(
 - Map/filter/sort large collections in Repo / UseCase / ViewModel (off Main) before State / `submitList`
 - Keep State lean; do not dump entire raw datasets into UI state when unnecessary
 - Prefer pagination / windowed loading when the feature loads open-ended data
+- **`DiffUtil.ItemCallback`:** keep simple `areItemsTheSame` / `areContentsTheSame` as **one-liners** (same line as `=`) — do not break the expression body onto the next line
+
+```kotlin
+// BAD
+override fun areItemsTheSame(oldItem: ConversationUiItem, newItem: ConversationUiItem): Boolean =
+    oldItem.id == newItem.id
+
+// GOOD
+override fun areItemsTheSame(oldItem: ConversationUiItem, newItem: ConversationUiItem): Boolean = oldItem.id == newItem.id
+override fun areContentsTheSame(oldItem: ConversationUiItem, newItem: ConversationUiItem): Boolean = oldItem == newItem
+```
+
+- Same idea for other short single-expression overrides / properties — prefer one line when readable (~140 cols OK)
 
 ## Orientation
 

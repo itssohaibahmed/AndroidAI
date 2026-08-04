@@ -34,6 +34,7 @@ One layout file in `:presentation` `res/layout/`:
 - No hardcoded user-facing strings — `@string/` from `:core-ui`
 - Images: `android:contentDescription="@string/cd_…"` (add `cd_*` under Content Descriptions section)
 - RecyclerView: `app:layoutManager` + `android:orientation` / `app:spanCount` in XML — not in Kotlin unless dynamic; rows = `item_<name>.xml`
+- Closing tags: blank line between nested container closes; **no** extra blank line after the root closing tag
 
 ## Do not create
 

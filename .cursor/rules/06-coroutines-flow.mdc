@@ -36,6 +36,7 @@ Rules:
 ## Large datasets (design from day one)
 
 - Prefer `ListAdapter` + `DiffUtil` (or AsyncListDiffer) — never `notifyDataSetChanged` for big lists
+- DiffCallback: simple `areItemsTheSame` / `areContentsTheSame` as **one-liners** (`Boolean = oldItem.id == newItem.id`) — see `04-mvi-presentation`
 - Do not put full thousand-item payloads in State when only a page/window is shown — prefer pagination / paging / windowed loads when the feature needs it
 - Avoid copying large collections on Main (`toList()`, deep `map` chains) without a background dispatcher
 - Prefer streaming (`Flow`) over loading entire datasets into memory when sources support it

@@ -186,6 +186,29 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
   - Code only when dynamic (e.g. swap horizontal↔vertical or span count from state/config)
 - RecyclerView: `ListAdapter` + `DiffUtil`; declare manager in XML as above
 - Inline `dp`/`sp` multiples of 4 — **no `dimens.xml`**
+- **XML closing / EOF formatting (layouts):**
+  - Put a **blank line between nested container closing tags** (e.g. after `</ConstraintLayout>` before `</MaterialCardView>`, and before the root close)
+  - End the file on the **root closing tag** — **no** extra blank line after `</Root>` (single trailing newline for EOF only)
+  - Do **not** jam nested closes back-to-back without the blank line between major containers
+
+```xml
+<!-- BAD — no blank between nested closes; extra blank after root -->
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+<!-- GOOD — blank line between nested container closes; no blank after root -->
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
 
 ### RecyclerView XML example
 

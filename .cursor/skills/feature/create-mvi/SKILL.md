@@ -90,7 +90,7 @@ Register **all** of the above in app composition root (`KoinModules`). Always `l
 
 ## Navigation
 
-- Add destination to `nav_*.xml`; Safe Args if needed
+- Add destination to `nav_*.xml`; Safe Args if needed — property name **`navArgs`** (`by navArgs()`), not `args`
 - ViewModel emits navigation **Effect**; Fragment calls `NavController`
 - Every `<action>` must use reference slide anims (`17-navigation`):
 
@@ -121,3 +121,4 @@ app:popExitAnim="@anim/slide_out_right"
 - [ ] Fragment member order per `19-base-ui` (`onViewCreated` with inline clicks — no `setupClicks()` → helpers → `initObservers` → `renderState` → `handleEffect`)
 - [ ] ViewModel: single `handleIntent` launch, `suspend` handlers, `handleError` last
 - [ ] Icon buttons use `ButtonStyle.IconButton` when applicable
+- [ ] `DiffUtil.ItemCallback`: simple `areItemsTheSame` / `areContentsTheSame` as one-liners (see `04-mvi-presentation`)

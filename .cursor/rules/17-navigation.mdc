@@ -57,8 +57,12 @@ res/anim-ldrtl/slide_out_right.xml
 
 ## Safe Args
 
+- Property name is always **`navArgs`** — never `args` / `arguments` for the delegate:
+  ```kotlin
+  private val navArgs: ConversationFragmentArgs by navArgs()
+  ```
 - Pass only primitive / Parcelable / Serializable types approved by the project
-- Read args in UI or inject into ViewModel via DI `parametersOf` / SavedStateHandle
+- Read `navArgs` in UI or inject into ViewModel via DI `parametersOf` / SavedStateHandle
 - Do not pass large objects or domain repositories through nav args
 
 ## Back stack / UX

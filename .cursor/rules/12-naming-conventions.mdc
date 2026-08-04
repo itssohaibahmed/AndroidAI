@@ -16,6 +16,13 @@ alwaysApply: false
 | DI modules | `*Module` val | `homePresentationModule` |
 | Functions | camelCase, verb-first | `handleIntent`, `savePreferences` |
 | Backing flows | `_state`, `_effect` (private) | `_state.update { }` |
+| Safe Args | Property always `navArgs` | `private val navArgs: XFragmentArgs by navArgs()` |
+
+### Kotlin formatting (keep short expressions on one line)
+
+- Simple single-expression overrides (`DiffUtil.ItemCallback`, trivial getters) → **one line**: `…): Boolean = oldItem.id == newItem.id`
+- Do **not** break after `=` for short bodies
+- Prefer wrapping only when a line is truly long; ~**140** columns is fine for DiffUtil / similar signatures
 
 ## Gradle modules
 

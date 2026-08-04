@@ -40,6 +40,7 @@ Per `24-figma-assets`:
 - No `dimens.xml` — spacing/text sizes multiples of 4
 - Portrait + landscape
 - Strings in `:core-ui` `strings.xml` (app → general → content descriptions → screen)
+- Closing tags: blank line between nested container closes; file ends on root close — **no** trailing blank line after `</Root>`
 
 ## Output
 
