@@ -21,10 +21,11 @@ Cross-check `.cursor/rules/` and run manual verification.
 - [ ] `targetSdk` meets Play requirements
 
 ## Quality gates
-- [ ] Run `architecture/review` skill on release diff
-- [ ] Run `quality/security` skill
-- [ ] Run `quality/performance` on list-heavy screens
-- [ ] Critical flows tested on minSdk device/emulator
+- [ ] Run `review/review-architecture` skill on release diff
+- [ ] Run `review/review-security` skill
+- [ ] Run `review/review-performance` on list-heavy screens
+- [ ] Or run `review/review-complete` for all three
+- [ ] Critical flows tested on minSdk device/emulator (`test/test-complete` when useful)
 
 ## UX
 - [ ] Portrait + landscape on main flows

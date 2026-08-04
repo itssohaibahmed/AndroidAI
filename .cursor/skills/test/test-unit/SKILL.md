@@ -1,11 +1,13 @@
 ---
-name: unit-tests
-description: Write Android unit tests for UseCases and ViewModels. Use when adding tests, test coverage for MVI, or fake repository tests.
+name: test-unit
+description: Write Android unit tests for UseCases and ViewModels. Use when adding unit tests, MVI test coverage, or fake repository tests. Part of test-* suite; use test-complete to run everything.
 ---
 
 # Unit Tests
 
 Follow `.cursor/rules/11-testing.mdc`, `18-errors-result.mdc`.
+
+Obey `.cursor/project-settings.json`: if `writeTestsWithFeatures` is `false`, only write tests when the user explicitly asks.
 
 ## Priority
 

@@ -1,0 +1,89 @@
+# AndroidAI Cursor template (v1)
+
+Company-grade **rules** + **skills** for Clean Architecture Android apps (XML + View Binding, MVI, Koin `lazyModule`).
+
+Use this folder as the single source of truth while building the template. Share with the team by copying `.cursor/` into a project (or later syncing from a tagged template repo).
+
+## Rules vs Skills
+
+|      | **Rules** (`.cursor/rules/`)                   | **Skills** (`.cursor/skills/`)                             |
+|------|------------------------------------------------|------------------------------------------------------------|
+| Role | Company law — invariants, naming, architecture | Multi-step playbooks (+ templates)                         |
+| When | Always-on or glob-matched while editing        | Invoked by name (`/` or agent pick) or trigger description |
+| Size | Prefer clear invariants + BAD/GOOD             | Full workflows                                             |
+
+**Commands:** Prefer skills with `/` invoke. Do not grow a large `.cursor/commands/` tree unless needed.
+
+## Project settings
+
+After `setup-new-project` (or when joining an app), settings live in:
+
+**[`.cursor/project-settings.json`](project-settings.json)**
+
+All feature/UI/test skills **must read and obey** this file when present:
+
+| Key                      | Values                            | Meaning                                        |
+|--------------------------|-----------------------------------|------------------------------------------------|
+| `writeTestsWithFeatures` | `true` / `false`                  | Write unit/UI tests while scaffolding features |
+| `orientation`            | `portrait` / `landscape` / `both` | Which orientations layouts must support        |
+| `themeModes`             | `day` / `night` / `both`          | Day / night / both theme resources             |
+| `applicationId`          | string                            | Root package / applicationId                   |
+| `appName`                | string                            | Display name                                   |
+
+## Skill map
+
+```
+project/setup-new-project          Bootstrap multi-module app + persist settings
+feature/create-mvi                 Presentation MVI only (no domain/data)
+feature/create-clean-architecture  Domain + data + core pieces as needed
+ui/figma-to-xml                    XML layouts (+ Figma design-to-code); absorbs freeform screen XML
+ui/create-dialog                   Dialog XML (orchestrates figma-to-xml)
+ui/create-bottom-sheet             Bottom sheet XML (orchestrates figma-to-xml)
+ui/create-custom-view              Custom View / ViewGroup
+review/review-architecture         Architecture / MVI / boundaries
+review/review-performance          ANR / lists / dispatchers
+review/review-security             Secrets / manifest / PII
+review/review-complete             Runs all review-* + summary report
+test/test-unit                     UseCase + ViewModel unit tests
+test/test-flow                     Coroutine / Flow / repository tests
+test/test-ui                       Instrumentation / Espresso conventions
+test/test-complete                 Run all tests + emulator walkthrough checklist
+gradle/gradle-organize             Catalog + dependencies section order
+gradle/gradle-update               Bump catalog to latest compatible stables
+platform/in-app-update             Play In-App Updates
+release/pre-release                Ship checklist
+```
+
+### Typical feature flow
+
+1. `setup-new-project` (once per app)
+2. `figma-to-xml` (or dialog / bottom-sheet) — XML only
+3. `create-mvi` — presentation Intent/State/Effect/VM/Fragment
+4. `create-clean-architecture` — when new domain/data is required
+
+Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/rules/reference/`](rules/reference/) — not separate skills.
+
+## Rules index (`00`–`26`)
+
+| File                        | Role                                                        |
+|-----------------------------|-------------------------------------------------------------|
+| `00-global` / `01-ai-agent` | Always-on stack + AI checklist                              |
+| `02`–`03`                   | Modules + Clean Architecture                                |
+| `04`–`07`                   | MVI, Kotlin, coroutines, DI                                 |
+| `08`–`10`                   | Gradle, resources/XML, manifest                             |
+| `11`–`13`                   | Testing, naming, libraries                                  |
+| `14`–`16`                   | Security (always), compatibility, logging (always)          |
+| `17`–`20`                   | Nav, errors, base UI, permissions                           |
+| `21`–`25`                   | Ads/billing, Firebase, startup, Figma assets, in-app update |
+| `26-data-persistence`       | Retrofit / Room / SharedPreferences patterns                |
+
+## Future distribution (not in v1)
+
+**Option A:** Dedicated template repo + sync script that copies a tagged `.cursor/` into each app. VERSION / CHANGELOG / sync scripts come in a later pass — do not invent local divergent rules; update the template instead.
+
+## How teammates use this
+
+1. Open project with this `.cursor/` present.
+2. Type `/` and pick a skill (e.g. `figma-to-xml`, `create-mvi`).
+3. Obey rules automatically while editing matching files.
+4. Before PRs: `/review-complete` or individual `review-*` skills.

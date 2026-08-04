@@ -1,5 +1,6 @@
 ---
-description: Cross-cutting naming conventions reference
+description: Cross-cutting naming conventions reference — Kotlin, Gradle, packages, resources, logging, analytics, domain
+globs: ["**/*.kt", "**/res/**/*.xml", "**/*.gradle.kts", "**/libs.versions.toml"]
 alwaysApply: false
 ---
 

@@ -11,7 +11,7 @@ Follow `.cursor/rules/09-resources-xml.mdc`, `19-base-ui.mdc`.
 
 - Reusable control used in multiple screens (chart, compass dial, custom slider)
 - Compound view simpler than nested includes everywhere
-- **Not** for one-off screen layout — use `screens/create-screen`
+- **Not** for one-off screen layout — use `ui/figma-to-xml`
 
 ## Structure
 

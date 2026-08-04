@@ -5,7 +5,7 @@ description: Organize Gradle module dependencies and libs.versions.toml into sta
 
 # Gradle Organize
 
-Follow `.cursor/rules/08-gradle.mdc`. Match the Qibla-style section headers and order below.
+Follow `.cursor/rules/08-gradle.mdc`. Match the standard section headers and order below.
 
 ## When to run
 
@@ -18,7 +18,7 @@ Follow `.cursor/rules/08-gradle.mdc`. Match the Qibla-style section headers and 
 
 1. `gradle/libs.versions.toml`
 2. Every module `build.gradle.kts` (`app`, `presentation`, `data`, `domain`, `core-*`, ads, features)
-3. Do **not** change versions unless user also asks to bump — organizing ≠ upgrading (unless they request latest)
+3. Do **not** change versions unless user also asks to bump — organizing ≠ upgrading (use `gradle-update` for bumps)
 
 ---
 

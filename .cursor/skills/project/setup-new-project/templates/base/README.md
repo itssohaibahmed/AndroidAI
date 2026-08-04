@@ -17,7 +17,7 @@ Copy into the new app and replace `YOUR.PACKAGE` with the real applicationId roo
 | `BasePermissionFragment.kt`                    | `:presentation` | `…presentation.base.fragment` |
 | `BaseDialog.kt` / `BaseSheet.kt`               | `:presentation` | `…presentation.base.sheets`   |
 
-Hierarchy (same as Qibla reference):
+Hierarchy (company template):
 
 ```
 core-ui:    ParentActivity / ParentFragment / ParentDialog* / ParentSheet*
@@ -26,7 +26,7 @@ presentation: BasePermissionFragment → BaseFragment → Feature
 ```
 
 Notes:
-- `ParentSheet` uses **null-safe** binding (improved vs Qibla `!!`)
+- `ParentSheet` uses **null-safe** binding (avoid `!!` on binding)
 - Theme: apply after `startKoin` in Application; no `GlobalContext` probes (`07`, `23`)
 - `FragmentExtensions` collectors use **`viewLifecycleOwner`** (avoids duplicate collectors after navigate away / back)
 - Prefer `navigateTo` / `popFrom` over raw `findNavController()` calls

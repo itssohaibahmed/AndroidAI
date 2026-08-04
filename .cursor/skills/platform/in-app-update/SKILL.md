@@ -5,7 +5,7 @@ description: Add Google Play In-App Updates (Immediate/Flexible) with InAppUpdat
 
 # Add In-App Update
 
-Follow `.cursor/rules/08-gradle.mdc`, `09-resources-xml.mdc`, `13-libraries-stack.mdc`, `16-logging.mdc`.  
+Follow `.cursor/rules/08-gradle.mdc`, `09-resources-xml.mdc`, `13-libraries-stack.mdc`, `16-logging.mdc`, `25-in-app-update.mdc`.  
 **Requires human approval** before adding `app-update-ktx` if not already in the catalog.
 
 ## Goal

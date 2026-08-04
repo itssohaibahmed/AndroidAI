@@ -1,22 +1,25 @@
 ---
 name: create-dialog
-description: Create Android screen XML layout only (fragment_/activity_/dialog_). Use when user asks for a new screen layout, fragment layout XML, dialog layout, or UI XML without Kotlin/MVI scaffolding.
+description: Create Android dialog XML (dialog_*.xml) from a Figma link or name. XML only — orchestrates figma-to-xml. Use when the user asks for a dialog layout or shares a Figma dialog node.
 ---
 
-# Create Screen Layout (XML only)
+# Create Dialog Layout (XML only)
 
 Follow `.cursor/rules/09-resources-xml.mdc`, `12-naming-conventions.mdc`.
 
+Obey `.cursor/project-settings.json` when present.
+
+## Orchestration
+
+1. If user provided a **Figma URL**, run the **`figma-to-xml`** workflow (including mandatory `figma-design-to-code` before `get_design_context`)
+2. Force output type **Dialog** → `dialog_<name>.xml` in `:presentation` `res/layout/`
+3. If no Figma — create dialog XML using the same Material / ID / string rules as `figma-to-xml`
+
 ## Output
 
-One layout file in `:presentation` `res/layout/`:
-
-| Type            | Name                                                       |
-|-----------------|------------------------------------------------------------|
-| Fragment screen | `fragment_<feature>.xml` or `fragment_<feature>_<sub>.xml` |
-| Activity        | `activity_<name>.xml`                                      |
-| Dialog          | `dialog_<name>.xml`                                        |
-| Reusable block  | `layout_<name>.xml`                                        |
+| Type   | Name              |
+|--------|-------------------|
+| Dialog | `dialog_<name>.xml` |
 
 ## Rules
 
@@ -26,19 +29,20 @@ One layout file in `:presentation` `res/layout/`:
 - Filled/text `MaterialButton`: `layout_height="wrap_content"` — **no** fixed height + `insetTop`/`insetBottom` `0dp`
 - Clickable language/chip selectors → `MaterialButton` + Material background + `app:icon` / `iconGravity="end"` — **not** `MaterialTextView` + `bg_shape_*` / `drawableEnd`, **not** `LinearLayout` + Text + ImageView
 - View Binding only (no Data Binding attributes)
-- **Portrait + landscape** — responsive ConstraintLayout; add `layout-land/` if needed
+- **Portrait + landscape** — responsive ConstraintLayout; add `layout-land/` if needed — unless `project-settings.json` says otherwise
 - Shallow nesting — ConstraintLayout primary; avoid deep LinearLayout trees
-- View IDs: Hungarian prefix + camelCase (`mtvTitleHome`, `sivLogoHome`, `mbConfirmLanguage`, `clRootHome`)
+- View IDs: Hungarian prefix + camelCase (`mtvTitleDialog`, `mbConfirmDialog`, `clRootDialog`)
 - Theme attrs: `?attr/colorSurface`, `?attr/colorOnBackground`
-- Inline `dp` / `sp` only — **no `dimens.xml`**; sizes in **multiples of 4** (`8dp`, `16dp`, `16sp`)
+- Inline `dp` / `sp` only — **no `dimens.xml`**; sizes in **multiples of 4**
 - No hardcoded user-facing strings — `@string/` from `:core-ui`
-- Images: `android:contentDescription="@string/cd_…"` (add `cd_*` under Content Descriptions section)
-- RecyclerView: `app:layoutManager` + `android:orientation` / `app:spanCount` in XML — not in Kotlin unless dynamic; rows = `item_<name>.xml`
+- Images: `android:contentDescription="@string/cd_…"`
 - Closing tags: blank line between nested container closes; **no** extra blank line after the root closing tag
+- Prefer small confirmations / alerts as dialogs; medium filters → `create-bottom-sheet`
+- Prefer `ParentDialog` / project base dialog when wiring later
 
 ## Do not create
 
-- Kotlin Fragment/ViewModel (use `create-mvi` skill)
+- Kotlin DialogFragment/ViewModel (use `create-mvi` or wire to existing host)
 - Strings in presentation module — add to shared `strings.xml` (incl. `cd_*`)
 - `dimens.xml`
 - `findViewById` references

@@ -1,11 +1,11 @@
 ---
-name: performance-review
-description: Review Android code for ANR risk, large dataset handling, dispatchers, and RecyclerView performance. Use when optimizing lists, fixing jank, ANR, or slow screens.
+name: review-performance
+description: Review Android code for ANR risk, large dataset handling, dispatchers, and RecyclerView performance. Use when optimizing lists, fixing jank, ANR, or slow screens. Prefer review-complete for a full multi-check pass.
 ---
 
 # Performance Review
 
-Follow `.cursor/rules/06-coroutines-flow.mdc`, `03`, `04`.
+Follow `.cursor/rules/06-coroutines-flow.mdc`, `03-android-architecture.mdc`, `04-mvi-presentation.mdc`.
 
 ## Assume thousands of items / large files always
 
@@ -29,7 +29,7 @@ Follow `.cursor/rules/06-coroutines-flow.mdc`, `03`, `04`.
 - [ ] Prefer `Flow` streaming over load-all-in-memory
 
 ### Layout
-- [ ] Shallow hierarchy (`09`) — overdraw / measure cost
+- [ ] Shallow hierarchy (`09-resources-xml`) — overdraw / measure cost
 - [ ] No unnecessary `layout-land` duplication if one responsive layout suffices
 
 ### Coroutines

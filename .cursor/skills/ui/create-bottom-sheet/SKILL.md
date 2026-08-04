@@ -1,11 +1,19 @@
 ---
 name: create-bottom-sheet
-description: Create Android bottom sheet XML layout only (bottom_sheet_*.xml). Use when user asks for bottom sheet layout XML without Kotlin BottomSheetDialogFragment wiring.
+description: Create Android bottom sheet XML (bottom_sheet_*.xml) from a Figma link or name. XML only — orchestrates figma-to-xml. Use when the user asks for bottom sheet layout without Kotlin BottomSheetDialogFragment wiring.
 ---
 
 # Create Bottom Sheet Layout (XML only)
 
 Follow `.cursor/rules/09-resources-xml.mdc`.
+
+Obey `.cursor/project-settings.json` when present.
+
+## Orchestration
+
+1. If user provided a **Figma URL**, run the **`figma-to-xml`** workflow (including mandatory `figma-design-to-code` before `get_design_context`)
+2. Force output type **Bottom sheet** → `bottom_sheet_<feature>_<purpose>.xml` in `:presentation` `res/layout/`
+3. If no Figma — create sheet XML using the rules below + shared Material rules from `figma-to-xml`
 
 ## Output
 
@@ -26,7 +34,7 @@ Example: `bottom_sheet_filter_options.xml`, `bottom_sheet_compass_guidelines.xml
 - Clickable icons → `MaterialButton` IconButton (`ButtonStyle.IconButton` + `app:icon` + `android:padding="4dp"`), not clickable `siv`
 - Button solid + stroke → tint / stroke / `cornerRadius` on the button — no `bg_shape_*` for that
 - Clickable language/chip selectors → `MaterialButton` + Material background + `app:icon` end — not `MaterialTextView` + `bg_shape_*` / `drawableEnd`
-- Portrait + landscape — avoid fixed heights that break landscape
+- Portrait + landscape — avoid fixed heights that break landscape — unless `project-settings.json` says otherwise
 - Strings from `:core-ui` `@string/`
 - No Kotlin `BottomSheetDialogFragment` unless user requests separately
 - Prefer `ParentSheet` / project base sheet when wiring later
@@ -36,3 +44,7 @@ Example: `bottom_sheet_filter_options.xml`, `bottom_sheet_compass_guidelines.xml
 
 - Use bottom sheet for contextual actions / filters / medium content
 - Use `create-dialog` for small confirmations
+
+## After layout
+
+Tell user to wire via `create-mvi` or existing host if Kotlin not requested.

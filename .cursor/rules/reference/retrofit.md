@@ -1,11 +1,6 @@
----
-name: retrofit-api
-description: Add Retrofit networking with Clean Architecture. Use when adding REST API, remote DataSource, or HTTP client. Requires explicit library approval via version catalog.
----
+# Retrofit API (reference pattern)
 
-# Retrofit API
-
-Follow `.cursor/rules/08`, `13`, `06`, `18`, `22`. **Add Retrofit/OkHttp/Moshi only with approval** — catalog first.
+Follow `.cursor/rules/08-gradle.mdc`, `13-libraries-stack.mdc`, `06-coroutines-flow.mdc`, `18-errors-result.mdc`, `22-platform-firebase.mdc`, `26-data-persistence.mdc`. **Add Retrofit/OkHttp/Moshi only with approval** — catalog first.
 
 Prefer existing `InternetManager` (`:core-platform`) for connectivity checks before calls.
 

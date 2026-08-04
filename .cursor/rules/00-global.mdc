@@ -23,6 +23,7 @@ You are working on a production Android application.
 - Do not introduce new libraries without explicit approval
 - Do not change architecture or module boundaries without approval
 - Maintain backward compatibility
+- When `.cursor/project-settings.json` exists, **obey it** (`writeTestsWithFeatures`, `orientation`, `themeModes`, `applicationId`, `appName`) — see `.cursor/README.md`
 
 ## Code quality
 
@@ -32,8 +33,9 @@ You are working on a production Android application.
 - Prefer readable code over clever code
 - Minimize scope — change only what the task requires
 - Design for large datasets from day one — never assume small lists
-- UI must support portrait and landscape
+- UI must support portrait and landscape (unless `project-settings.json` sets `orientation` to `portrait` or `landscape` only)
 - Heavy mapping in Repository / UseCase; UI layers render only
+- Networking / Room / SharedPreferences patterns: `26-data-persistence.mdc` + `rules/reference/`
 
 ## Golden dependency rule
 

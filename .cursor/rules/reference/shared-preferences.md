@@ -1,11 +1,6 @@
----
-name: shared-preferences
-description: Add Android SharedPreferences via SharedPrefManager data source + domain SharedPrefRepository. Use when persisting settings, flags, premium state, or RC cache prefs. Dispatchers only in repository impl.
----
-
 # SharedPreferences (reference pattern)
 
-Follow `.cursor/rules/03`, `07`, `16`, `18`. Match Qibla-style layout:
+Follow `.cursor/rules/03-android-architecture.mdc`, `07-dependency-injection.mdc`, `16-logging.mdc`, `18-errors-result.mdc`, `26-data-persistence.mdc`. Match reference layout:
 
 ```
 data/sharedPreferences/

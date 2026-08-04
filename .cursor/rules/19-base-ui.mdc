@@ -19,7 +19,7 @@ alwaysApply: false
 
 **Templates (copy + replace `YOUR.PACKAGE`):**  
 `.cursor/skills/project/setup-new-project/templates/base/`  
-See that folder’s `README.md`. Same shape as Qibla; `ParentSheet` is null-safe (not `!!`).
+See that folder’s `README.md`. Same shape as the company template; `ParentSheet` is null-safe (not `!!`).
 
 ### ParentFragment
 - `bindingFactory: (LayoutInflater) -> T`

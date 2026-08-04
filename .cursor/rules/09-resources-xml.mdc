@@ -258,7 +258,7 @@ Order in `themes.xml`: App theme → TextStyle/ButtonStyle (incl. `ButtonStyle.I
     app:layout_constraintTop_toTopOf="@id/mtvTitleHome" />
 ```
 
-If `ButtonStyle.IconButton` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `iconSize` as (`0dp`), & use `iconTint` as (@null)`.
+If `ButtonStyle.IconButton` is missing, add it under General button styles in `:core-ui` `themes.xml` (parent `Widget.Material3.Button.IconButton`). Use `app:iconSize` as `0dp`, and use `app:iconTint` as `@null` when the drawable should keep its own colors.
 
 ### MaterialButton solid + stroke (no shape drawable)
 

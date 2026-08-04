@@ -8,7 +8,7 @@ import androidx.viewbinding.ViewBinding
  * Replace YOUR.PACKAGE with applicationId root.
  *
  * Thin by default. When the app has ads/billing, inject managers here
- * (same role as Qibla BaseFragment) — do not put ads into ParentFragment.
+ * (presentation BaseFragment role) — do not put ads into ParentFragment.
  */
 abstract class BaseFragment<T : ViewBinding>(
     bindingFactory: (LayoutInflater) -> T,

@@ -47,3 +47,31 @@ Examples:
 
 - Add at minimum: UseCase unit test + ViewModel unit test
 - Do not add trivial tests that only assert constants or getters
+- Honor `.cursor/project-settings.json`: if `writeTestsWithFeatures` is `false`, skip generating tests unless the user asks
+
+## Skills (playbooks)
+
+| Skill | Use for |
+|-------|---------|
+| `test/test-unit` | UseCase + ViewModel unit tests |
+| `test/test-flow` | Coroutine / Flow / repository behavior tests |
+| `test/test-ui` | `androidTest` / Espresso conventions |
+| `test/test-complete` | Run all written tests + emulator walkthrough checklist |
+
+## Flow / coroutine tests
+
+- Prefer `runTest` + test dispatchers (`StandardTestDispatcher` / `UnconfinedTestDispatcher`)
+- Assert Flow emissions with Turbine **only if** already in catalog + approved
+- Repository tests: fake DataSources; never real network/DB in unit tests
+
+## UI / instrumentation
+
+- Cover critical user-visible flows only (login, paywall, primary feature path)
+- No new Espresso / UI-test libraries without approval — use project’s existing stack
+- Keep tests independent — no shared mutable state between tests
+
+## Emulator walkthrough (`test-complete`)
+
+- Run unit + instrumentation suites that already exist
+- Structured manual/agent checklist through main nav paths on an emulator
+- Document device API / orientation from `project-settings.json`

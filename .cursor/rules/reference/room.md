@@ -1,11 +1,6 @@
----
-name: room-cache
-description: Add Room database for local cache or persistence. Use when adding Room, SQLite cache, offline storage, or entity DAOs. Requires explicit library approval via version catalog.
----
+# Room Cache (reference pattern)
 
-# Room Cache
-
-Follow `.cursor/rules/08`, `13`, `06`, `03`. **Add Room only with human approval** — add to `libs.versions.toml` first.
+Follow `.cursor/rules/08-gradle.mdc`, `13-libraries-stack.mdc`, `06-coroutines-flow.mdc`, `03-android-architecture.mdc`, `26-data-persistence.mdc`. **Add Room only with human approval** — add to `libs.versions.toml` first.
 
 ## Layers
 

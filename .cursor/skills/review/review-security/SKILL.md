@@ -1,17 +1,17 @@
 ---
-name: security-review
-description: Review Android code for secrets, exported components, permissions, logging leaks, and ProGuard. Use when security review, release prep, or auditing sensitive data handling.
+name: review-security
+description: Review Android code for secrets, exported components, permissions, logging leaks, and ProGuard. Use when security review, release prep, or auditing sensitive data handling. Prefer review-complete for a full multi-check pass.
 ---
 
 # Security Review
 
-Follow `.cursor/rules/14-security-secrets.mdc`, `10-manifest.mdc`, `21-ads-billing.mdc`.
+Follow `.cursor/rules/14-security-secrets.mdc`, `10-manifest.mdc`, `21-ads-billing.mdc`, `16-logging.mdc`.
 
 ## Secrets
 - [ ] No API keys, tokens, keystore passwords in source, Gradle, or docs
 - [ ] `local.properties` / CI env for secrets
 - [ ] Debug uses sample ad/billing IDs — not production
-- [ ] No secrets in logs (`16`)
+- [ ] No secrets in logs (`16-logging`)
 
 ## Manifest
 - [ ] `exported="false"` default for non-launcher components

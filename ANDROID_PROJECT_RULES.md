@@ -1,27 +1,28 @@
 # Android Project Engineering Rules Document
 
-> Extracted from **Qibla Finder / Qibla Compass** (`Qibla-Finder-Qibla-Compass-HSAIAppsLab`).  
+> Company Clean Architecture template for Android apps.  
 > Intended for Cursor Rules, Claude.md, and AI agent knowledge bases.  
-> Follow these rules for all new features and future projects based on this architecture.
+> Follow these rules for all new features and future projects based on this architecture.  
+> Prefer `.cursor/rules/` + `.cursor/skills/` as the day-to-day agent source of truth; this file is the long-form engineering dump.
 
 ---
 
 ## Project Baseline (Detected)
 
-| Setting | Value |
-|---------|--------|
-| Language | **Kotlin only** |
-| UI toolkit | **XML + View Binding** (No Jetpack Compose) |
-| Architecture | **Clean Architecture** |
-| Presentation pattern | **MVVM + MVI** (Intent / State / Effect) |
-| DI | **Koin** (`lazyModule`, `single`, `factory`, `viewModel`) |
-| Build | **Gradle Kotlin DSL** + **Version Catalog** (`gradle/libs.versions.toml`) |
-| minSdk | **24** |
-| targetSdk | **36** |
-| compileSdk | **36** (minorApiLevel = 1) |
-| Java compatibility | **17** |
-| Kotlin code style | **official** (`gradle.properties`) |
-| Root package | `qiblacompass.prayertimes.qibladirectionfinder` |
+| Setting              | Value                                                                     |
+|----------------------|---------------------------------------------------------------------------|
+| Language             | **Kotlin only**                                                           |
+| UI toolkit           | **XML + View Binding** (No Jetpack Compose)                               |
+| Architecture         | **Clean Architecture**                                                    |
+| Presentation pattern | **MVVM + MVI** (Intent / State / Effect)                                  |
+| DI                   | **Koin** (`lazyModule`, `single`, `factory`, `viewModel`)                 |
+| Build                | **Gradle Kotlin DSL** + **Version Catalog** (`gradle/libs.versions.toml`) |
+| minSdk               | **24**                                                                    |
+| targetSdk            | **36**                                                                    |
+| compileSdk           | **36** (minorApiLevel = 1)                                                |
+| Java compatibility   | **17**                                                                    |
+| Kotlin code style    | **official** (`gradle.properties`)                                        |
+| Root package         | `com.company.app` (replace with your `applicationId`)                     |
 
 ---
 
@@ -31,18 +32,17 @@
 
 Modules are declared in `settings.gradle.kts`:
 
-| Module | Type | Responsibility |
-|--------|------|----------------|
-| `:app` | Application | `App` class, Koin aggregation, FCM/notification receivers & services, wiring only |
-| `:domain` | Library | Entities, repository interfaces, use cases — no UI |
-| `:data` | Library | Repository implementations, DataSources, SharedPrefs, RemoteConfig, Billing, Location |
-| `:presentation` | Library | Screens (Fragments/Activities), feature MVI packages, adapters, navigation graphs |
-| `:core-common` | Library | Pure shared constants / events — **no Android UI / DI libs** |
-| `:core-platform` | Library | Platform services (network, Firebase helpers, delay handler, location clients) |
-| `:core-ui` | Library | Base UI (`Parent*`), ViewBinding lifecycle, extensions, themes, drawables, strings |
-| `:gmaAds` | Library | AdMob (app-open, banner, interstitial, native) with internal clean layers |
-| `:feature-prayertime` | Library | Embedded prayer-time calculation engine (`com.orbitalsonic.sonicopt`) |
-| `:feature-hijricalendar` | Library | Self-contained Hijri calendar UI/engine (`com.pegasus.hijricalendar`) |
+| Module           | Type        | Responsibility                                                                        |
+|------------------|-------------|---------------------------------------------------------------------------------------|
+| `:app`           | Application | `App` class, Koin aggregation, FCM/notification receivers & services, wiring only     |
+| `:domain`        | Library     | Entities, repository interfaces, use cases — no UI                                    |
+| `:data`          | Library     | Repository implementations, DataSources, SharedPrefs, RemoteConfig, Billing, Location |
+| `:presentation`  | Library     | Screens (Fragments/Activities), feature MVI packages, adapters, navigation graphs     |
+| `:core-common`   | Library     | Pure shared constants / events — **no Android UI / DI libs**                          |
+| `:core-platform` | Library     | Platform services (network, Firebase helpers, delay handler, location clients)        |
+| `:core-ui`       | Library     | Base UI (`Parent*`), ViewBinding lifecycle, extensions, themes, drawables, strings    |
+| `:gmaAds`        | Library     | Optional — AdMob (app-open, banner, interstitial, native) with internal clean layers  |
+| `:feature-*`     | Library     | Optional — standalone feature engines/UI (kebab-case names)                           |
 
 ## 1.2 Feature Module Structure (Presentation)
 
@@ -63,37 +63,35 @@ presentation/<featureName>/
   helper/      # optional feature helpers
 ```
 
-**Examples from this project:** `home`, `entrance`, `language`, `onBoarding`, `digitalCompass`, `qiblaCompass`, `prayer`, `premium`, `setting`, `exit`.
+**Examples:** `home`, `entrance`, `language`, `onBoarding`, `premium`, `setting`, `exit`, `userProfile`.
 
-Feature folder names use **camelCase** (`digitalCompass`, `qiblaMap`, `onBoarding`).
+Feature folder names use **camelCase** (`userProfile`, `onBoarding`, `homeDashboard`).
 
 ## 1.3 Core / Common Module Responsibilities
 
-| Module | May contain | Must NOT contain |
-|--------|-------------|------------------|
-| `core-common` | Constants, event keys, pure Kotlin shared types | Android UI, Koin, Fragments, ViewModels |
-| `core-platform` | InternetManager, Firebase helpers, handlers, platform DI | Screen UI, feature business use cases |
-| `core-ui` | Themes, colors, drawables, strings, `Parent*` bases, extensions, observers | Feature-specific business logic, data repositories |
+| Module          | May contain                                                                | Must NOT contain                                   |
+|-----------------|----------------------------------------------------------------------------|----------------------------------------------------|
+| `core-common`   | Constants, event keys, pure Kotlin shared types                            | Android UI, Koin, Fragments, ViewModels            |
+| `core-platform` | InternetManager, Firebase helpers, handlers, platform DI                   | Screen UI, feature business use cases              |
+| `core-ui`       | Themes, colors, drawables, strings, `Parent*` bases, extensions, observers | Feature-specific business logic, data repositories |
 
 Shared visual assets and localized strings live in **`core-ui`**, not in `presentation`.
 
 ## 1.4 Package Naming Conventions
 
 ```
-qiblacompass.prayertimes.qibladirectionfinder.<layer>.<area>...
+com.company.app.<layer>.<area>...
 ```
 
-| Layer | Package suffix |
-|-------|----------------|
-| Domain | `...domain.entity` / `...domain.repository.<area>` / `...domain.usecase.<area>` |
-| Data | `...data.<area>.repository` / `...data.<area>.dataSource` / `...data.di` |
-| Presentation | `...presentation.<feature>.{intent\|state\|effect\|viewModel\|ui\|di}` |
-| Core | `...core.common` / `...core.platform` / `...core.ui` |
-| Ads | `...admobAds.<adType>.{data\|domain\|presentation}` |
+| Layer        | Package suffix                                                                  |
+|--------------|---------------------------------------------------------------------------------|
+| Domain       | `...domain.entity` / `...domain.repository.<area>` / `...domain.usecase.<area>` |
+| Data         | `...data.<area>.repository` / `...data.<area>.dataSource` / `...data.di`        |
+| Presentation | `...presentation.<feature>.{intent\|state\|effect\|viewModel\|ui\|di}`          |
+| Core         | `...core.common` / `...core.platform` / `...core.ui`                            |
+| Ads          | `...admobAds.<adType>.{data\|domain\|presentation}`                             |
 
-**Exceptions (embedded libraries):**
-- `feature-prayertime` → `com.orbitalsonic.sonicopt`
-- `feature-hijricalendar` → `com.pegasus.hijricalendar`
+**Exceptions (embedded / third-party feature libraries):** keep their original package names when vendored as `:feature-*` modules.
 
 ## 1.5 Layer Separation Rules
 
@@ -109,27 +107,27 @@ UI (presentation) → Domain (interfaces + use cases) → Data (implementations)
 ## 1.6 Dependency Direction Rules
 
 ```
-feature-prayertime ──► domain ◄── data
+optional feature-* ──► domain ◄── data
                           ▲
                           │
-                     presentation ──► gmaAds ──► data
-                          │              │
+                     presentation ──► gmaAds (optional) ──► data
+                          │
                           └──► core-ui / core-platform / core-common
                           │
-                          └──► feature-hijricalendar / feature-prayertime
+                          └──► feature-* (optional)
 
-app ──► presentation, data, domain, gmaAds, core-*
+app ──► presentation, data, domain, core-*, optional gmaAds / feature-*
 ```
 
 ### Allowed
 
-| From | To |
-|------|----|
-| `presentation` | `domain`, `core-*`, `gmaAds`, `feature-*` |
-| `data` | `domain`, `core-*`, `feature-prayertime` |
-| `domain` | `feature-prayertime`, coroutines-core only |
-| `gmaAds` | `data`, `core-*` |
-| `app` | all modules (composition root) |
+| From           | To                                                 |
+|----------------|----------------------------------------------------|
+| `presentation` | `domain`, `core-*`, optional `gmaAds`, `feature-*` |
+| `data`         | `domain`, `core-*`, optional `feature-*`           |
+| `domain`       | coroutines-core only (+ optional pure `feature-*`) |
+| `gmaAds`       | `data`, `core-*`                                   |
+| `app`          | all modules (composition root)                     |
 
 ### Forbidden Dependencies
 
@@ -148,13 +146,13 @@ app ──► presentation, data, domain, gmaAds, core-*
 
 ## 2.1 AndroidManifest.xml Structure
 
-| Module | Manifest role |
-|--------|----------------|
-| `:app` | Canonical merged manifest: Application, Activities, Receivers, Services, Providers, meta-data |
-| `:presentation` | Permissions only (location, notifications) — no components |
-| `:core-platform` | Permissions only (`INTERNET`, `ACCESS_NETWORK_STATE`) |
-| `:gmaAds` | Non-exported ad Activities + `INTERNET` |
-| `:feature-hijricalendar` | Empty `<application />` stub |
+| Module           | Manifest role                                                                                 |
+|------------------|-----------------------------------------------------------------------------------------------|
+| `:app`           | Canonical merged manifest: Application, Activities, Receivers, Services, Providers, meta-data |
+| `:presentation`  | Permissions only (location, notifications) — no components                                    |
+| `:core-platform` | Permissions only (`INTERNET`, `ACCESS_NETWORK_STATE`)                                         |
+| `:gmaAds`        | Non-exported ad Activities + `INTERNET` (when ads module exists)                              |
+| `:feature-*`     | Prefer empty `<application />` stub unless the library needs components                       |
 
 ## 2.2 Application Class Rules
 
@@ -183,7 +181,7 @@ class App : Application() {
 - Prefer **single-Activity** architecture (`MainActivity` as launcher).
 - Launcher Activity: `android:exported="true"` + `MAIN`/`LAUNCHER` intent-filter.
 - Non-launcher Activities (e.g. ad loading): `android:exported="false"`.
-- Portrait lock is used in this project (`screenOrientation="portrait"`).
+- Prefer **portrait and landscape** unless `.cursor/project-settings.json` sets a single orientation.
 - Activities may live in `:presentation` or `:gmaAds`; declare fully-qualified class names when outside app package.
 
 ## 2.4 Fragment Declaration Rules
@@ -196,15 +194,15 @@ class App : Application() {
 
 - Declare only in `:app` manifest.
 - Default: `android:exported="false"`.
-- Foreground services must set `foregroundServiceType` (example: `mediaPlayback` for Azan).
+- Foreground services must set `foregroundServiceType` (example: `mediaPlayback` for media playback).
 - Matching permissions required (`FOREGROUND_SERVICE`, type-specific permission).
 
 ## 2.6 BroadcastReceiver Rules
 
-- Custom app actions: `exported="false"` (example: prayer alarm receiver).
+- Custom app actions: `exported="false"` (example: scheduled reminder receiver).
 - System broadcasts that must be received externally: `exported="true"` (example: `BOOT_COMPLETED`, timezone/date changes).
 - Prefer explicit package-scoped action names:  
-  `qiblacompass.prayertimes.qibladirectionfinder.ACTION_PRAYER_ALARM`
+  `com.company.app.ACTION_REMINDER`
 
 ## 2.7 Provider Rules
 
@@ -220,14 +218,14 @@ class App : Application() {
 
 ## 2.9 Exported Attribute Usage
 
-| Component | Rule |
-|-----------|------|
-| Launcher Activity | `exported="true"` |
-| Other Activities | `exported="false"` |
-| Custom receivers | `exported="false"` |
-| System receivers | `exported="true"` when required |
-| Services | `exported="false"` |
-| Providers | `exported="false"` |
+| Component         | Rule                            |
+|-------------------|---------------------------------|
+| Launcher Activity | `exported="true"`               |
+| Other Activities  | `exported="false"`              |
+| Custom receivers  | `exported="false"`              |
+| System receivers  | `exported="true"` when required |
+| Services          | `exported="false"`              |
+| Providers         | `exported="false"`              |
 
 **Never leave `exported` unspecified** for components with intent-filters.
 
@@ -250,12 +248,13 @@ class App : Application() {
 
 ## 2.13 Manifest Placeholders
 
-| Placeholder | Source | Usage |
-|-------------|--------|--------|
-| `${MAPS_API_KEY}` | `local.properties` via `app/build.gradle.kts` | Google Maps meta-data |
-| `${applicationId}` | AGP | Startup provider authority |
+| Placeholder        | Source                                        | Usage                      |
+|--------------------|-----------------------------------------------|----------------------------|
+| `${MAPS_API_KEY}`  | `local.properties` via `app/build.gradle.kts` | Google Maps meta-data      |
+| `${applicationId}` | AGP                                           | Startup provider authority |
 
 Rules:
+
 - Secrets (API keys) go in `local.properties` / CI secrets — **not** committed as hardcoded production secrets in source.
 - AdMob IDs use `resValue` per buildType in `:gmaAds` (debug uses Google sample IDs).
 
@@ -267,14 +266,14 @@ Rules:
 
 ### Naming Conventions
 
-| Element | Convention | Example |
-|---------|------------|---------|
-| Classes | PascalCase | `HomeViewModel`, `LanguageRepositoryImpl` |
-| Functions | camelCase | `handleIntent`, `getLastLocation` |
-| Properties / locals | camelCase | `currentCity`, `isLoading` |
-| Constants | UPPER_SNAKE / object members | `Constants.TAG` |
-| Packages | lowercase / camelCase feature folders | `presentation.home.viewModel` |
-| Boolean | `is` / `has` / `should` / `show` prefix | `isLoading`, `showPremiumIcon` |
+| Element             | Convention                              | Example                                   |
+|---------------------|-----------------------------------------|-------------------------------------------|
+| Classes             | PascalCase                              | `HomeViewModel`, `LanguageRepositoryImpl` |
+| Functions           | camelCase                               | `handleIntent`, `getLastLocation`         |
+| Properties / locals | camelCase                               | `currentCity`, `isLoading`                |
+| Constants           | UPPER_SNAKE / object members            | `Constants.TAG`                           |
+| Packages            | lowercase / camelCase feature folders   | `presentation.home.viewModel`             |
+| Boolean             | `is` / `has` / `should` / `show` prefix | `isLoading`, `showPremiumIcon`            |
 
 ### File Naming
 
@@ -315,7 +314,7 @@ Rules:
 
 ### Enum Usage
 
-- Closed fixed sets: prayer conventions, ad keys, tabs, orientation.
+- Closed fixed sets: app conventions, ad keys, tabs, orientation.
 - Prefer enums over stringly-typed constants for domain/UI options.
 
 ### Scope Functions
@@ -331,6 +330,7 @@ Rules:
 ### ViewModel Responsibilities
 
 ViewModels **must**:
+
 - Extend `androidx.lifecycle.ViewModel` (no custom BaseViewModel in this project).
 - Expose `StateFlow<*State>` and `SharedFlow<*Effect>`.
 - Accept a single entry: `fun handleIntent(intent: *Intent)`.
@@ -338,6 +338,7 @@ ViewModels **must**:
 - Use `viewModelScope` + `CoroutineExceptionHandler`.
 
 ViewModels **must not**:
+
 - Hold View / Fragment / Context references (except carefully injected app-level managers already used by the project).
 - Navigate directly; emit Effects instead.
 - Perform layout inflation or View Binding.
@@ -388,7 +389,7 @@ data class HomeState(
 
 ```kotlin
 sealed class HomeEffect {
-    object NavigateToPrayerTime : HomeEffect()
+    object NavigateToDetails : HomeEffect()
     data class ShowErrorRes(@StringRes val messageResId: Int) : HomeEffect()
 }
 ```
@@ -414,10 +415,10 @@ class GetLocationAndAddressUseCase(private val repository: LocationRepository) {
 
 ### Repository Rules
 
-| Layer | Type | Naming |
-|-------|------|--------|
-| Domain | `interface` | `LocationRepository` |
-| Data | `class` | `LocationRepositoryImpl` |
+| Layer  | Type        | Naming                   |
+|--------|-------------|--------------------------|
+| Domain | `interface` | `LocationRepository`     |
+| Data   | `class`     | `LocationRepositoryImpl` |
 
 - Bind in Koin: `single<XRepository> { XRepositoryImpl(...) }`.
 - Domain interfaces describe capability; data owns Android SDK / network / prefs.
@@ -458,25 +459,30 @@ ParentFragment (core-ui, ViewBinding lifecycle)
 ## 3.3 SOLID Rules (How This Project Applies Them)
 
 ### Single Responsibility (S)
+
 - UseCase = one business capability area.
 - ViewModel = state reduction + intent handling for one screen.
 - Repository = one data concern (location, billing, language, …).
 - Modules split UI / domain / data / ads / features.
 
 ### Open / Closed (O)
+
 - New screens add a new feature package + Koin module — existing modules stay closed.
 - Sealed Intent/Effect hierarchies extend by adding subtypes.
 - Ad keys/enums extend without rewriting managers.
 
 ### Liskov Substitution (L)
+
 - Any `*RepositoryImpl` must honor the domain interface contract (nullability, suspend semantics).
 - Fragments substituting `BaseFragment` must preserve ViewBinding lifecycle rules.
 
 ### Interface Segregation (I)
+
 - Narrow repository interfaces per area (`LanguageRepository`, `LocationRepository`) instead of a god repository.
 - Feature Intents expose only that screen’s events.
 
 ### Dependency Inversion (D)
+
 - Presentation/domain depend on abstractions (`LocationRepository`), not `LocationRepositoryImpl`.
 - Koin composition root in `:app` binds interfaces → implementations.
 
@@ -486,11 +492,11 @@ ParentFragment (core-ui, ViewBinding lifecycle)
 
 ### Coroutine Scope Usage
 
-| Scope | Use |
-|-------|-----|
-| `viewModelScope` | All ViewModel work |
+| Scope                                  | Use                                            |
+|----------------------------------------|------------------------------------------------|
+| `viewModelScope`                       | All ViewModel work                             |
 | `lifecycleScope` + `repeatOnLifecycle` | UI collection via `collectWhenStarted/Created` |
-| Do not use `GlobalScope` | Forbidden for feature work |
+| Do not use `GlobalScope`               | Forbidden for feature work                     |
 
 ### Dispatcher Handling
 
@@ -541,15 +547,15 @@ fun handleIntent(intent: HomeIntent) = viewModelScope.launch(coroutineExceptionH
 
 ### Module Organization
 
-| Location | Contents |
-|----------|----------|
-| `app/di/modules/AppModule.kt` | App-level singles |
-| `app/di/modules/UseCaseModule.kt` | Domain use case factories |
-| `data/di/DataModule.kt` | Repository + DataSource singles (split vals) |
-| `core-ui/.../CoreModule.kt` | Core UI deps |
-| `core-platform/.../CorePlatformModule.kt` | Platform deps |
-| `gmaAds/.../GMAAdsModule.kt` | Ad modules |
-| `presentation/<feature>/di/*PresentationModule.kt` | Feature ViewModels |
+| Location                                           | Contents                                     |
+|----------------------------------------------------|----------------------------------------------|
+| `app/di/modules/AppModule.kt`                      | App-level singles                            |
+| `app/di/modules/UseCaseModule.kt`                  | Domain use case factories                    |
+| `data/di/DataModule.kt`                            | Repository + DataSource singles (split vals) |
+| `core-ui/.../CoreModule.kt`                        | Core UI deps                                 |
+| `core-platform/.../CorePlatformModule.kt`          | Platform deps                                |
+| `gmaAds/.../GMAAdsModule.kt`                       | Ad modules                                   |
+| `presentation/<feature>/di/*PresentationModule.kt` | Feature ViewModels                           |
 
 ### Naming Conventions
 
@@ -560,13 +566,15 @@ fun handleIntent(intent: HomeIntent) = viewModelScope.launch(coroutineExceptionH
 ### Singleton Rules (`single`)
 
 Use for:
+
 - Repositories and DataSources
-- Managers (`BillingManager`, `PrayerTimeManager`, `AppOpenAdManager`)
+- Managers (`BillingManager`, `FeatureManager`, `AppOpenAdManager`)
 - Shared configs / dispatchers
 
 ### Factory Rules (`factory`)
 
 Use for:
+
 - UseCases (stateless, cheap to recreate)
 
 ### ViewModel Rules (`viewModel`)
@@ -594,44 +602,44 @@ val homePresentationModule = lazyModule {
 
 ### Naming Convention
 
-| Prefix | Usage | Example |
-|--------|--------|---------|
-| `fragment_` | Screens | `fragment_home.xml` |
-| `activity_` | Activities | `activity_main.xml` |
-| `layout_` | Includes / reusable blocks | `layout_dashboard_content_prayer.xml` |
-| `item_` | RecyclerView rows | `item_language.xml` |
-| `dialog_` | Dialogs | `dialog_prayer_notification_information.xml` |
-| `bottom_sheet_` | Bottom sheets | `bottom_sheet_compass_guidelines.xml` |
-| `view_` | Custom view roots | `view_hijri_calendar.xml` |
+| Prefix          | Usage                      | Example                             |
+|-----------------|----------------------------|-------------------------------------|
+| `fragment_`     | Screens                    | `fragment_home.xml`                 |
+| `activity_`     | Activities                 | `activity_main.xml`                 |
+| `layout_`       | Includes / reusable blocks | `layout_dashboard_content_home.xml` |
+| `item_`         | RecyclerView rows          | `item_language.xml`                 |
+| `dialog_`       | Dialogs                    | `dialog_confirm_delete.xml`         |
+| `bottom_sheet_` | Bottom sheets              | `bottom_sheet_filter_options.xml`   |
+| `view_`         | Custom view roots          | `view_chart_widget.xml`             |
 
 Use snake_case. Feature screens: `fragment_{feature}_{subfeature?}`.
 
 ### Folder Structure
 
-| Resources | Module |
-|-----------|--------|
-| Screen layouts | `:presentation` |
-| Shared drawables, themes, strings, colors | `:core-ui` |
-| Ad layouts | `:gmaAds` |
-| Calendar layouts | `:feature-hijricalendar` |
+| Resources                                 | Module                  |
+|-------------------------------------------|-------------------------|
+| Screen layouts                            | `:presentation`         |
+| Shared drawables, themes, strings, colors | `:core-ui`              |
+| Ad layouts                                | `:gmaAds` (optional)    |
+| Feature-library layouts                   | `:feature-*` (optional) |
 
 ### View ID Naming (Hungarian + camelCase)
 
-| Prefix | Widget |
-|--------|--------|
-| `mb` | MaterialButton |
-| `mtv` | MaterialTextView |
-| `siv` | ShapeableImageView |
-| `mcv` | MaterialCardView |
-| `cl` | ConstraintLayout |
-| `ll` | LinearLayout |
-| `fl` | FrameLayout |
-| `fcv` | FragmentContainerView |
-| `bnv` | BottomNavigationView |
-| `rcv` | RecyclerView |
-| `vp` | ViewPager2 |
-| `lav` | LottieAnimationView |
-| `shimmer` | ShimmerFrameLayout |
+| Prefix    | Widget                |
+|-----------|-----------------------|
+| `mb`      | MaterialButton        |
+| `mtv`     | MaterialTextView      |
+| `siv`     | ShapeableImageView    |
+| `mcv`     | MaterialCardView      |
+| `cl`      | ConstraintLayout      |
+| `ll`      | LinearLayout          |
+| `fl`      | FrameLayout           |
+| `fcv`     | FragmentContainerView |
+| `bnv`     | BottomNavigationView  |
+| `rcv`     | RecyclerView          |
+| `vp`      | ViewPager2            |
+| `lav`     | LottieAnimationView   |
+| `shimmer` | ShimmerFrameLayout    |
 
 Pattern: `{prefix}{Role}{ScreenOrItemContext}`  
 Examples: `mtvHeadingHome`, `mbGuidelineHome`, `sivFlagItemLanguage`, `clRootHome`.
@@ -654,7 +662,7 @@ Examples: `mtvHeadingHome`, `mbGuidelineHome`, `sivFlagItemLanguage`, `clRootHom
 - Prefer `ListAdapter<UiItem, VH>` + `DiffUtil.ItemCallback`.
 - Inflate with View Binding.
 - Submit lists from Fragment after mapping State → UI models.
-- ViewPager2: `FragmentStateAdapter` for tabbed flows (`OnBoardingPagerAdapter`, `DigitalCompassPagerAdapter`).
+- ViewPager2: `FragmentStateAdapter` for tabbed flows (`OnBoardingPagerAdapter`, `HomePagerAdapter`).
 - Optional item animation resource: `item_anim_fade_slide`.
 
 ---
@@ -663,16 +671,16 @@ Examples: `mtvHeadingHome`, `mbGuidelineHome`, `sivFlagItemLanguage`, `clRootHom
 
 ### Naming Convention
 
-| Prefix | Role | Example |
-|--------|------|---------|
-| `ic_svg_` | Vector icons | `ic_svg_back.xml` |
-| `ic_png_` | Raster icons | `ic_png_home_clock.webp` |
-| `ic_shape_` | Decorative shapes | `ic_shape_home_line_selected.xml` |
-| `img_svg_` | Large vectors | `img_svg_qibla_compass_1.xml` |
-| `img_png_` | Large rasters | `img_png_premium.webp` |
-| `bg_` | Backgrounds / containers | `bg_container_selected.xml` |
-| `fg_` | Foreground gradients | `fg_gradient_prayer_time.xml` |
-| `flag_` | Language flags | `flag_ar.xml` |
+| Prefix      | Role                     | Example                           |
+|-------------|--------------------------|-----------------------------------|
+| `ic_svg_`   | Vector icons             | `ic_svg_back.xml`                 |
+| `ic_png_`   | Raster icons             | `ic_png_home_clock.webp`          |
+| `ic_shape_` | Decorative shapes        | `ic_shape_home_line_selected.xml` |
+| `img_svg_`  | Large vectors            | `img_svg_onboarding_1.xml`        |
+| `img_png_`  | Large rasters            | `img_png_premium.webp`            |
+| `bg_`       | Backgrounds / containers | `bg_container_selected.xml`       |
+| `fg_`       | Foreground gradients     | `fg_gradient_home_header.xml`     |
+| `flag_`     | Language flags           | `flag_ar.xml`                     |
 
 ### Shape Drawable Rules
 
@@ -690,14 +698,14 @@ Examples: `mtvHeadingHome`, `mbGuidelineHome`, `sivFlagItemLanguage`, `clRootHom
 
 ### Naming
 
-| Pattern | Example |
-|---------|---------|
-| `toast_*` | `toast_no_internet_connection` |
-| `action_*` | `action_continue` |
-| `{screen}_title` / `_body` | `language_body` |
-| `{feature}_*` | `compass_guideline_1` |
-| `premium_*` / `setting_*` / `exit_*` | `premium_title` |
-| Numbered variants | `_one`/`_two` or `_1`/`_2` |
+| Pattern                              | Example                        |
+|--------------------------------------|--------------------------------|
+| `toast_*`                            | `toast_no_internet_connection` |
+| `action_*`                           | `action_continue`              |
+| `{screen}_title` / `_body`           | `language_body`                |
+| `{feature}_*`                        | `home_guideline_1`             |
+| `premium_*` / `setting_*` / `exit_*` | `premium_title`                |
+| Numbered variants                    | `_one`/`_two` or `_1`/`_2`     |
 
 Group with XML comment section headers.
 
@@ -763,6 +771,7 @@ Group with XML comment section headers.
 ### Module `build.gradle.kts`
 
 Every Android module:
+
 - Uses `alias(libs.plugins.android.application|library)`.
 - Sets `namespace`, `compileSdk` 36, `minSdk` 24.
 - Java 17 `compileOptions`.
@@ -782,12 +791,14 @@ Every Android module:
 ## 5.2 Version Management
 
 **Mandatory:**
+
 - All versions in `gradle/libs.versions.toml`.
 - Dependencies referenced as `libs.*`.
 - Plugins referenced as `libs.plugins.*`.
 - **No hardcoded dependency/plugin versions** in module scripts.
 
 Sections in catalog:
+
 - `[versions]`
 - `[libraries]`
 - `[plugins]`
@@ -807,10 +818,10 @@ coreLibraryDesugaring(libs.desugar.jdk.libs)
 
 ### `implementation` vs `api`
 
-| Use | When |
-|-----|------|
-| `implementation` | Default for almost all deps |
-| `api` | Rare — when module types must be exposed to consumers (gmaAds exposes Mobile Ads / Meta mediation) |
+| Use              | When                                                                                               |
+|------------------|----------------------------------------------------------------------------------------------------|
+| `implementation` | Default for almost all deps                                                                        |
+| `api`            | Rare — when module types must be exposed to consumers (gmaAds exposes Mobile Ads / Meta mediation) |
 
 ### Test Dependencies
 
@@ -827,9 +838,9 @@ coreLibraryDesugaring(libs.desugar.jdk.libs)
 
 ### BuildTypes
 
-| Type | Rules |
-|------|-------|
-| `debug` | minify off; appId suffix `.testing`; sample AdMob IDs in gmaAds |
+| Type      | Rules                                                                       |
+|-----------|-----------------------------------------------------------------------------|
+| `debug`   | minify off; appId suffix `.testing`; sample AdMob IDs in gmaAds             |
 | `release` | minify + shrink resources on **app**; release signing; production AdMob IDs |
 
 ### ProductFlavors
@@ -851,9 +862,9 @@ coreLibraryDesugaring(libs.desugar.jdk.libs)
 
 ### Other Build Features
 
-- View Binding: **enabled** on UI modules (`app`, `presentation`, `core-ui`, `gmaAds`, `feature-hijricalendar`).
+- View Binding: **enabled** on UI modules (`app`, `presentation`, `core-ui`, optional `gmaAds` / `feature-*`).
 - BuildConfig: enabled where needed.
-- Core library desugaring: enabled for `java.time` on older APIs (`app`, `feature-hijricalendar`).
+- Core library desugaring: enabled for `java.time` on older APIs (`app`, and any module that needs it).
 - Navigation Safe Args: enabled on `presentation`.
 - Parcelize: enabled where Parcelable models exist (`data`, `presentation`).
 
@@ -863,31 +874,31 @@ coreLibraryDesugaring(libs.desugar.jdk.libs)
 
 ## 6.1 Mandatory Libraries (Established Stack)
 
-| Category | Library | Catalog alias |
-|----------|---------|---------------|
-| AndroidX Core | core-ktx, appcompat, activity, fragment-ktx | `androidx-*` |
-| UI | Material 3, ConstraintLayout | `material`, `androidx-constraintlayout` |
-| Navigation | navigation-fragment/ui + Safe Args | `androidx-navigation-*` |
-| Lifecycle | viewmodel/runtime/process | `androidx-lifecycle-*` |
-| DI | Koin Android | `koin-android`, `koin-core-coroutines` |
-| Coroutines | kotlinx-coroutines-core (+ play-services) | `kotlinx-coroutines-*` |
-| Splash | core-splashscreen | `androidx-core-splashscreen` |
-| Images | Glide | `glide` |
-| Desugaring | desugar_jdk_libs | `desugar-jdk-libs` |
+| Category      | Library                                     | Catalog alias                           |
+|---------------|---------------------------------------------|-----------------------------------------|
+| AndroidX Core | core-ktx, appcompat, activity, fragment-ktx | `androidx-*`                            |
+| UI            | Material 3, ConstraintLayout                | `material`, `androidx-constraintlayout` |
+| Navigation    | navigation-fragment/ui + Safe Args          | `androidx-navigation-*`                 |
+| Lifecycle     | viewmodel/runtime/process                   | `androidx-lifecycle-*`                  |
+| DI            | Koin Android                                | `koin-android`, `koin-core-coroutines`  |
+| Coroutines    | kotlinx-coroutines-core (+ play-services)   | `kotlinx-coroutines-*`                  |
+| Splash        | core-splashscreen                           | `androidx-core-splashscreen`            |
+| Images        | Glide                                       | `glide`                                 |
+| Desugaring    | desugar_jdk_libs                            | `desugar-jdk-libs`                      |
 
 ## 6.2 Optional Libraries (Allowed When Feature Needs Them)
 
-| Library | When to use |
-|---------|-------------|
-| Lottie | Complex animations already patterned in UI |
-| Dots Indicator | Onboarding / pager indicators |
-| Shimmer | Loading placeholders (ads/premium) |
-| CameraX | Camera-based features (digital compass) |
-| Play Services Maps / Location | Map & GPS features |
-| Firebase Crashlytics / Analytics / Messaging / Remote Config | Existing platform integrations |
-| Play Billing wrapper (`google-billing`) | Premium IAP |
-| Google Mobile Ads + Meta mediation | Ads via `:gmaAds` |
-| App Update KTX | In-app updates |
+| Library                                                      | When to use                                |
+|--------------------------------------------------------------|--------------------------------------------|
+| Lottie                                                       | Complex animations already patterned in UI |
+| Dots Indicator                                               | Onboarding / pager indicators              |
+| Shimmer                                                      | Loading placeholders (ads/premium)         |
+| CameraX                                                      | Camera-based features (when approved)      |
+| Play Services Maps / Location                                | Map & GPS features                         |
+| Firebase Crashlytics / Analytics / Messaging / Remote Config | Existing platform integrations             |
+| Play Billing wrapper (`google-billing`)                      | Premium IAP                                |
+| Google Mobile Ads + Meta mediation                           | Ads via `:gmaAds`                          |
+| App Update KTX                                               | In-app updates                             |
 
 ## 6.3 Forbidden Libraries (Unless Explicitly Approved)
 
@@ -901,14 +912,14 @@ coreLibraryDesugaring(libs.desugar.jdk.libs)
 
 ## 6.4 Replacement Recommendations
 
-| Do not introduce | Use instead |
-|------------------|-------------|
-| Compose UI | XML + View Binding + Material3 |
-| Hilt | Koin `lazyModule` |
-| LiveData for new MVI screens | StateFlow + SharedFlow |
-| Manual findViewById | View Binding |
-| Hardcoded versions | `libs.versions.toml` |
-| God `Utils` classes | Focused extensions / use cases / repositories |
+| Do not introduce             | Use instead                                   |
+|------------------------------|-----------------------------------------------|
+| Compose UI                   | XML + View Binding + Material3                |
+| Hilt                         | Koin `lazyModule`                             |
+| LiveData for new MVI screens | StateFlow + SharedFlow                        |
+| Manual findViewById          | View Binding                                  |
+| Hardcoded versions           | `libs.versions.toml`                          |
+| God `Utils` classes          | Focused extensions / use cases / repositories |
 
 ---
 
@@ -922,9 +933,9 @@ coreLibraryDesugaring(libs.desugar.jdk.libs)
 ## 7.2 Unit Testing Approach
 
 - Prefer pure JVM unit tests for:
-  - UseCases (fake repositories)
-  - Mappers
-  - State reduction helpers
+    - UseCases (fake repositories)
+    - Mappers
+    - State reduction helpers
 - Place tests under `src/test/java` mirroring package structure.
 
 ## 7.3 ViewModel Testing
@@ -956,6 +967,7 @@ coreLibraryDesugaring(libs.desugar.jdk.libs)
 ```
 
 Examples:
+
 - `GetLocationAndAddressUseCase_whenRepositoryReturnsNull_thenReturnsNull`
 - `HomeViewModel_whenPermissionDenied_thenEmitsShowError`
 
@@ -965,21 +977,21 @@ Instrumentation tests: describe user-visible behavior.
 
 # 8. Naming Convention Rules
 
-| Kind | Rule | Example |
-|------|------|---------|
-| Classes | PascalCase, role suffix | `HomeFragment`, `BillingRepositoryImpl` |
-| Functions | camelCase, verb-first | `handleIntent`, `getAddressForLocation` |
-| Variables | camelCase | `currentCity`, `_state` (private backing) |
-| Packages | app id + layer + feature | `...presentation.home.viewModel` |
-| Resources | snake_case + prefix | `fragment_home`, `ic_svg_back`, `toast_no_internet` |
-| Modules | kebab-case Gradle names | `:core-ui`, `:feature-prayertime` |
-| Interfaces | No `I` prefix; plain capability name | `LocationRepository` |
-| Implementations | `Impl` suffix | `LocationRepositoryImpl` |
-| ViewModels | `*ViewModel` | `HomeViewModel` |
-| Intents/States/Effects | `*Intent` / `*State` / `*Effect` | `HomeIntent` |
-| UseCases | `*UseCase` | `GetTodayPrayerTimesUseCase` |
-| DI modules | `*Module` val | `homePresentationModule` |
-| Ad layer (gmaAds) | Often `ViewModelX`, `UseCaseX`, `RepositoryX` | `ViewModelBanner` |
+| Kind                   | Rule                                          | Example                                             |
+|------------------------|-----------------------------------------------|-----------------------------------------------------|
+| Classes                | PascalCase, role suffix                       | `HomeFragment`, `BillingRepositoryImpl`             |
+| Functions              | camelCase, verb-first                         | `handleIntent`, `getAddressForLocation`             |
+| Variables              | camelCase                                     | `currentCity`, `_state` (private backing)           |
+| Packages               | reverse-DNS + layer + feature                 | `com.company.app.presentation.home.viewModel`       |
+| Resources              | snake_case + prefix                           | `fragment_home`, `ic_svg_back`, `toast_no_internet` |
+| Modules                | kebab-case Gradle names                       | `:core-ui`, `:feature-auth`                         |
+| Interfaces             | No `I` prefix; plain capability name          | `LocationRepository`                                |
+| Implementations        | `Impl` suffix                                 | `LocationRepositoryImpl`                            |
+| ViewModels             | `*ViewModel`                                  | `HomeViewModel`                                     |
+| Intents/States/Effects | `*Intent` / `*State` / `*Effect`              | `HomeIntent`                                        |
+| UseCases               | `*UseCase`                                    | `GetUserProfileUseCase`                             |
+| DI modules             | `*Module` val                                 | `homePresentationModule`                            |
+| Ad layer (gmaAds)      | Often `ViewModelX`, `UseCaseX`, `RepositoryX` | `ViewModelBanner`                                   |
 
 ---
 
@@ -1001,14 +1013,14 @@ Instrumentation tests: describe user-visible behavior.
 
 ## 9.3 Deprecated API Replacements
 
-| Prefer | Over |
-|--------|------|
-| AndroidX libraries | Support libraries |
-| SplashScreen API | Legacy splash themes alone |
-| FusedLocationProvider + coroutines await | Legacy location loops |
-| View Binding | Kotlin synthetics / findViewById |
-| `AppLocalesMetadataHolderService` / AppCompat locales | Manual pre-33 locale hacks without AndroidX |
-| Navigation Component | manual FragmentTransactions for primary app flow |
+| Prefer                                                | Over                                             |
+|-------------------------------------------------------|--------------------------------------------------|
+| AndroidX libraries                                    | Support libraries                                |
+| SplashScreen API                                      | Legacy splash themes alone                       |
+| FusedLocationProvider + coroutines await              | Legacy location loops                            |
+| View Binding                                          | Kotlin synthetics / findViewById                 |
+| `AppLocalesMetadataHolderService` / AppCompat locales | Manual pre-33 locale hacks without AndroidX      |
+| Navigation Component                                  | manual FragmentTransactions for primary app flow |
 
 ## 9.4 Backward Compatibility Rules
 
@@ -1071,6 +1083,7 @@ When adding a new screen/feature:
 ## 10.4 Code Generation Templates
 
 ### Intent
+
 ```kotlin
 sealed class FeatureIntent {
     object Initialize : FeatureIntent()
@@ -1079,6 +1092,7 @@ sealed class FeatureIntent {
 ```
 
 ### State
+
 ```kotlin
 data class FeatureState(
     val isLoading: Boolean = false,
@@ -1089,6 +1103,7 @@ data class FeatureState(
 ```
 
 ### Effect
+
 ```kotlin
 sealed class FeatureEffect {
     object NavigateBack : FeatureEffect()
@@ -1097,6 +1112,7 @@ sealed class FeatureEffect {
 ```
 
 ### ViewModel skeleton
+
 ```kotlin
 class FeatureViewModel(
     private val someUseCase: SomeUseCase,
@@ -1121,6 +1137,7 @@ class FeatureViewModel(
 ```
 
 ### Presentation DI
+
 ```kotlin
 val featurePresentationModule = lazyModule {
     viewModel { FeatureViewModel(get()) }
@@ -1128,6 +1145,7 @@ val featurePresentationModule = lazyModule {
 ```
 
 ### Repository binding
+
 ```kotlin
 val featureDataModule = lazyModule {
     single { FeatureDataSource() }
@@ -1150,4 +1168,4 @@ app (composition root / Koin)
 
 ---
 
-*Document generated from codebase analysis. Prefer this file as the source of engineering truth for AI-assisted and human development on projects that clone this architecture.*
+*Document for the company Clean Architecture Android template. Prefer `.cursor/rules/` and `.cursor/skills/` for agent workflows; keep this file aligned when conventions change.*

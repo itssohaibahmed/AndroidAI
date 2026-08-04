@@ -1,17 +1,39 @@
 ---
 name: setup-new-project
-description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, and Remote Config → SharedPreferences cache. Use when starting a new project or converting a single-module app.
+description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, and Remote Config → SharedPreferences cache. Use when starting a new project or converting a single-module app. Confirms and persists project settings first.
 ---
 
 # Setup New Project
 
-Follow `.cursor/rules/` — especially `00-global`, `02`, `07`, `08`, `09`, `17`, `19`, `22`, `23`.
+Follow `.cursor/rules/` — especially `00-global`, `02-project-structure`, `07-dependency-injection`, `08-gradle`, `09-resources-xml`, `17-navigation`, `19-base-ui`, `22-platform-firebase`, `23-app-startup`, `26-data-persistence`.
 
-## Preconditions (ask if missing)
+## Preconditions (ask if missing — then persist)
 
-1. `applicationId` / root package (e.g. `com.company.app`)
-2. App display name
-3. Optional: Firebase / ads — **do not add SDKs without approval**; still scaffold stubs/interfaces as below when Firebase is approved
+Confirm with the user before scaffolding. Write answers to **`.cursor/project-settings.json`**:
+
+```json
+{
+  "writeTestsWithFeatures": true,
+  "orientation": "both",
+  "themeModes": "both",
+  "applicationId": "com.company.app",
+  "appName": "App Display Name"
+}
+```
+
+| Setting | Allowed values | Effect |
+|---------|----------------|--------|
+| `applicationId` / root package | e.g. `com.company.app` | Module namespaces, package roots |
+| `appName` | display name | Launcher label / strings |
+| `writeTestsWithFeatures` | `true` / `false` | Whether later skills add UseCase/ViewModel tests with features |
+| `orientation` | `portrait` / `landscape` / `both` | Layout orientation support (default `both`) |
+| `themeModes` | `day` / `night` / `both` | Theme resource folders (default `both`) |
+
+Also ask:
+
+1. Optional: Firebase / ads — **do not add SDKs without approval**; still scaffold stubs/interfaces as below when Firebase is approved
+
+All later skills **must read** `.cursor/project-settings.json` and obey it.
 
 ## Module set (mandatory)
 
@@ -63,9 +85,10 @@ class App : Application() {
 ```
 
 - Aggregate with **`lazyModule` only** (convert any `module` → `lazyModule`, `modules` → `lazyModules`): `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule`, …
-- Theme: apply **after** `startKoin` in Application; Activity DynamicColors needs no GlobalContext gate (`07`, `23`)
+- Theme: apply **after** `startKoin` in Application; Activity DynamicColors needs no GlobalContext gate (`07-dependency-injection`, `23-app-startup`)
 - Manifest: `android:name=".App"`, `android:theme="@style/Theme.App.Starting"`, `supportsRtl="true"`
-- Portrait **and** landscape — do not lock orientation
+- Orientation: follow `project-settings.json` — default portrait **and** landscape; do not lock unless `orientation` is single-mode and product requires lock
+- Theme modes: create `values` / `values-night` per `themeModes`
 - UseCases + repo interfaces → `:domain`; DataSources + repo impls → `:data` (`dataModule` with `//// DataSources` / `//// Repositories`)
 
 ## Step 3 — MainActivity + host
@@ -108,11 +131,12 @@ See `17-navigation.mdc`.
 
 ## Step 5 — Entrance MVI
 
-Scaffold `presentation/entrance/{di,intent,state,effect,viewModel,ui}` via create-mvi patterns.
+Scaffold `presentation/entrance/{di,intent,state,effect,viewModel,ui}` via **`create-mvi`** patterns (presentation only). Domain/data for RC/prefs already from Steps 7–8.
 
 - `EntranceFragment` extends `ParentFragment` (then `BaseFragment` when that layer exists)
 - Register `entrancePresentationModule` in `KoinModules`
 - Strings only in `:core-ui`
+- Tests: only if `writeTestsWithFeatures` is `true`
 
 ## Step 6 — `:core-ui` Parent* bases (required)
 
@@ -215,7 +239,7 @@ object PlatformFirebase {
 
 ### SharedPref (`data/sharedPreferences/`)
 
-- `SharedPrefManager(context)` — **sync only, no dispatcher** (see `data/shared-preferences` skill)
+- `SharedPrefManager(context)` — **sync only, no dispatcher** (see `.cursor/rules/reference/shared-preferences.md` + `26-data-persistence.mdc`)
 - Domain `SharedPrefRepository` + `SharedPrefRepositoryImpl` with `withContext(ioDispatcher)`
 - Include RC cache properties (ints/bools/strings) written by RC repository
 
@@ -269,6 +293,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 ## Step 9 — Verify
 
+- [ ] `.cursor/project-settings.json` written and valid
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
 - [ ] Modules: app, domain, data, presentation, core-common, core-ui, core-platform
@@ -283,7 +308,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager`
 - [ ] `presentation` ↛ `:data`
-- [ ] `assembleDebug` succeeds; portrait + landscape OK
+- [ ] `assembleDebug` succeeds; orientation / theme modes match `project-settings.json`
 
 ## Do not
 
@@ -293,7 +318,8 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - `PlatformFirebase` holding Context
 - Reading RC only from SDK in Fragments (use prefs cache)
 - Hardcode secrets / lock orientation unless product requires
+- Skip writing `project-settings.json`
 
 ## After setup
 
-Next: language / onboarding / home via `create-mvi`; wire Entrance Effects in `nav_graph.xml`.
+Next: language / onboarding / home via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; wire Entrance Effects in `nav_graph.xml`.
