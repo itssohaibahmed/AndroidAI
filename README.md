@@ -10,13 +10,13 @@ Full map of existing rules/skills: [`.cursor/README.md`](.cursor/README.md)
 
 ## What lives where
 
-| Thing                   | Path                                                  | Use for                                                 |
-|-------------------------|-------------------------------------------------------|---------------------------------------------------------|
-| **Rules**               | `.cursor/rules/*.mdc`                                 | Standing law (architecture, naming, invariants)         |
-| **Long detail**         | `.cursor/rules/reference/*.md`                        | Full examples / tables (linked from short `.mdc` stubs) |
-| **Skills**              | `.cursor/skills/**/SKILL.md`                          | Multi-step playbooks (`/skill-name` or agent auto-pick) |
-| **Project settings**    | `.cursor/project-settings.json`                       | Per-app knobs (tests, orientation, theme, app id)       |
-| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML                         |
+| Thing                   | Path                                                  | Use for                                                   |
+|-------------------------|-------------------------------------------------------|-----------------------------------------------------------|
+| **Rules**               | `.cursor/rules/*.mdc`                                 | Standing law (architecture, naming, invariants)           |
+| **Long detail**         | `.cursor/rules/reference/*.md`                        | Full examples / tables (linked from short `.mdc` stubs)   |
+| **Skills**              | `.cursor/skills/**/SKILL.md`                          | Multi-step playbooks (`/skill-name` or agent auto-pick)   |
+| **Project settings**    | `.cursor/project-settings.json`                       | Per-app knobs (tests, orientation, theme, app id)         |
+| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML                           |
 
 **Rules** = “always do it this way.”  
 **Skills** = “when I ask, follow these steps.”
@@ -33,6 +33,7 @@ Do **not** grow a large `.cursor/commands/` tree — prefer skills with `/` invo
 4. **Unique skill `name:`** — never two skills with the same `name`.
 5. **Update** [`.cursor/README.md`](.cursor/README.md) skill map / rules index when you add or rename something.
 6. Skills that create features/UI/tests must **read and obey** `.cursor/project-settings.json` when present.
+7. **New product skills** must be based on reference apps (see below) and **shown to the user for acceptance** before any skill files are written.
 
 ---
 
@@ -139,6 +140,49 @@ Obey `.cursor/project-settings.json` when present.
 
 ---
 
+## New product / platform skills — learn from reference apps first
+
+When the user asks to **create a new skill** for a real product feature (examples: `implement-in-app-update`, `implement-in-app-review`, billing, ads helpers, etc.), **do not invent the flow from scratch**.
+
+### Reference apps (search in this order)
+
+These are production apps. Use them as the working template source:
+
+| Priority      | Path                                                                       |
+|---------------|----------------------------------------------------------------------------|
+| **1 (first)** | `E:\SohaibAhmed\UnderWorking\Qibla-Finder-Qibla-Compass-HSAIAppsLab`       |
+| **2**         | `E:\SohaibAhmed\UnderWorking\MusicplayerPlayMP3Music-DigitalGenerationHub` |
+| **3**         | `E:\SohaibAhmed\UnderWorking\Photo-Collage-Maker-HSAIAppsLab`              |
+
+1. Search **ref 1** for the feature (classes, managers, Fragments, DI, Gradle).
+2. If missing or unclear → search **ref 2**, then **ref 3**.
+3. Prefer the **highest-priority app that has a complete, working implementation**.
+
+### Mandatory acceptance before writing the skill
+
+**Stop and ask the user before creating any skill files.** Show a short proposal and wait for explicit acceptance.
+
+Include at least:
+
+1. **Which reference app** you used (path + priority).
+2. **What you found** — key files (manager, host screen, DI, Gradle deps).
+3. **Proposed skill** — `name`, folder (`platform/…`, `feature/…`, etc.), and high-level steps.
+4. **Where to implement in apps** — e.g. host screen (`DashboardFragment`), module (`:core-ui` manager + `:presentation` host). Confirm this with the user.
+5. Ask clearly: **“Accept this skill plan? (yes / change …)”**
+
+Only after the user accepts → write `SKILL.md` (put the agreed host screen / modules **inside the skill**), any templates under that skill folder, rules/reference if needed, and update `.cursor/README.md`.
+
+### Workflow checklist (new skill from refs)
+
+1. Read this README + `.cursor/README.md` + `00-global`.
+2. Search ref apps **1 → 2 → 3** for a working implementation.
+3. Draft proposal (template summary + host screen + modules).
+4. **Ask user for acceptance** — do not write skill files yet.
+5. On accept: create skill (+ templates if useful), optional rule stub, update skill map.
+6. On reject/change: revise proposal and ask again.
+
+---
+
 ## Typical work you will be asked for
 
 ### New feature conventions
@@ -171,12 +215,16 @@ Obey `.cursor/project-settings.json` when present.
 **Do**
 
 - Read `.cursor/README.md` + matching existing rule/skill before writing.
+- For **new product skills**, search reference apps (Qibla → Music Player → Photo Collage) and **get user acceptance** before writing files.
+- Put agreed host screen / modules **inside the skill** after acceptance.
 - Link to `reference/` instead of duplicating long text.
 - Keep skill `description` specific (when to use + when not to).
 - Use simple wording in new docs.
 
 **Don’t**
 
+- Invent platform/feature flows when a reference app already has a working one.
+- Write a new skill without showing the plan and waiting for acceptance.
 - Delete reference bodies or rule lines “to clean up” without moving them.
 - Add always-on rules for niche topics.
 - Create duplicate skill names or a second skill tree (`screens/` vs `ui/`, etc.).
@@ -187,7 +235,7 @@ Obey `.cursor/project-settings.json` when present.
 
 ## Suggested prompt when attaching this file
 
-> Read `README.md` (this guide) and `.cursor/README.md` first. Then: \<your task\>. Follow the template rules: no content loss, prefer move/link, update the skill map if you add skills.
+> Read `README.md` (this guide) and `.cursor/README.md` first. Then: \<your task\>. Follow the template rules: no content loss, prefer move/link, update the skill map if you add skills. For new product skills, search the reference apps (priority order), show me the plan (template + host screen), wait for my acceptance, then create the skill.
 
 ---
 
