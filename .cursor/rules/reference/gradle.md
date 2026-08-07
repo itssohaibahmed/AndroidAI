@@ -4,15 +4,164 @@ Full detail for `08-gradle.mdc`. Do not delete lines from this file — edit her
 
 ## Structure
 
-- Root `build.gradle.kts`: plugins with `apply false` only â€” no dependencies
-- Module scripts: plugins â†’ `android { }` â†’ `dependencies { }`
+- Root `build.gradle.kts`: plugins with `apply false` only — no dependencies
+- Module scripts: `plugins` → `android { }` → `base { }` (`:app` only) → `dependencies { }`
 - `settings.gradle.kts`: `FAIL_ON_PROJECT_REPOS`, filtered repositories
 
 ## Module `build.gradle.kts` order
 
-1. `plugins { }` â€” catalog aliases only
-2. `android { }` â€” namespace, compileSdk, defaultConfig, buildTypes, compileOptions, buildFeatures, â€¦
-3. `dependencies { }` â€” **project modules first**, then libraries by section
+1. `plugins { }` — catalog aliases only
+2. `android { }` — sections in the order below (omit what does not belong on that module)
+3. `base { }` — **`:app` only** (`archivesName`)
+4. `dependencies { }` — **project modules first**, then libraries by section
+
+### `:app` — `android { }` section order (mandatory)
+
+```kotlin
+plugins {
+    alias(libs.plugins.android.application)
+    // google-services / crashlytics / safe-args / parcelize when needed
+}
+
+android {
+    namespace = "com.company.app"
+    compileSdk = 36 // or compileSdk { version = release(36) { minorApiLevel = 1 } } if project uses it
+
+    defaultConfig {
+        applicationId = "com.company.app"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("path/to/App.jks") // or file("") if none
+            storePassword = ""
+            keyAlias = ""
+            keyPassword = ""
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".testing"
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    // Only if the project already has a kotlin/jvm block — place here; do not invent
+    // kotlin { … } / jvmToolchain(17)
+
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+}
+
+base {
+    archivesName = "App-Name-Account-v${android.defaultConfig.versionCode}(${android.defaultConfig.versionName})"
+}
+```
+
+### Library modules (`:presentation`, `:data`, `:domain`, `:core-*`, …)
+
+Same section order as `:app`, but **do not add** app-only pieces:
+
+| Section                 | Library modules                                                    |
+|-------------------------|--------------------------------------------------------------------|
+| `plugins`               | `android.library` (+ parcelize / safe-args when needed)            |
+| `compileSdk`            | Yes                                                                |
+| `defaultConfig`         | `minSdk` only (no `applicationId` / `versionCode` / `versionName`) |
+| `signingConfigs`        | **Never**                                                          |
+| `buildTypes`            | Yes — `isMinifyEnabled = false` for debug + release                |
+| `buildFeatures`         | Only when needed (View Binding / `buildConfig` on UI modules)      |
+| `compileOptions`        | Yes (Java 17)                                                      |
+| `kotlin` / `jvm`        | Only if already present in that project                            |
+| `bundle`                | **Never** (app only)                                               |
+| `base` / `archivesName` | **Never** (app only)                                               |
+
+```kotlin
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+android {
+    namespace = "com.company.app.presentation"
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 24
+    }
+
+    buildTypes {
+        debug {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+```
+
+### `signingConfigs` (always on `:app`)
+
+- If missing → **add** `signingConfigs { create("release") { … } }` and wire `release { signingConfig = signingConfigs.getByName("release") }`
+- Search for `*.jks` in this order: **project root**, then **`:app`** directory
+- If a `.jks` is found → set `storeFile = file("<absolute-or-relative-path>")`
+- If **no** `.jks` → keep `storeFile` / `storePassword` / `keyAlias` / `keyPassword` as **empty strings** (`""`)
+- Do not invent passwords; do not copy secrets into skills/docs. Prefer empty placeholders; fill locally or via CI / `local.properties` outside git
+
+### `bundle` (always on `:app`)
+
+Every project `:app` module must include:
+
+```kotlin
+bundle {
+    language {
+        enableSplit = false
+    }
+}
+```
+
+### `base` archivesName (`:app` only)
+
+Format: `{AppName}-{Account}-v{versionCode}({versionName})`
+
+Examples from reference apps: `Qibla-Finder-HS-v35(1.3.5)`, `Music-Player-DGH-v8(1.0.8)`, `Speak-Translate-HS-v1(1.0.1)`.
 
 ## Dependencies block â€” sections (mandatory)
 
@@ -48,6 +197,7 @@ dependencies {
 ```
 
 Rules:
+
 - One blank line between section groups when helpful
 - Keep related libs together under the matching header
 - Comment out unused deps with `#` / `//` â€” do not leave orphan versions without a section
@@ -96,14 +246,15 @@ koin-android = { â€¦ }
 
 ### Catalog naming
 
-| Kind | Convention | Example |
-|------|------------|---------|
-| Version keys | camelCase | `coreKtx`, `koinAndroid`, `playServicesLocation` |
-| Library aliases | kebab-case | `androidx-core-ktx`, `koin-android`, `play-services-location` |
-| Plugin aliases | kebab-case | `android-application`, `navigation-safe-args` |
-| Gradle accessor | dots from kebab | `libs.androidx.core.ktx`, `libs.koin.android` |
+| Kind            | Convention      | Example                                                       |
+|-----------------|-----------------|---------------------------------------------------------------|
+| Version keys    | camelCase       | `coreKtx`, `koinAndroid`, `playServicesLocation`              |
+| Library aliases | kebab-case      | `androidx-core-ktx`, `koin-android`, `play-services-location` |
+| Plugin aliases  | kebab-case      | `android-application`, `navigation-safe-args`                 |
+| Gradle accessor | dots from kebab | `libs.androidx.core.ktx`, `libs.koin.android`                 |
 
 Rules:
+
 - Alias name mirrors artifact intent (`androidx-fragment-ktx`, not `fragment`)
 - Prefer `group` + `name` + `version.ref`; `module = "g:a"` only when matching existing style for that lib
 - Plugins and libraries that share a version family share one version key (e.g. one `lifecycle` for viewmodel/runtime/process)
@@ -135,13 +286,13 @@ implementation("androidx.core:core-ktx:1.12.0")
 
 ## Dependency scope
 
-| Scope | When |
-|-------|------|
-| `implementation` | Default for almost everything |
-| `api` | Rare â€” only when types must leak to consumers |
-| `testImplementation` | Unit tests |
-| `androidTestImplementation` | Instrumentation tests |
-| `coreLibraryDesugaring` | `desugar_jdk_libs` when using `java.time` |
+| Scope                       | When                                            |
+|-----------------------------|-------------------------------------------------|
+| `implementation`            | Default for almost everything                   |
+| `api`                       | Rare â€” only when types must leak to consumers |
+| `testImplementation`        | Unit tests                                      |
+| `androidTestImplementation` | Instrumentation tests                           |
+| `coreLibraryDesugaring`     | `desugar_jdk_libs` when using `java.time`       |
 
 ## Module rules
 
@@ -152,23 +303,25 @@ implementation("androidx.core:core-ktx:1.12.0")
 
 ## Build types
 
-- Debug: no minify, optional `applicationIdSuffix = ".testing"`
-- Release: minify + ProGuard/R8 on app module
-- Secrets and signing credentials in `local.properties` or CI env â€” **never** hardcode keystore passwords in `build.gradle.kts`
+- Debug (`:app`): `applicationIdSuffix = ".testing"`, no minify
+- Release (`:app`): `signingConfig = signingConfigs.getByName("release")`, minify + shrink + ProGuard/R8
+- Library modules: minify off for both debug and release
 - Prefer no product flavors unless product requires them
+- Signing: always declare `signingConfigs` on `:app` (see above); passwords empty unless already present in the project — prefer CI / `local.properties` over committing secrets
 
 ## ProGuard
 
 - Keep rules in **app** module only unless module-specific needs arise
 - Preserve (adjust package to app id):
-  - `domain.entity.**`
-  - `presentation.**.state.**` / `intent.**` / `effect.**` / `model.**`
-  - ads entity packages when ads module exists
+    - `domain.entity.**`
+    - `presentation.**.state.**` / `intent.**` / `effect.**` / `model.**`
+    - ads entity packages when ads module exists
 - Keep Parcelable/Serializable names; keep SourceFile/LineNumberTable for Crashlytics
 - `android.enableR8.fullMode=true` when project uses it
 - Library modules: `isMinifyEnabled = false` typically
 
 ## Other
 
-- Disable language bundle splits when shipping all locales in one APK (`bundle.language.enableSplit = false`) if that is the product choice
+- **Always** set `bundle.language.enableSplit = false` on `:app` (all locales in one APK/AAB)
 - Enable core library desugaring when using `java.time` below API 26
+- Place any existing `kotlin { }` / `jvmToolchain` block after `compileOptions` and before `bundle` — do not add JVM blocks to projects that never had them

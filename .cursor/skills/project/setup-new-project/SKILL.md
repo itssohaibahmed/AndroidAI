@@ -21,13 +21,13 @@ Confirm with the user before scaffolding. Write answers to **`.cursor/project-se
 }
 ```
 
-| Setting | Allowed values | Effect |
-|---------|----------------|--------|
-| `applicationId` / root package | e.g. `com.company.app` | Module namespaces, package roots |
-| `appName` | display name | Launcher label / strings |
-| `writeTestsWithFeatures` | `true` / `false` | Whether later skills add UseCase/ViewModel tests with features |
-| `orientation` | `portrait` / `landscape` / `both` | Layout orientation support (default `both`) |
-| `themeModes` | `day` / `night` / `both` | Theme resource folders (default `both`) |
+| Setting                        | Allowed values                    | Effect                                                         |
+|--------------------------------|-----------------------------------|----------------------------------------------------------------|
+| `applicationId` / root package | e.g. `com.company.app`            | Module namespaces, package roots                               |
+| `appName`                      | display name                      | Launcher label / strings                                       |
+| `writeTestsWithFeatures`       | `true` / `false`                  | Whether later skills add UseCase/ViewModel tests with features |
+| `orientation`                  | `portrait` / `landscape` / `both` | Layout orientation support (default `both`)                    |
+| `themeModes`                   | `day` / `night` / `both`          | Theme resource folders (default `both`)                        |
 
 Also ask:
 
@@ -37,15 +37,15 @@ All later skills **must read** `.cursor/project-settings.json` and obey it.
 
 ## Module set (mandatory)
 
-| Module | Required | Role |
-|--------|----------|------|
-| `:app` | Must | `App`, manifest, DI aggregation only — **no `res/values/`** |
-| `:domain` | Must | Entities, repository interfaces, use cases |
-| `:data` | Must | Repository impls, DataSources, SharedPref + RC cache |
-| `:presentation` | Must | Screens, MVI, nav graphs, MainActivity host UI |
-| `:core-common` | Required | `Constants` (TAGs), `EventsProvider` |
-| `:core-ui` | Required | **All** themes/strings/colors/splash, Parent*, extensions |
-| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI |
+| Module           | Required | Role                                                        |
+|------------------|----------|-------------------------------------------------------------|
+| `:app`           | Must     | `App`, manifest, DI aggregation only — **no `res/values/`** |
+| `:domain`        | Must     | Entities, repository interfaces, use cases                  |
+| `:data`          | Must     | Repository impls, DataSources, SharedPref + RC cache        |
+| `:presentation`  | Must     | Screens, MVI, nav graphs, MainActivity host UI              |
+| `:core-common`   | Required | `Constants` (TAGs), `EventsProvider`                        |
+| `:core-ui`       | Required | **All** themes/strings/colors/splash, Parent*, extensions   |
+| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI       |
 
 ```
 app (Composition Root) — no values resources
@@ -59,14 +59,33 @@ core-common / core-ui / core-platform
 
 ## Step 1 — Gradle
 
+Follow `08-gradle.mdc` + [reference/gradle.md](../../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
+
 1. `settings.gradle.kts` — `include` all modules above
 2. Root plugins `apply false` via catalog; **latest stable** versions
-3. Catalog sections/naming per `08-gradle.mdc`
+3. Catalog sections/naming per `08-gradle.mdc` / `gradle-organize`
 4. Dependency graph: `presentation` **never** → `:data`; `domain` → coroutines only
 5. View Binding on UI modules; Safe Args on `:presentation`
 6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
 7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
 8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
+
+### Module scripts (scaffold from reference)
+
+Copy the `:app` and library shapes from [reference/gradle.md](../../../rules/reference/gradle.md) — module order `plugins` → `android` → (`base` on `:app`) → `dependencies`.
+
+**`:app` must include**
+
+| Item | Rule |
+|------|------|
+| `android` section order | `defaultConfig` → `signingConfigs` → `buildTypes` → `buildFeatures` → `compileOptions` → (`jvm` only if used) → `bundle` |
+| `signingConfigs` | Always — search `*.jks` in root then `app/`; set `storeFile` if found; else empty strings; do not invent passwords |
+| `bundle` | Always `language { enableSplit = false }` |
+| `base.archivesName` | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known |
+
+**Library modules** (`:presentation`, `:data`, `:domain`, `:core-*`): same relative order; **omit** `signingConfigs`, `bundle`, `base`, and app-only `defaultConfig` fields. UI modules get View Binding; `:domain` / `:core-common` may omit `buildFeatures`.
+
+Organize dependency sections with **`gradle-organize`**.
 
 ## Step 2 — Application + DI
 
@@ -121,10 +140,7 @@ res/anim-ldrtl/… (same four names — RTL mirrors)
 Every forward `<action>` must include:
 
 ```xml
-app:enterAnim="@anim/slide_in_right"
-app:exitAnim="@anim/slide_out_left"
-app:popEnterAnim="@anim/slide_in_left"
-app:popExitAnim="@anim/slide_out_right"
+app:enterAnim="@anim/slide_in_right"app:exitAnim="@anim/slide_out_left"app:popEnterAnim="@anim/slide_in_left"app:popExitAnim="@anim/slide_out_right"
 ```
 
 See `17-navigation.mdc`.
@@ -163,22 +179,26 @@ presentation …/base/
 See [templates/base/README.md](templates/base/README.md) for hierarchy and notes.
 
 ### ParentFragment
+
 - Generic `ViewBinding` + `bindingFactory`
 - Clear `_binding` in `onDestroyView`
 - Hooks: `initObservers()`, `onViewCreated()`, abstract `onViewCreated()`
 
 ### ParentActivity
+
 - Generic `ViewBinding` + edge-to-edge + window insets padding flags
 - `installSplashTheme()` → `installSplashScreen()`
 - Abstract `onCreated()`; optional `onPreCreated()` / `initObservers()`
 
 ### ParentDialog (+ Dismissal)
+
 - `ParentDialogDismissal` : `DialogFragment` with `onDismissCallback` + `safeShow` / `safeDismiss` helpers
 - `ParentDialog` : ViewBinding via `MaterialAlertDialogBuilder.setView(binding.root)`
 - Null-safe binding; clear in `onDestroyView`
 - Improvements vs fragile patterns: never access binding after destroy; use `dismissAllowingStateLoss` only via `safeDismiss`
 
 ### ParentSheet (+ Dismissal)
+
 - `ParentSheetDismissal` : `BottomSheetDialogFragment` with `dismissCallback` + `safeShow` / `safeDismiss`
 - `ParentSheet` : inflate with `bindingFactory`, null-safe `_binding` (same as Fragment — **not** `!!`), `onSheetCreated()`, `initObservers()`
 - Improvements: remove unused dialog imports; optional `skipCollapsed` / expanded state in `onStart` when product needs it; keep Binding lifecycle identical to Fragment
@@ -219,11 +239,14 @@ Koin resolves `Dispatchers.IO` / `Dispatchers.Default` as distinct `CoroutineDis
 ```kotlin
 object PlatformFirebase {
 
-    fun Throwable.recordException(log: String) { /* Crashlytics + Log */ }
+    fun Throwable.recordException(log: String) { /* Crashlytics + Log */
+    }
 
-    fun String.postFirebaseEvent() { /* Analytics bundle + TAG_FIREBASE log */ }
+    fun String.postFirebaseEvent() { /* Analytics bundle + TAG_FIREBASE log */
+    }
 
-    fun getDeviceToken() { /* FirebaseInstallations token log */ }
+    fun getDeviceToken() { /* FirebaseInstallations token log */
+    }
 }
 ```
 
@@ -233,6 +256,7 @@ object PlatformFirebase {
 - Ads revenue logging (if needed later): keep out of this object or pass primitives only — do not bake Context into `PlatformFirebase`
 
 ### InternetManager
+
 - Connectivity check used by RC / network repos
 
 ## Step 8 — SharedPreferences + Remote Config cache
@@ -253,11 +277,13 @@ data:
 ```
 
 **RemoteConfigDataSource** (no dispatcher):
+
 - `minimumFetchIntervalInSeconds(0)` always
 - `fetchAndActivate()`, live update listener, typed `getInt` / `getBoolean` / `getString`
 - Mutex around fetch; log with `TAG_REMOTE_CONFIG`
 
 **RemoteConfigRepositoryImpl** (dispatcher here):
+
 1. Check `InternetManager`
 2. `remoteDataSource.fetchAndActivate()`
 3. **`saveValues()`** — copy every needed RC key into `SharedPrefManager` properties (cache)
@@ -267,6 +293,7 @@ data:
 **Read path for features:** Prefer **cached prefs** (`SharedPrefRepository` / managers) for flags used at runtime — not live RC SDK in UI.
 
 **DI (`lazyModule` — sectioned by concern):**
+
 ```kotlin
 val dataModule = lazyModule {
 
@@ -297,6 +324,9 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
 - [ ] Modules: app, domain, data, presentation, core-common, core-ui, core-platform
+- [ ] `:app` `android` section order: defaultConfig → signingConfigs → buildTypes → buildFeatures → compileOptions → bundle
+- [ ] `:app` has `signingConfigs` (`.jks` path if found, else empty strings) + `bundle.language.enableSplit = false` + `base.archivesName`
+- [ ] Library modules omit `signingConfigs` / `bundle` / `base`
 - [ ] UseCases + repo interfaces only in `:domain`; `dataModule` has `//// DataSources` then `//// Repositories`
 - [ ] All DI uses `lazyModule` / `lazyModules` only; theme applied after `startKoin` (no `GlobalContext` probes)
 - [ ] `nav_graph` startDestination = `entranceFragment`

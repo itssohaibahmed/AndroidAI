@@ -50,7 +50,7 @@ test/test-unit                     UseCase + ViewModel unit tests
 test/test-flow                     Coroutine / Flow / repository tests
 test/test-ui                       Instrumentation / Espresso conventions
 test/test-complete                 Run all tests + emulator walkthrough checklist
-gradle/gradle-organize             Catalog + dependencies section order
+gradle/gradle-organize             Catalog + android/base/dependencies section order (signingConfigs, bundle)
 gradle/gradle-update               Bump catalog to latest compatible stables
 platform/in-app-update             Play In-App Updates
 release/pre-release                Ship checklist
@@ -67,29 +67,29 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 
 ## Rules index (`00`–`26`)
 
-| File                        | Role                                                        |
-|-----------------------------|-------------------------------------------------------------|
-| `00-global`                 | Always-on stack + Always/Never law                          |
-| `01-feature-checklist`      | Feature scaffolding checklist (not always-on)               |
-| `02`–`03`                   | Modules + Clean Architecture (+ SOLID in `03`)              |
-| `04`–`07`                   | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)      |
-| `08`–`10`                   | Gradle, resources/XML, manifest (`08`/`09` → `reference/`)  |
-| `11`–`13`                   | Testing, naming, libraries                                  |
-| `14`–`16`                   | Security (always), compatibility, logging (always)          |
-| `17`–`20`                   | Nav, errors, base UI (`19` → `reference/`), permissions     |
-| `21`–`25`                   | Ads/billing, Firebase, startup, Figma assets, in-app update |
-| `26-data-persistence`       | Retrofit / Room / SharedPreferences patterns                |
+| File                   | Role                                                        |
+|------------------------|-------------------------------------------------------------|
+| `00-global`            | Always-on stack + Always/Never law                          |
+| `01-feature-checklist` | Feature scaffolding checklist (not always-on)               |
+| `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)              |
+| `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)      |
+| `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`), resources/XML, manifest (`09` → `reference/`) |
+| `11`–`13`              | Testing, naming, libraries                                  |
+| `14`–`16`              | Security (always), compatibility, logging (always)          |
+| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions     |
+| `21`–`25`              | Ads/billing, Firebase, startup, Figma assets, in-app update |
+| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                |
 
 ### `rules/reference/` (full detail)
 
-| File | Backed by rule |
-|------|----------------|
-| `resources-xml.md` | `09-resources-xml` |
-| `dependency-injection.md` | `07-dependency-injection` |
-| `gradle.md` | `08-gradle` |
-| `mvi-presentation.md` | `04-mvi-presentation` |
-| `base-ui.md` | `19-base-ui` |
-| `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence` |
+| File                                                | Backed by rule            |
+|-----------------------------------------------------|---------------------------|
+| `resources-xml.md`                                  | `09-resources-xml`        |
+| `dependency-injection.md`                           | `07-dependency-injection` |
+| `gradle.md`                                         | `08-gradle`               |
+| `mvi-presentation.md`                               | `04-mvi-presentation`     |
+| `base-ui.md`                                        | `19-base-ui`              |
+| `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence`     |
 
 ## Future distribution (not in v1)
 
