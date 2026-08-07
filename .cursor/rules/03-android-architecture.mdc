@@ -1,6 +1,6 @@
 ---
 description: Clean Architecture layer rules
-globs: ["**/*.kt"]
+globs: ["**/domain/**/*.kt", "**/data/**/*.kt", "**/presentation/**/*.kt", "**/core*/**/*.kt", "**/app/**/*.kt"]
 alwaysApply: false
 ---
 
@@ -80,3 +80,35 @@ Dependencies always point inward.
 - Thin layer: SharedPreferences properties, Room DAO calls, Retrofit service, Firebase SDK
 - **No dispatcher** on DataSource classes (e.g. `SharedPrefManager` takes `Context` only)
 - Sync prefs: get/set properties; Repository exposes `suspend` + `withContext`
+
+## SOLID (how this project applies them)
+
+Moved from former `ANDROID_PROJECT_RULES.md` — keep here so nothing is lost.
+
+### Single Responsibility (S)
+
+- UseCase = one business capability area.
+- ViewModel = state reduction + intent handling for one screen.
+- Repository = one data concern (location, billing, language, …).
+- Modules split UI / domain / data / ads / features.
+
+### Open / Closed (O)
+
+- New screens add a new feature package + Koin module — existing modules stay closed.
+- Sealed Intent/Effect hierarchies extend by adding subtypes.
+- Ad keys/enums extend without rewriting managers.
+
+### Liskov Substitution (L)
+
+- Any `*RepositoryImpl` must honor the domain interface contract (nullability, suspend semantics).
+- Fragments substituting `BaseFragment` must preserve ViewBinding lifecycle rules.
+
+### Interface Segregation (I)
+
+- Narrow repository interfaces per area (`LanguageRepository`, `LocationRepository`) instead of a god repository.
+- Feature Intents expose only that screen’s events.
+
+### Dependency Inversion (D)
+
+- Presentation/domain depend on abstractions (`LocationRepository`), not `LocationRepositoryImpl`.
+- Koin composition root in `:app` binds interfaces → implementations.

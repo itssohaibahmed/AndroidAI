@@ -1,6 +1,6 @@
 ---
 description: Kotlin coding standards
-globs: ["**/*.kt"]
+globs: ["**/domain/**/*.kt", "**/data/**/*.kt", "**/presentation/**/*.kt", "**/core*/**/*.kt", "**/app/**/*.kt"]
 alwaysApply: false
 ---
 

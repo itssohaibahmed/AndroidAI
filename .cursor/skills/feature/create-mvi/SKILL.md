@@ -5,7 +5,7 @@ description: Scaffold presentation-layer MVI only (Intent/State/Effect/ViewModel
 
 # Create MVI Feature (presentation only)
 
-Follow `.cursor/rules/` (especially `01-ai-agent`, `03-android-architecture`, `04-mvi-presentation`, `06-coroutines-flow`, `07-dependency-injection`, `17-navigation`, `18-errors-result`, `19-base-ui`).
+Follow `.cursor/rules/` (especially `00-global`, `01-feature-checklist`, `03-android-architecture`, `04-mvi-presentation`, `06-coroutines-flow`, `07-dependency-injection`, `17-navigation`, `18-errors-result`, `19-base-ui`).
 
 Obey `.cursor/project-settings.json` when present (`writeTestsWithFeatures`, `orientation`, `themeModes`).
 

@@ -1,6 +1,6 @@
 ---
 description: Coroutines, Flow, dispatchers, ANR prevention, large datasets
-globs: ["**/*.kt"]
+globs: ["**/viewModel/**/*.kt", "**/repository/**/*.kt", "**/data/**/*.kt", "**/domain/**/*.kt", "**/dataSource/**/*.kt", "**/presentation/**/*.kt"]
 alwaysApply: false
 ---
 

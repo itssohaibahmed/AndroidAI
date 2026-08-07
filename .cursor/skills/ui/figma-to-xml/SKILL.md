@@ -5,7 +5,7 @@ description: Create Android XML layouts and drawables from a Figma URL or freefo
 
 # Figma / Screen → Android XML (XML only)
 
-Follow `.cursor/rules/09-resources-xml.mdc`, `12-naming-conventions.mdc`, `24-figma-assets.mdc`.
+Follow `.cursor/rules/09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md), `12-naming-conventions.mdc`, `24-figma-assets.mdc`.
 
 Obey `.cursor/project-settings.json` when present (`orientation`, `themeModes`).
 
@@ -50,23 +50,13 @@ Per `24-figma-assets`:
 
 ## Rules
 
-- **Material** widgets (`MaterialTextView`, `MaterialButton`, `MaterialCardView`, `ShapeableImageView`) — never plain `ImageView`
-- Clickable icons → `MaterialButton` `style="@style/ButtonStyle.IconButton"` with `app:icon`, `android:padding="4dp"` — **not** clickable `ShapeableImageView`
-- Button solid + stroke → `backgroundTint` / `strokeColor` / `strokeWidth` / `cornerRadius` on the button — **no** `bg_shape_*` drawable
-- Filled/text `MaterialButton`: `layout_height="wrap_content"` — **no** fixed height + `insetTop`/`insetBottom` `0dp`
-- Clickable language/chip selectors → `MaterialButton` + Material background + `app:icon` / `iconGravity="end"` — **not** `MaterialTextView` + `bg_shape_*` / `drawableEnd`, **not** `LinearLayout` + Text + ImageView
-- View Binding only (no Data Binding attributes)
+Obey **all** XML invariants in `09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md) (Material widgets, Hungarian IDs, IconButton, button tint/stroke, chip selectors, no `dimens.xml`, `:core-ui` strings/`cd_*`, View Binding, RecyclerView in XML, closing-tag formatting). Also `12-naming-conventions.mdc`.
+
+**Skill-specific (Figma / screen XML):**
+
 - **Portrait + landscape** — responsive ConstraintLayout; add `layout-land/` if needed — **unless** `project-settings.json` `orientation` is `portrait` or `landscape` only
 - Theme modes: add `values-night` colors/themes when `themeModes` is `night` or `both`
-- Shallow nesting — ConstraintLayout primary; avoid deep LinearLayout trees
-- View IDs: Hungarian prefix + camelCase (`mtvTitleHome`, `sivLogoHome`, `mbConfirmLanguage`, `clRootHome`)
-- Theme attrs: `?attr/colorSurface`, `?attr/colorOnBackground`
-- Inline `dp` / `sp` only — **no `dimens.xml`**; sizes in **multiples of 4** (`8dp`, `16dp`, `16sp`)
-- No hardcoded user-facing strings — `@string/` from `:core-ui`
-- Images: `android:contentDescription="@string/cd_…"` (add `cd_*` under Content Descriptions section)
 - Programmatic loads → `siv.loadImage(...)` (Glide / `ImageViewExtensions`) when documenting bind notes
-- RecyclerView: `app:layoutManager` + `android:orientation` / `app:spanCount` in XML — not in Kotlin unless dynamic; rows = `item_<name>.xml`
-- Closing tags: blank line between nested container closes (`</ConstraintLayout>` → blank → `</MaterialCardView>` → blank → root); **no** extra blank line after the root closing tag
 - **Button fill + stroke from Figma:** apply on `MaterialButton` with `app:backgroundTint`, `app:strokeColor`, `app:strokeWidth`, `app:cornerRadius` — **do not** export/create `bg_shape_*` oval/rect (solid+stroke only), and **do not** use `android:background` + `backgroundTint="@null"` + inset hacks
     - Circle icon button: `cornerRadius` ≈ half of width/height
     - Colors → `:core-ui` `colors.xml`; skip the shape XML file entirely when Material attrs cover it

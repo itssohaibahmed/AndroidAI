@@ -1,6 +1,6 @@
 ---
 description: Android API levels, permissions, and backward compatibility
-globs: ["**/*.kt", "**/AndroidManifest.xml", "**/*.gradle.kts"]
+globs: ["**/AndroidManifest.xml", "**/*.gradle.kts", "**/libs.versions.toml", "**/permission*/**/*.kt", "**/compat*/**/*.kt", "**/BuildConfig*", "**/App.kt"]
 alwaysApply: false
 ---
 

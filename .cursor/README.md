@@ -12,6 +12,8 @@ Use this folder as the single source of truth while building the template. Share
 | When | Always-on or glob-matched while editing        | Invoked by name (`/` or agent pick) or trigger description |
 | Size | Prefer clear invariants + BAD/GOOD             | Full workflows                                             |
 
+**Long detail** lives under [`rules/reference/`](rules/reference/). `.mdc` rule files hold **short invariants + links** to those reference docs (so Agent context stays smaller). Do not delete reference files — edit them when rules change.
+
 **Commands:** Prefer skills with `/` invoke. Do not grow a large `.cursor/commands/` tree unless needed.
 
 ## Project settings
@@ -67,15 +69,27 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 
 | File                        | Role                                                        |
 |-----------------------------|-------------------------------------------------------------|
-| `00-global` / `01-ai-agent` | Always-on stack + AI checklist                              |
-| `02`–`03`                   | Modules + Clean Architecture                                |
-| `04`–`07`                   | MVI, Kotlin, coroutines, DI                                 |
-| `08`–`10`                   | Gradle, resources/XML, manifest                             |
+| `00-global`                 | Always-on stack + Always/Never law                          |
+| `01-feature-checklist`      | Feature scaffolding checklist (not always-on)               |
+| `02`–`03`                   | Modules + Clean Architecture (+ SOLID in `03`)              |
+| `04`–`07`                   | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)      |
+| `08`–`10`                   | Gradle, resources/XML, manifest (`08`/`09` → `reference/`)  |
 | `11`–`13`                   | Testing, naming, libraries                                  |
 | `14`–`16`                   | Security (always), compatibility, logging (always)          |
-| `17`–`20`                   | Nav, errors, base UI, permissions                           |
+| `17`–`20`                   | Nav, errors, base UI (`19` → `reference/`), permissions     |
 | `21`–`25`                   | Ads/billing, Firebase, startup, Figma assets, in-app update |
 | `26-data-persistence`       | Retrofit / Room / SharedPreferences patterns                |
+
+### `rules/reference/` (full detail)
+
+| File | Backed by rule |
+|------|----------------|
+| `resources-xml.md` | `09-resources-xml` |
+| `dependency-injection.md` | `07-dependency-injection` |
+| `gradle.md` | `08-gradle` |
+| `mvi-presentation.md` | `04-mvi-presentation` |
+| `base-ui.md` | `19-base-ui` |
+| `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence` |
 
 ## Future distribution (not in v1)
 

@@ -1,6 +1,6 @@
 ---
 description: Domain error models and mapping failures to UI State/Effect
-globs: ["**/*.kt"]
+globs: ["**/domain/**/*.kt", "**/data/**/*.kt", "**/presentation/**/*.kt", "**/repository/**/*.kt", "**/dataSource/**/*.kt"]
 alwaysApply: false
 ---
 

@@ -4,151 +4,20 @@ globs: ["**/presentation/**/*.kt", "**/viewModel/**/*.kt", "**/intent/**/*.kt", 
 alwaysApply: false
 ---
 
-## Intent (user/system actions)
+# MVI presentation (invariants)
 
-```kotlin
-sealed class FeatureIntent {
-    object LoadProfile : FeatureIntent()
-    data class SaveClicked(val name: String) : FeatureIntent()
-}
-```
+**Full detail (full ViewModel template, DiffUtil, mapping):** [reference/mvi-presentation.md](reference/mvi-presentation.md)
 
-- UI dispatches intents via `viewModel.handleIntent(...)` only
-- No business branching in Fragments beyond rendering
+## Must follow
 
-## State (continuous UI data)
+- **Intent** — sealed; UI dispatches only via `viewModel.handleIntent(...)`
+- **State** — data class with defaults + derived flags; update via `_state.update { it.copy(...) }`
+- **Effect** — one-shot (nav, toast, permission, dialog); prefer `@StringRes`
+- ViewModel: single `handleIntent` launch + `exceptionHandler`; handlers are `suspend onX()`; **`handleError` last**; no nested `launch` per intent
+- Logging: prefer Repository; ViewModel sparse; always log failures in `handleError`
+- Fragment: collect state/effects via `viewLifecycleOwner` helpers; `navigateTo` / `popFrom`; render only; adapters bind `*UiItem`
+- Member order per `19-base-ui`: `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect`
+- Heavy mapping in Repo/UseCase; `toUi()` in VM with dispatcher if heavy — never in Fragment/Adapter
+- Large lists: `ListAdapter` + DiffUtil; DiffUtil one-liners; portrait + landscape
 
-```kotlin
-data class FeatureState(
-    val isLoading: Boolean = false,
-    val title: String? = null,
-) {
-    val showTitle: Boolean = title != null
-}
-```
-
-- Default values on all properties
-- Derived flags as computed properties
-- Update via `_state.update { it.copy(...) }`
-
-## Effect (one-shot events)
-
-```kotlin
-sealed class FeatureEffect {
-    object NavigateBack : FeatureEffect()
-    data class ShowErrorRes(@StringRes val messageResId: Int) : FeatureEffect()
-}
-```
-
-- Navigation, toasts, permission prompts, dialogs
-- Prefer `@StringRes` for user-facing messages
-
-## ViewModel structure (mandatory)
-
-```kotlin
-class FeatureViewModel(
-    private val getFeatureUseCase: GetFeatureUseCase,
-    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
-) : ViewModel() {
-
-    private val _state = MutableStateFlow(FeatureState())
-    val state: StateFlow<FeatureState> = _state.asStateFlow()
-
-    private val _effect = MutableSharedFlow<FeatureEffect>()
-    val effect: SharedFlow<FeatureEffect> = _effect.asSharedFlow()
-
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        viewModelScope.launch { handleError(throwable) }
-    }
-
-    fun handleIntent(intent: FeatureIntent) = viewModelScope.launch(exceptionHandler) {
-        when (intent) {
-            FeatureIntent.ScreenStarted -> onScreenStarted()
-            is FeatureIntent.ItemClicked -> onItemClicked(intent.id)
-            FeatureIntent.ConfirmClicked -> onConfirmClicked()
-        }
-    }
-
-    private suspend fun onScreenStarted() {
-        EventsProvider.SCREEN_FEATURE.postFirebaseEvent()
-        val data = getFeatureUseCase()
-        val uiItems = withContext(defaultDispatcher) { FeatureUiMapper.toUi(data) }
-        _state.update { it.copy(items = uiItems, isLoading = false) }
-    }
-
-    private suspend fun onItemClicked(id: String) {
-        // update state / call use cases
-    }
-
-    private suspend fun onConfirmClicked() {
-        _effect.emit(FeatureEffect.NavigateNext)
-    }
-
-    private fun handleError(throwable: Throwable) {
-        val errorLog = "FeatureViewModel: handleError: Failed: ${throwable.message}"
-        Log.e(TAG, errorLog)
-        throwable.recordException(errorLog)
-        _state.update { it.copy(isLoading = false) }
-    }
-}
-```
-
-### Structure rules
-
-1. **Single launch at the edge** — `handleIntent` = `viewModelScope.launch(exceptionHandler) { when … }`
-2. **Handlers are `suspend`** — `private suspend fun onX()`; do **not** nest another `viewModelScope.launch` per intent
-3. **`exceptionHandler`** → `viewModelScope.launch { handleError(throwable) }` (not inline logging/state updates in the handler lambda)
-4. **`handleError` last** in the class — log + Crashlytics + clear loading / emit error Effect as needed
-5. **No per-method `launch(exceptionHandler)`** inside each `onX`
-
-### Logging in ViewModels
-
-- Prefer **Repository** (and domain when useful) for flow logs — not every ViewModel step
-- Do **not** log `Started` / `Success` on every intent handler
-- ViewModel: **zero or one** meaningful log when helpful; always log failures in `handleError`
-- `Log.w` for empty/guard paths when useful (e.g. confirm with no selection)
-- If the screen has **no** repo/use-case path (UI-only logic), a short ViewModel log is OK
-
-## Fragment / Activity / Adapter rules
-
-- Collect state with lifecycle-aware collectors (`collectWhenStarted` on **`viewLifecycleOwner`** via `FragmentExtensions`)
-- Collect effects separately from state (`collectWhenCreated`)
-- Navigate with `navigateTo` / `popFrom` — not raw `findNavController()` when helpers exist
-- Toasts: `context?.showToast(R.string.x)` / `context?.showToast("…")` via `ContextExtensions` — prefer `@StringRes`
-- Extend project `Parent*` / `Base*` Fragment classes when available
-- View Binding only — never `findViewById` / Data Binding
-- **Render only** — no DTO/domain mapping, filtering, or sorting in Fragment / Activity / Adapter
-- Adapters bind pre-mapped UI models (`*UiItem`) only
-- Log screen analytics via shared `EventsProvider` (or equivalent) when the project uses Firebase events
-- **Fragment member order** (see `19-base-ui`): `onViewCreated` (`screenStarted` + **inline** clicks — no `setupClicks()`) → `onStart`/`onResume` (if any) → helper implementations → `initObservers` → `renderState` → `handleEffect` → `onPause`/`onStop`/`onDestroyView` (if any)
-
-## Mapping (`toUi`)
-
-- Prefer heavy mapping in **Repository** or **UseCase** (wherever the concern belongs)
-- Domain → UI (`FeatureUiMapper.toUi(...)`) may run in **ViewModel** when needed
-- If mapping looks heavy (large lists), use a dispatcher (`withContext(defaultDispatcher)`) before updating State
-- Never map inside Fragment, Activity, Adapter, or XML
-
-## Lists and large data in UI
-
-- Assume lists may be thousands of items — use `ListAdapter` + `DiffUtil`
-- Map/filter/sort large collections in Repo / UseCase / ViewModel (off Main) before State / `submitList`
-- Keep State lean; do not dump entire raw datasets into UI state when unnecessary
-- Prefer pagination / windowed loading when the feature loads open-ended data
-- **`DiffUtil.ItemCallback`:** keep simple `areItemsTheSame` / `areContentsTheSame` as **one-liners** (same line as `=`) — do not break the expression body onto the next line
-
-```kotlin
-// BAD
-override fun areItemsTheSame(oldItem: ConversationUiItem, newItem: ConversationUiItem): Boolean =
-    oldItem.id == newItem.id
-
-// GOOD
-override fun areItemsTheSame(oldItem: ConversationUiItem, newItem: ConversationUiItem): Boolean = oldItem.id == newItem.id
-override fun areContentsTheSame(oldItem: ConversationUiItem, newItem: ConversationUiItem): Boolean = oldItem == newItem
-```
-
-- Same idea for other short single-expression overrides / properties — prefer one line when readable (~140 cols OK)
-
-## Orientation
-
-- Screens must work in **portrait and landscape** — layouts adapt; do not assume portrait-only
+Read [reference/mvi-presentation.md](reference/mvi-presentation.md) when scaffolding or changing MVI.

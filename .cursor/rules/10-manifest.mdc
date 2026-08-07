@@ -58,3 +58,16 @@ alwaysApply: false
 
 - If WorkManager is unused, remove `WorkManagerInitializer` via AndroidX Startup `tools:node="remove"` (see `23-app-startup`)
 - Do not leave crashy default initializers enabled
+
+## Deep Links
+
+Moved from former `ANDROID_PROJECT_RULES.md` — keep here so nothing is lost.
+
+- New apps from this template start with **no app deep links** unless product requires them.
+- If adding deep links: declare on the host Activity with explicit `intent-filter`, `autoVerify` only when App Links are configured, and handle navigation via Nav Component.
+
+## Intent filters (extra)
+
+- Launcher: `MAIN` + `LAUNCHER` only on MainActivity.
+- Receivers: whitelist only needed system actions.
+- Custom actions must be namespaced with applicationId / package.

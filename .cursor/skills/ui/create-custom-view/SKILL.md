@@ -5,7 +5,7 @@ description: Create Android custom View or ViewGroup with XML layout and View Bi
 
 # Create Custom View
 
-Follow `.cursor/rules/09-resources-xml.mdc`, `19-base-ui.mdc`.
+Follow `.cursor/rules/09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md), `19-base-ui.mdc` + [reference/base-ui.md](../../../rules/reference/base-ui.md).
 
 ## When to use
 
@@ -43,6 +43,10 @@ class FeatureCustomView @JvmOverloads constructor(
 ```
 
 ## Rules
+
+Obey XML invariants in `09` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md) and base UI in `19` + [reference/base-ui.md](../../../rules/reference/base-ui.md).
+
+**Skill-specific (custom view):**
 
 - Inflate via View Binding — not findViewById
 - Material children inside custom view
