@@ -22,7 +22,7 @@ Reference shape: Speak-Translate / Qibla Finder `:app` (`plugins` → `android` 
 
 1. `gradle/libs.versions.toml`
 2. Every module `build.gradle.kts` (`app`, `presentation`, `data`, `domain`, `core-*`, ads, features)
-3. Do **not** change versions unless user also asks to bump — organizing ≠ upgrading (use `gradle-update` for bumps)
+3. Do **not** change versions unless user also asks to bump — organizing ≠ upgrading (use `gradle-update` for bumps). If **`gradle-update`** finds hardcodes, it must migrate them into this catalog and place them under the correct section (same headers as below).
 
 ---
 
@@ -102,7 +102,7 @@ Put Android Core libs **first without a header** (or under an implied core group
 - One shared version key per family (`lifecycle` for viewmodel/runtime/process)
 - Prefer `group` + `name` + `version.ref`
 - Comment out unused with `#` — keep under the correct section
-- **Never** leave hardcoded `"g:a:v"` in module scripts — move into catalog
+- **Never** leave hardcoded `"g:a:v"` in module scripts — move into catalog (`gradle-update` must migrate + bump these, not only catalog keys)
 
 ---
 

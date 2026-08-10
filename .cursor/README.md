@@ -51,7 +51,7 @@ test/test-flow                     Coroutine / Flow / repository tests
 test/test-ui                       Instrumentation / Espresso conventions
 test/test-complete                 Run all tests + emulator walkthrough checklist
 gradle/gradle-organize             Catalog + android/base/dependencies section order (signingConfigs, bundle)
-gradle/gradle-update               Bump catalog to latest compatible stables
+gradle/gradle-update               Bump all deps (catalog + hardcodes); migrate to libs.versions.toml + sections
 platform/in-app-update             Play In-App Updates
 release/pre-release                Ship checklist
 ```

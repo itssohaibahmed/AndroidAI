@@ -194,8 +194,9 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 ### Updates (deps, Gradle, platform)
 
 1. Prefer updating `gradle/gradle-update`, `gradle/gradle-organize`, or `08` / `reference/gradle.md`.
-2. Library allow/deny list → `13-libraries-stack.mdc`.
-3. No new libraries without explicit human approval (`00-global`).
+2. **`gradle-update`** must bump catalog **and** hardcoded `"g:a:v"` lines, migrate them into `libs.versions.toml`, and place under organize section headers.
+3. Library allow/deny list → `13-libraries-stack.mdc`.
+4. No new libraries without explicit human approval (`00-global`) — migrating an existing hardcode into the catalog is required, not a new library.
 
 ### Testing
 

@@ -271,11 +271,40 @@ implementation("androidx.core:core-ktx:1.12.0")
 ### Always use latest stable versions
 
 - When **adding** or **updating** any dependency/plugin, use the **latest stable** release available at that time
-- Look up current versions (Maven Central / Google Maven / library docs) â€” do not copy stale versions from memory or old projects
+- Look up current versions (Maven Central / Google Maven / library docs) — do not copy stale versions from memory or old projects
 - Prefer stable over alpha/beta/rc unless the user explicitly asks for a pre-release
 - Keep AGP, Kotlin, and related plugins compatible with each other when bumping
-- Update the version in `[versions]` only â€” all aliases using `version.ref` pick it up
+- Update the version in `[versions]` only — all aliases using `version.ref` pick it up
 - When scaffolding a new project (`setup-new-project`), seed the catalog with latest stable for the whole core stack
+
+### `gradle-update` (mandatory behavior)
+
+When the user runs **`gradle-update`** (or asks to bump dependencies):
+
+1. Inventory **both** `libs.versions.toml` `[versions]` **and** every hardcoded `"group:artifact:version"` in module Gradle scripts
+2. Resolve latest stable for **each** (do not skip Glide / ads / Firebase / etc. because they were hardcoded)
+3. If `gradle/libs.versions.toml` is missing → **create** it (`[versions]` / `[plugins]` / `[libraries]` + section comments per this doc / `gradle-organize`)
+4. Migrate each hardcoded dep into the catalog (version key + library alias under the correct section, e.g. `# Glide`), then replace with `implementation(libs.…)`
+5. Place module `implementation` lines under the matching `//` header (`// Glide`, not under `// Testing`)
+6. Migrating an **existing** hardcoded dependency into the catalog is **not** “adding a new library” — it is required on every update run
+7. Leave **zero** hardcoded Maven coordinates in `*.gradle.kts` when the update finishes
+
+```kotlin
+// ❌ BAD — leftover hardcode after gradle-update
+implementation("com.github.bumptech.glide:glide:5.0.5")
+
+// ✅ GOOD — catalog + correct section
+// Glide
+implementation(libs.glide)
+```
+
+```toml
+# Glide
+glide = "5.0.9"
+# …
+# Glide
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+```
 
 ## SDK defaults (adjust only on project-wide request)
 
