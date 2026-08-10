@@ -1,6 +1,6 @@
 ---
 name: test-integration
-description: Write multi-layer integration tests (Repository + Room in-memory, Retrofit + MockWebServer, etc.). Use when testing real data-layer wiring across components. Not for fakes-only unit tests (test-unit) or Espresso UI (test-e2e). Part of test-* suite.
+description: Write missing multi-layer integration tests (Room in-memory / MockWebServer), run them, report results; on failures ask consent before fixing production code and retest. Not for fakes-only unit or Espresso E2E. Part of test-* suite.
 ---
 
 # Integration Tests
@@ -9,13 +9,35 @@ description: Write multi-layer integration tests (Repository + Room in-memory, R
 
 First user-visible sentence when this skill runs (verbatim):
 
-> We are going to write/update multi-layer integration tests (e.g. Room in-memory / MockWebServer) — no device if JVM-only; if `androidTest` is required we will need an emulator or physical device attached.
+> We are going to write missing multi-layer integration tests, run them, and report results — no device if JVM-only; if `androidTest` is required we need an emulator or physical device attached. On failures we will ask before fixing production code.
 
 If the work must use `androidTest` and no device is attached: say so after the banner, continue with any JVM-safe parts, and mark device steps blocked.
 
 Follow `.cursor/rules/11-testing.mdc`, `26-data-persistence.mdc`, and matching `rules/reference/` (Room / Retrofit) when relevant.
 
 Obey `.cursor/project-settings.json` (`writeTestsWithFeatures`).
+
+## Workflow (mandatory)
+
+1. **Discover gaps** — missing Repository / DAO / API multi-layer coverage (real Room in-memory, MockWebServer, etc.)
+2. **Write missing tests** — follow Scope below; skip fakes-only single-class tests (`test-unit`) and UI (`test-e2e`)
+3. **Execute** — JVM (Windows: `.\gradlew.bat`):
+
+   ```bash
+   ./gradlew test
+   ```
+
+   If tests live under `androidTest`, also:
+
+   ```bash
+   ./gradlew connectedDebugAndroidTest
+   ```
+
+   Prefer module-scoped tasks when the scope is clear.
+4. **Report** — clear Pass/Fail summary
+5. **On failures** — **stop**. Ask user consent before changing production/app code. Show failing tests + suspected cause. Do **not** silently weaken assertions
+6. **On consent** — prefer fixing **app/data code** when the test is correct; fix the **test** only if wrong/brittle (say so when asking). Then **retest** and report again
+7. **If user declines** — leave failures listed; do not change production code
 
 ## Scope
 
@@ -47,3 +69,4 @@ Prefer `src/test` JVM. Use `src/androidTest` **only** when the layer requires An
 - Espresso / user-visible UI flows → `test-e2e`
 - Hitting real production backends or committing secrets
 - Flaky sleeps instead of deterministic server/DB setup
+- Fixing production code without explicit user consent after failures

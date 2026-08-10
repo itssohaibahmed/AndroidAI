@@ -48,10 +48,14 @@ Examples:
 
 | Skill | Use for |
 |-------|---------|
-| `test/test-unit` | UseCase + ViewModel + Flow-with-fakes (JVM, no device) |
-| `test/test-integration` | Multi-layer Room / MockWebServer (device only if `androidTest`) |
-| `test/test-e2e` | `androidTest` / Espresso critical flows (device required) |
-| `test/test-complete` | Run all written tests + emulator walkthrough (device required) |
+| `test/test-unit` | Write missing JVM unit/Flow tests → run → report (no device) |
+| `test/test-integration` | Write missing multi-layer tests → run → report (device if `androidTest`) |
+| `test/test-e2e` | Write missing E2E → run on device → report (device required) |
+| `test/test-complete` | Full suite run + walkthrough (device required) |
+
+### Write → run → consent → fix → retest
+
+Authoring skills (`test-unit`, `test-integration`, `test-e2e`) and `test-complete` must: write/discover as applicable → execute → show Pass/Fail → **ask user consent** before changing production code on failures → fix → retest. Do not silently weaken assertions. If the user declines, leave failures listed.
 
 ### Start banner
 

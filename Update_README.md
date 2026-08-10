@@ -203,8 +203,9 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 1. Extend `test/test-unit`, `test-integration`, `test-e2e`, or `test-complete`.
 2. Conventions → `11-testing.mdc` (pyramid: unit = fakes/Flow; integration = Room/MockWebServer; e2e = device UI).
 3. Each `test-*` skill starts with a one-line `We are going to …` banner; device-needed skills must mention emulator/physical device (or already attached).
-4. Respect `project-settings.json` → `writeTestsWithFeatures`.
-5. After rename/add of test skills, update the skill map in [`.cursor/README.md`](.cursor/README.md).
+4. Authoring skills **write missing tests, execute, and report**. On failures: **ask user consent** before fixing production code, then retest. Do not silently weaken assertions.
+5. Respect `project-settings.json` → `writeTestsWithFeatures`.
+6. After rename/add of test skills, update the skill map in [`.cursor/README.md`](.cursor/README.md).
 
 ### Review
 

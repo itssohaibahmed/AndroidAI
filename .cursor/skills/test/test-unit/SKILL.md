@@ -1,6 +1,6 @@
 ---
 name: test-unit
-description: Write Android JVM unit tests for UseCases, ViewModels, mappers, and Flow behavior with fakes. Use when adding unit tests, MVI coverage, Flow/runTest with fakes, or fake repository tests. Part of test-* suite; use test-integration for real Room/network layers, test-e2e for device UI, test-complete to run everything.
+description: Write missing JVM unit tests (UseCases, ViewModels, Flow with fakes), run them, report results; on failures ask consent before fixing production code and retest. Use for unit/MVI/fake-repo tests. Part of test-* suite.
 ---
 
 # Unit Tests
@@ -9,11 +9,27 @@ description: Write Android JVM unit tests for UseCases, ViewModels, mappers, and
 
 First user-visible sentence when this skill runs (verbatim):
 
-> We are going to write/update JVM unit tests (UseCases, ViewModels, Flow with fakes) — no emulator or device required.
+> We are going to write missing JVM unit tests, run them, and report results — no emulator or device required. On failures we will ask before fixing production code.
 
 Follow `.cursor/rules/11-testing.mdc`, `06-coroutines-flow.mdc`, `18-errors-result.mdc`.
 
 Obey `.cursor/project-settings.json`: if `writeTestsWithFeatures` is `false`, only write tests when the user explicitly asks.
+
+## Workflow (mandatory)
+
+1. **Discover gaps** — missing UseCase / ViewModel / mapper / Flow-with-fakes coverage for the scoped feature or modules
+2. **Write missing tests** — follow Priority and conventions below; skip trivial getter-only tests
+3. **Execute** — from project root (Windows: `.\gradlew.bat`):
+
+   ```bash
+   ./gradlew test
+   ```
+
+   Prefer a module-scoped task when the scope is clear (e.g. `:domain:test`, `:presentation:test`).
+4. **Report** — clear Pass/Fail summary (modules, failing test names, short reason)
+5. **On failures** — **stop**. Ask user consent before changing production/app code. Show failing tests + suspected cause. Do **not** silently weaken assertions to go green
+6. **On consent** — prefer fixing **app/domain code** when the test correctly exposes a bug; fix the **test** only if it was wrong/brittle (say so when asking). Then **retest** and report again until green or user stops
+7. **If user declines** — leave failures listed; do not change production code
 
 ## Priority
 
@@ -96,3 +112,5 @@ Mirror package under `src/test/java`.
 - Real Room / Retrofit / network / DB → use `test-integration`
 - Tests that only assert constants
 - Blocking `runBlocking` outside `runTest` helpers
+- Fixing production code without explicit user consent after failures
+- Inventing secrets or hitting real paid APIs
