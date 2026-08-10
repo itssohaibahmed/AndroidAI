@@ -17,24 +17,35 @@ Obey `.cursor/project-settings.json` when present.
 
 ## Aggregated report
 
+Number every actionable finding in **one** continuous list across all sections. Follow [fix-selection.md](../fix-selection.md) after the report.
+
 ```markdown
 ## Overall verdict
 Pass / Pass with notes / Fail
 
 ## Architecture
-(summary + Critical / Warnings from review-architecture)
+(summary)
 
 ## Performance
-(summary + Critical / Warnings from review-performance)
+(summary)
 
 ## Security
-(summary + Critical / Warnings from review-security)
+(summary)
+
+## Fix list
+1. [Architecture / Critical] …
+2. [Architecture / Warning] …
+3. [Performance / Critical] …
+4. [Security / High] …
+5. [Optional] …
 
 ## Must-fix before merge
-- …
+(reference Fix list numbers that are Critical / High)
 
 ## Optional follow-ups
-- …
+(reference remaining Fix list numbers)
 ```
 
 **Fail** if any skill reports a **Critical** finding (module boundary break, Main-thread ANR risk, leaked secret, unsafe exported component).
+
+After the report: **do not fix yet** — ask which numbers to fix per `fix-selection.md` (e.g. user replies `fix 1, 2, 4, 7`).

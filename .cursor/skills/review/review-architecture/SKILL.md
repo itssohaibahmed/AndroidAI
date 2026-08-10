@@ -69,21 +69,21 @@ Obey `.cursor/project-settings.json` when judging orientation / tests.
 
 ## Report format
 
+Number every actionable finding. Follow [fix-selection.md](../fix-selection.md) after the report.
+
 ```markdown
 ## Summary
 One-line verdict: Pass / Pass with notes / Fail
 
-## Critical (must fix)
-- ...
-
-## Warnings (should fix)
-- ...
-
-## Suggestions (optional)
-- ...
+## Fix list
+1. [Critical] …
+2. [Warning] …
+3. [Suggestion] …
 
 ## Rules referenced
 - rule files that applied
 ```
 
 Severity: boundary violations and Main-thread heavy work = **Critical**.
+
+After the report: **do not fix yet** — ask which numbers to fix per `fix-selection.md` (e.g. user replies `fix 1, 2, 4, 7`).

@@ -38,8 +38,16 @@ Follow `.cursor/rules/06-coroutines-flow.mdc`, `03-android-architecture.mdc`, `0
 
 ## Report format
 
-| Issue | Location | Severity | Fix |
-|-------|----------|----------|-----|
-| Main-thread map of 5000 items | `XFragment` | Critical | Move to ViewModel + Default |
+Number every actionable finding. Follow [fix-selection.md](../fix-selection.md) after the report.
+
+```markdown
+## Fix list
+| # | Issue | Location | Severity | Fix |
+|---|-------|----------|----------|-----|
+| 1 | Main-thread map of 5000 items | `XFragment` | Critical | Move to ViewModel + Default |
+| 2 | … | … | Warning | … |
+```
 
 Prioritize **Critical** = ANR or OOM risk on realistic data sizes.
+
+After the report: **do not fix yet** — ask which numbers to fix per `fix-selection.md` (e.g. user replies `fix 1, 2, 4, 7`).

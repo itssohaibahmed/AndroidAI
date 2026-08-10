@@ -35,15 +35,15 @@ Follow `.cursor/rules/14-security-secrets.mdc`, `10-manifest.mdc`, `21-ads-billi
 
 ## Report
 
+Number every actionable finding. Follow [fix-selection.md](../fix-selection.md) after the report.
+
 ```markdown
-## Critical
-- leaked secret / exported receiver / logged token
-
-## High
-- missing runtime permission UX / cleartext traffic
-
-## Medium
-- over-broad permissions
+## Fix list
+1. [Critical] leaked secret / exported receiver / logged token
+2. [High] missing runtime permission UX / cleartext traffic
+3. [Medium] over-broad permissions
 ```
 
 Never paste actual secrets into the review report — reference file/line only.
+
+After the report: **do not fix yet** — ask which numbers to fix per `fix-selection.md` (e.g. user replies `fix 1, 2, 4, 7`).
