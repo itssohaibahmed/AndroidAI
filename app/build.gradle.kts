@@ -20,17 +20,44 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            // No .jks in repo — fill locally or via CI / local.properties before release
+            storePassword = ""
+            keyAlias = ""
+            keyPassword = ""
+        }
+    }
+
     buildTypes {
+        debug {
+            applicationIdSuffix = ".testing"
+            optimization {
+                enable = false
+            }
+        }
         release {
+            signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = false
             }
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+}
+
+base {
+    archivesName = "AndroidAI-v${android.defaultConfig.versionCode}(${android.defaultConfig.versionName})"
 }
 
 dependencies {
