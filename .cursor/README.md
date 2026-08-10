@@ -26,7 +26,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 
 | Key                      | Values                            | Meaning                                        |
 |--------------------------|-----------------------------------|------------------------------------------------|
-| `writeTestsWithFeatures` | `true` / `false`                  | Write unit/UI tests while scaffolding features |
+| `writeTestsWithFeatures` | `true` / `false`                  | Write unit/integration/E2E tests while scaffolding features |
 | `orientation`            | `portrait` / `landscape` / `both` | Which orientations layouts must support        |
 | `themeModes`             | `day` / `night` / `both`          | Day / night / both theme resources             |
 | `applicationId`          | string                            | Root package / applicationId                   |
@@ -46,10 +46,10 @@ review/review-architecture         Architecture / MVI / boundaries
 review/review-performance          ANR / lists / dispatchers
 review/review-security             Secrets / manifest / PII
 review/review-complete             Runs all review-* + summary report
-test/test-unit                     UseCase + ViewModel unit tests
-test/test-flow                     Coroutine / Flow / repository tests
-test/test-ui                       Instrumentation / Espresso conventions
-test/test-complete                 Run all tests + emulator walkthrough checklist
+test/test-unit                     UseCase + ViewModel + Flow-with-fakes (JVM)
+test/test-integration              Multi-layer Room / MockWebServer integration
+test/test-e2e                      E2E androidTest / Espresso (device required)
+test/test-complete                 Run all tests + emulator walkthrough (device required)
 gradle/gradle-organize             Catalog + android/base/dependencies section order (signingConfigs, bundle)
 gradle/gradle-update               Bump all deps (catalog + hardcodes); migrate to libs.versions.toml + sections
 platform/in-app-update             Play In-App Updates

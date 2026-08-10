@@ -1,9 +1,17 @@
 ---
 name: test-complete
-description: Run all written unit/flow/UI tests and perform an emulator walkthrough checklist of the app. Use when asking to test everything, full test pass, or emulator go-through.
+description: Run all written unit/integration/E2E tests and perform an emulator walkthrough checklist of the app. Use when asking to test everything, full test pass, or emulator go-through. Requires emulator or physical device for connected tests and walkthrough.
 ---
 
 # Complete Test Pass
+
+## Start banner
+
+First user-visible sentence when this skill runs (verbatim):
+
+> We are going to run the full test pass and an emulator walkthrough — an emulator or physical device is required for connected/`androidTest` and the walkthrough (or we proceed with the device already attached).
+
+If no device is attached: say so after the banner, run JVM `test` where possible, mark connected/`androidTest` and walkthrough as blocked — do not claim they passed.
 
 Follow `.cursor/rules/11-testing.mdc`.
 
@@ -19,13 +27,14 @@ From project root (Gradle):
 On Windows PowerShell, use `.\gradlew.bat` equivalents.
 
 - Report pass/fail per module
-- If `connectedDebugAndroidTest` cannot run (no device), note blocker and continue with unit results + walkthrough
+- Integration tests usually live under `src/test` (covered by `test`); use `connectedDebugAndroidTest` for E2E / androidTest integration
+- If `connectedDebugAndroidTest` cannot run (no device), note blocker and continue with JVM results
 
 ## Step 2 — Align with test skills
 
-- Gaps in UseCase/ViewModel coverage → suggest `test-unit`
-- Flow/repository gaps → `test-flow`
-- Critical UX gaps → `test-ui`
+- Gaps in UseCase/ViewModel/Flow-with-fakes → suggest `test-unit`
+- Gaps in Room/MockWebServer multi-layer wiring → suggest `test-integration`
+- Critical UX / device flow gaps → suggest `test-e2e`
 - Honor `writeTestsWithFeatures` in `.cursor/project-settings.json`
 
 ## Step 3 — Emulator walkthrough checklist
@@ -48,7 +57,8 @@ Document: device/API, build variant, what was skipped.
 ```markdown
 ## Automated
 - unit: Pass/Fail (details)
-- androidTest: Pass/Fail / Skipped (reason)
+- integration: Pass/Fail / N/A (details)
+- e2e (androidTest): Pass/Fail / Skipped (reason)
 
 ## Walkthrough
 - ✅/❌ per checklist item
@@ -57,7 +67,7 @@ Document: device/API, build variant, what was skipped.
 - …
 
 ## Suggested follow-ups
-- test-unit / test-flow / test-ui items to add
+- test-unit / test-integration / test-e2e items to add
 ```
 
 ## Limits

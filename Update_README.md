@@ -122,7 +122,7 @@ Obey `.cursor/project-settings.json` when present.
 | Add domain/data/repo                                | `feature/create-clean-architecture`                            |
 | XML / Figma layout only                             | `ui/figma-to-xml` (or dialog / bottom-sheet)                   |
 | Review PR / architecture / perf / security          | `review/review-*` (+ wire into `review-complete` if full gate) |
-| Unit / flow / UI tests                              | `test/test-*` (+ `test-complete` if full suite)                |
+| Unit / integration / E2E tests                      | `test/test-*` (+ `test-complete` if full suite)                |
 | Gradle catalog / organize                           | `gradle/`                                                      |
 | Ship checklist                                      | `release/pre-release`                                          |
 | New multi-step product feature (ads, IAP, …)        | New skill under a clear area; add **rules** for invariants     |
@@ -200,9 +200,11 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 
 ### Testing
 
-1. Extend `test/test-unit`, `test-flow`, `test-ui`, or `test-complete`.
-2. Conventions → `11-testing.mdc`.
-3. Respect `project-settings.json` → `writeTestsWithFeatures`.
+1. Extend `test/test-unit`, `test-integration`, `test-e2e`, or `test-complete`.
+2. Conventions → `11-testing.mdc` (pyramid: unit = fakes/Flow; integration = Room/MockWebServer; e2e = device UI).
+3. Each `test-*` skill starts with a one-line `We are going to …` banner; device-needed skills must mention emulator/physical device (or already attached).
+4. Respect `project-settings.json` → `writeTestsWithFeatures`.
+5. After rename/add of test skills, update the skill map in [`.cursor/README.md`](.cursor/README.md).
 
 ### Review
 

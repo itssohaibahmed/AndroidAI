@@ -1,5 +1,5 @@
 ---
-description: Unit and instrumentation testing conventions
+description: Unit, integration, and E2E testing conventions
 globs: ["**/test/**/*.kt", "**/androidTest/**/*.kt"]
 alwaysApply: false
 ---
@@ -11,13 +11,14 @@ alwaysApply: false
 | UseCases | High — pure JVM, fake repositories |
 | ViewModels | High — drive via Intents, assert State + Effects |
 | Mappers | Medium |
-| Repositories | Medium — fake DataSources |
-| UI (Espresso) | User-visible flows only |
+| Flow (with fakes) | Medium — emission order / failures under `test-unit` |
+| Repositories (real layers) | Medium — Room in-memory / MockWebServer under `test-integration` |
+| E2E (Espresso) | Critical user-visible flows only |
 
 ## Approach
 
-- Mirror production package structure under `src/test/java`
-- Prefer fakes (`FakeUserRepository`) over heavy mocking
+- Mirror production package structure under `src/test/java` (and `src/androidTest/java` for E2E)
+- Prefer fakes (`FakeUserRepository`) over heavy mocking for unit tests
 - Inject fakes into UseCases and ViewModels under test
 - Add new testing libraries via version catalog only — with approval
 
@@ -37,12 +38,6 @@ Examples:
 - `GetUserUseCase_whenRepositoryReturnsNull_thenReturnsNull`
 - `LoginViewModel_whenCredentialsInvalid_thenEmitsShowError`
 
-## Instrumentation
-
-- Test user-visible behavior, not implementation details
-- Use project's `testInstrumentationRunner`
-- Keep tests independent — no shared mutable state between tests
-
 ## When adding features
 
 - Add at minimum: UseCase unit test + ViewModel unit test
@@ -53,25 +48,36 @@ Examples:
 
 | Skill | Use for |
 |-------|---------|
-| `test/test-unit` | UseCase + ViewModel unit tests |
-| `test/test-flow` | Coroutine / Flow / repository behavior tests |
-| `test/test-ui` | `androidTest` / Espresso conventions |
-| `test/test-complete` | Run all written tests + emulator walkthrough checklist |
+| `test/test-unit` | UseCase + ViewModel + Flow-with-fakes (JVM, no device) |
+| `test/test-integration` | Multi-layer Room / MockWebServer (device only if `androidTest`) |
+| `test/test-e2e` | `androidTest` / Espresso critical flows (device required) |
+| `test/test-complete` | Run all written tests + emulator walkthrough (device required) |
 
-## Flow / coroutine tests
+### Start banner
+
+When any `test-*` skill runs, the agent’s **first** user-visible sentence must be the skill’s one-line `We are going to …` banner. If a device is needed, that line must say an **emulator or physical device** is required, or that work continues with a device **already attached**.
+
+## Unit / Flow (fakes)
 
 - Prefer `runTest` + test dispatchers (`StandardTestDispatcher` / `UnconfinedTestDispatcher`)
 - Assert Flow emissions with Turbine **only if** already in catalog + approved
-- Repository tests: fake DataSources; never real network/DB in unit tests
+- Never real network/DB in unit tests → use `test-integration`
 
-## UI / instrumentation
+## Integration
+
+- Repository + Room in-memory and/or Retrofit + MockWebServer (catalog/approved only)
+- Prefer JVM `src/test`; `androidTest` only when Android runtime is required
+- No Espresso here
+
+## E2E / instrumentation
 
 - Cover critical user-visible flows only (login, paywall, primary feature path)
 - No new Espresso / UI-test libraries without approval — use project’s existing stack
 - Keep tests independent — no shared mutable state between tests
+- Emulator or physical device required
 
 ## Emulator walkthrough (`test-complete`)
 
-- Run unit + instrumentation suites that already exist
+- Run unit + integration + E2E suites that already exist
 - Structured manual/agent checklist through main nav paths on an emulator
 - Document device API / orientation from `project-settings.json`
