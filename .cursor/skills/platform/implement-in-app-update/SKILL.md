@@ -1,9 +1,9 @@
 ---
-name: in-app-update
-description: Add Google Play In-App Updates (Immediate/Flexible) with InAppUpdateManager in core-ui. Use when the user asks to add in-app update, Play Core app update, flexible/immediate update, or /add-in-app-update.
+name: implement-in-app-update
+description: Add Google Play In-App Updates (Immediate/Flexible) with InAppUpdateManager in core-ui. Use when the user asks to add in-app update, Play Core app update, flexible/immediate update, or /implement-in-app-update.
 ---
 
-# Add In-App Update
+# Implement In-App Update
 
 Follow `.cursor/rules/08-gradle.mdc`, `09-resources-xml.mdc`, `13-libraries-stack.mdc`, `16-logging.mdc`, `25-in-app-update.mdc`.  
 **Requires human approval** before adding `app-update-ktx` if not already in the catalog.

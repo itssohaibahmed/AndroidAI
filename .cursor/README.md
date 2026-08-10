@@ -55,7 +55,7 @@ gradle/gradle-update               Bump all deps (catalog + hardcodes); migrate 
 build/build-debug-apk              Debug APK → device install + launch
 build/build-release-apk           Release signing + APK → device install + launch
 build/build-release-bundle        Release signing + AAB (no device)
-platform/in-app-update             Play In-App Updates
+platform/implement-in-app-update   Play In-App Updates
 release/pre-release                Ship checklist
 ```
 
