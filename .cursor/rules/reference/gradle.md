@@ -25,12 +25,12 @@ plugins {
 
 android {
     namespace = "com.company.app"
-    compileSdk = 36 // or compileSdk { version = release(36) { minorApiLevel = 1 } } if project uses it
+    compileSdk = 37 // or compileSdk { version = release(37) { minorApiLevel = 1 } } if project uses it
 
     defaultConfig {
         applicationId = "com.company.app"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -108,7 +108,7 @@ plugins {
 
 android {
     namespace = "com.company.app.presentation"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
@@ -280,7 +280,7 @@ implementation("androidx.core:core-ktx:1.12.0")
 ## SDK defaults (adjust only on project-wide request)
 
 - minSdk = 24
-- targetSdk / compileSdk = latest stable the project adopts
+- targetSdk / compileSdk = **37** (bump when a newer platform ships)
 - Java 17 compatibility (`compileOptions`)
 - Kotlin official code style
 

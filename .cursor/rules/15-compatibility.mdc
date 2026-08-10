@@ -7,7 +7,7 @@ alwaysApply: false
 ## SDK targets (defaults)
 
 - minSdk = 24
-- targetSdk / compileSdk = latest stable the project adopts
+- targetSdk / compileSdk = **37** (Android 17 — current latest; bump when a newer platform ships)
 - Do not call APIs above minSdk without guards, desugaring, or AndroidX compat
 
 ## Permission strategy

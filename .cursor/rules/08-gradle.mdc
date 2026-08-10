@@ -19,7 +19,7 @@ alwaysApply: false
 - `:app` `base { archivesName = "AppName-Account-v{versionCode}({versionName})" }`
 - Dependencies: project modules first, then section headers (Android Core, Lifecycle, Firebase, Koin, Testing, …)
 - Version catalog: `[versions]` / `[plugins]` / `[libraries]`; camelCase version keys; kebab-case aliases; **never** hardcode `g:a:v` in modules
-- Latest stable on add/update; Java 17; minSdk 24; View Binding on — never Data Binding; app release minify on
+- Latest stable on add/update; Java 17; minSdk 24; compileSdk/targetSdk **37**; View Binding on — never Data Binding; app release minify on
 - Signing secrets: empty placeholders or `local.properties` / CI — never commit real keystore passwords into docs/skills
 - ProGuard keeps: domain entities + presentation state/intent/effect/model (+ ads when present)
 
