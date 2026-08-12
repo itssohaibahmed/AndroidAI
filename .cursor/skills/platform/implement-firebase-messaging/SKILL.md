@@ -14,6 +14,7 @@ Add **only** the Play/Firebase Messaging library:
 
 - Catalog entry under **Firebase**
 - `implementation` on **`:core-platform`** (app pulls it transitively)
+- **Mandatory** on every **`setup-new-project`** bootstrap
 - **No** `FirebaseMessagingService`, receivers, manifest entries, tokens, DI, or managers
 
 ## Step 1 — Catalog (latest stable)

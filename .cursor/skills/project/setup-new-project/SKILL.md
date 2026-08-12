@@ -1,6 +1,6 @@
 ---
 name: setup-new-project
-description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, and Remote Config → SharedPreferences cache. Use when starting a new project or converting a single-module app. Confirms and persists project settings first.
+description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, Remote Config → SharedPreferences cache, and mandatory firebase-messaging on core-platform. Use when starting a new project or converting a single-module app. Confirms and persists project settings first.
 ---
 
 # Setup New Project
@@ -31,7 +31,8 @@ Confirm with the user before scaffolding. Write answers to **`.cursor/project-se
 
 Also ask:
 
-1. Optional: Firebase / ads — **do not add SDKs without approval**; still scaffold stubs/interfaces as below when Firebase is approved
+1. Optional: **ads** — do not add ad SDKs without approval
+2. **Firebase Cloud Messaging** is **mandatory** for every new project: add `firebase-messaging` to the catalog + `implementation` on `:core-platform` only (dependency — no `FirebaseMessagingService` or push UI). See **`implement-firebase-messaging`**.
 
 All later skills **must read** `.cursor/project-settings.json` and obey it.
 
@@ -45,7 +46,7 @@ All later skills **must read** `.cursor/project-settings.json` and obey it.
 | `:presentation`  | Must     | Screens, MVI, nav graphs, MainActivity host UI              |
 | `:core-common`   | Required | `Constants` (TAGs), `EventsProvider`                        |
 | `:core-ui`       | Required | **All** themes/strings/colors/splash, Parent*, extensions   |
-| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI       |
+| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI, **`firebase-messaging` dep** |
 
 ```
 app (Composition Root) — no values resources
@@ -69,6 +70,9 @@ Follow `08-gradle.mdc` + [reference/gradle.md](../../../rules/reference/gradle.m
 6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
 7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
 8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
+9. **Firebase Messaging (mandatory):** catalog entry + `implementation(libs.firebase.messaging)` on **`:core-platform`** under `// Firebase` — latest stable; **no** service/manifest/token code (see **`implement-firebase-messaging`**)
+
+Organize dependency sections with **`gradle-organize`**.
 
 ### Module scripts (scaffold from reference)
 
@@ -84,8 +88,6 @@ Copy the `:app` and library shapes from [reference/gradle.md](../../../rules/ref
 | `base.archivesName` | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known |
 
 **Library modules** (`:presentation`, `:data`, `:domain`, `:core-*`): same relative order; **omit** `signingConfigs`, `bundle`, `base`, and app-only `defaultConfig` fields. UI modules get View Binding; `:domain` / `:core-common` may omit `buildFeatures`.
-
-Organize dependency sections with **`gradle-organize`**.
 
 ## Step 2 — Application + DI
 
@@ -206,6 +208,23 @@ See [templates/base/README.md](templates/base/README.md) for hierarchy and notes
 Also add: Fragment/Activity/Context/ImageView extensions (`FragmentExtensions` / `ActivityExtensions` / `ContextExtensions.showToast` / `ImageViewExtensions.loadImage` via Glide; Fragment uses `viewLifecycleOwner`), `themes.xml` (include `ButtonStyle.IconButton` parent of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`). Add Glide to version catalog + `implementation(libs.glide)` on `:core-ui`.
 
 ## Step 7 — `:core-platform`
+
+### Firebase Messaging (mandatory — dependency only)
+
+Follow **`implement-firebase-messaging`**. Every new project **must** include:
+
+```toml
+# Firebase
+firebaseMessaging = "…"   # latest stable
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+```
+
+```kotlin
+// Firebase
+implementation(libs.firebase.messaging)
+```
+
+On **`:core-platform`** only — `:app` pulls it transitively. Do **not** add `FirebaseMessagingService`, FCM manifest entries, or token handling during setup.
 
 ### Dispatchers (no named qualifiers)
 
@@ -334,6 +353,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
 - [ ] `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
 - [ ] Glide on `:core-ui` (+ presentation if needed); all programmatic image binds use `loadImage`
+- [ ] `firebase-messaging` in catalog + `implementation(libs.firebase.messaging)` on `:core-platform` (no MessagingService)
 - [ ] `PlatformFirebase` is `object` without Context
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager`
@@ -349,6 +369,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - Reading RC only from SDK in Fragments (use prefs cache)
 - Hardcode secrets / lock orientation unless product requires
 - Skip writing `project-settings.json`
+- Add `FirebaseMessagingService` / FCM manifest / push UI during setup (dependency only)
 
 ## After setup
 

@@ -35,7 +35,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 ## Skill map
 
 ```
-project/setup-new-project          Bootstrap multi-module app + persist settings
+project/setup-new-project          Bootstrap multi-module app + persist settings (+ firebase-messaging on core-platform)
 feature/create-mvi                 Presentation MVI only (no domain/data)
 feature/create-clean-architecture  Domain + data + core pieces as needed
 ui/figma-to-xml                    XML layouts (+ Figma design-to-code); absorbs freeform screen XML

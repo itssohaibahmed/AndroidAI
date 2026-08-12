@@ -14,7 +14,7 @@ alwaysApply: false
 | `:presentation` | Screens, ViewModels, navigation, feature MVI packages |
 | `:core-*` | Shared utilities — create as many core modules as needed |
 | `:core-common` | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI |
-| `:core-platform` | Network, location, Firebase helpers, platform services |
+| `:core-platform` | Network, location, Firebase helpers, platform services, **`firebase-messaging` dep** (new projects) |
 | `:core-ui` | Base UI (`Parent*`), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions |
 | `:feature-*` | Optional self-contained feature libraries |
 | `:gmaAds` (optional) | AdMob / mediation — only when product has ads |

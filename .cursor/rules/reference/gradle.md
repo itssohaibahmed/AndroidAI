@@ -276,6 +276,7 @@ implementation("androidx.core:core-ktx:1.12.0")
 - Keep AGP, Kotlin, and related plugins compatible with each other when bumping
 - Update the version in `[versions]` only — all aliases using `version.ref` pick it up
 - When scaffolding a new project (`setup-new-project`), seed the catalog with latest stable for the whole core stack
+- **`setup-new-project` mandatory:** `firebase-messaging` version + library alias under `# Firebase`, and `implementation(libs.firebase.messaging)` on **`:core-platform`** only (see `implement-firebase-messaging` — no MessagingService)
 
 ### `gradle-update` (mandatory behavior)
 

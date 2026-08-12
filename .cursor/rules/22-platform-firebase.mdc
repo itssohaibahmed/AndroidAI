@@ -10,6 +10,7 @@ alwaysApply: false
 |---------|--------|
 | `InternetManager` | `:core-platform` |
 | `PlatformFirebase` object | `:core-platform` |
+| **`firebase-messaging` dependency** | `:core-platform` (mandatory on new projects via `setup-new-project`; no service in template) |
 | Event name constants (`EventsProvider`) | `:core-common` |
 | Remote Config DataSource | `:data` |
 | RC cache in `SharedPrefManager` | `:data` |
@@ -28,6 +29,12 @@ object PlatformFirebase {
 - **`object` — no Context** field/constructor
 - Logs: `TAG_FIREBASE` / `TAG` per `16-logging`
 - Do not call Firebase SDKs from Fragments when this wrapper exists
+
+## Firebase Cloud Messaging (new projects)
+
+- **`setup-new-project`** must add `firebase-messaging` to the catalog + `implementation(libs.firebase.messaging)` on **`:core-platform`** only
+- Dependency only — **no** `FirebaseMessagingService`, manifest FCM entries, or token code in the template bootstrap
+- Later push handling: separate feature work; optional dep-only add for existing apps → skill `implement-firebase-messaging`
 
 ## Analytics events
 

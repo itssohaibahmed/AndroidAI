@@ -245,7 +245,7 @@ dependencies {
 | `:presentation` | projects → Android Core → Lifecycle → Fragment → Navigation → Google → Play Services → Firebase → Koin → Camera/Lottie/Glide/Dots/Shimmer |
 | `:data` | projects → Android Core → Google → Firebase → Location → Koin |
 | `:core-ui` | projects → Android Core → Splash → Lifecycle → Navigation → Google → Firebase → Koin → Glide |
-| `:core-platform` | projects → Android Core → Firebase → Play Services Location → Koin |
+| `:core-platform` | projects → Android Core → Firebase (`firebase-messaging` mandatory on new projects) → Play Services Location → Koin |
 | `:gmaAds` | projects → Android Core → Lifecycle → Google (`api` ads) → Koin |
 | `:domain` | Coroutines + Koin DSL for `useCaseModule` (+ optional pure `project(":feature-*")`) |
 
