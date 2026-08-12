@@ -57,6 +57,7 @@ build/build-release-apk           Release signing + APK → device install + lau
 build/build-release-bundle        Release signing + AAB (no device)
 platform/implement-in-app-update   Play In-App Updates
 platform/implement-in-app-review   Play In-App Review
+platform/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
 release/pre-release                Ship checklist
 ```
 
