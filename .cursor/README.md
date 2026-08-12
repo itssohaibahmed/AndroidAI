@@ -56,6 +56,7 @@ build/build-debug-apk              Debug APK → device install + launch
 build/build-release-apk           Release signing + APK → device install + launch
 build/build-release-bundle        Release signing + AAB (no device)
 platform/implement-in-app-update   Play In-App Updates
+platform/implement-in-app-review   Play In-App Review
 release/pre-release                Ship checklist
 ```
 
@@ -68,7 +69,7 @@ release/pre-release                Ship checklist
 
 Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/rules/reference/`](rules/reference/) — not separate skills.
 
-## Rules index (`00`–`26`)
+## Rules index (`00`–`27`)
 
 | File                   | Role                                                        |
 |------------------------|-------------------------------------------------------------|
@@ -82,6 +83,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 | `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions     |
 | `21`–`25`              | Ads/billing, Firebase, startup, Figma assets, in-app update |
 | `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                |
+| `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)         |
 
 ### `rules/reference/` (full detail)
 
