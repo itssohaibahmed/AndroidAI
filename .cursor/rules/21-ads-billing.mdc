@@ -33,6 +33,8 @@ release { resValue("string", "admob_banner_home_id", "ca-app-pub-…") } // prod
 - Premium screens follow normal MVI feature packages (`premium/`)
 - Product IDs: constants in data/domain — not duplicated in UI
 - After purchase success: update entitlement, then let ads/UI react
+- Full subs + in-app playbook: [reference/premium-billing.md](reference/premium-billing.md)
+- Skills: `premium/implement-in-app-billing`, `premium/add-subscription-packages`, `premium/add-inapp-packages`
 
 ## Forbidden
 

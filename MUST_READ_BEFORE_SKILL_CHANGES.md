@@ -93,7 +93,7 @@ Do **not** grow a large `.cursor/commands/` tree — prefer skills with `/` invo
 .cursor/skills/<area>/<skill-folder>/SKILL.md
 ```
 
-Areas already used: `project`, `feature`, `ui`, `review`, `test`, `gradle`, `platform`, `release`.
+Areas already used: `project`, `feature`, `ui`, `review`, `test`, `gradle`, `platform`, `premium`, `release`.
 
 ### SKILL.md shape
 
@@ -125,6 +125,7 @@ Obey `.cursor/project-settings.json` when present.
 | Unit / integration / E2E tests                      | `test/test-*` (+ `test-complete` if full suite)                |
 | Gradle catalog / organize                           | `gradle/`                                                      |
 | Ship checklist                                      | `release/pre-release`                                          |
+| In-app billing / subscriptions / premium            | `premium/implement-in-app-billing`, `premium/add-subscription-packages`, `premium/add-inapp-packages` |
 | New multi-step product feature (ads, IAP, …)        | New skill under a clear area; add **rules** for invariants     |
 
 ### Skill vs rule (quick)

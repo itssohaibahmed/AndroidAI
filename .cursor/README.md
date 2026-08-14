@@ -58,6 +58,9 @@ build/build-release-bundle        Release signing + AAB (no device)
 platform/implement-in-app-update   Play In-App Updates
 platform/implement-in-app-review   Play In-App Review
 platform/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
+premium/implement-in-app-billing   Greenfield Play billing (subs + in-app, v4 stack)
+premium/add-subscription-packages  Add subscription tiers to existing billing
+premium/add-inapp-packages         Add one-time in-app products to existing billing
 release/pre-release                Ship checklist
 ```
 
@@ -96,6 +99,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 | `mvi-presentation.md`                               | `04-mvi-presentation`     |
 | `base-ui.md`                                        | `19-base-ui`              |
 | `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence`     |
+| `premium-billing.md`                                  | `21-ads-billing`          |
 
 ## Future distribution (not in v1)
 
