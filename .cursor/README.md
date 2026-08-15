@@ -24,18 +24,18 @@ After `setup-new-project` (or when joining an app), settings live in:
 
 All feature/UI/test skills **must read and obey** this file when present:
 
-| Key                      | Values                            | Meaning                                        |
-|--------------------------|-----------------------------------|------------------------------------------------|
+| Key                      | Values                            | Meaning                                                     |
+|--------------------------|-----------------------------------|-------------------------------------------------------------|
 | `writeTestsWithFeatures` | `true` / `false`                  | Write unit/integration/E2E tests while scaffolding features |
-| `orientation`            | `portrait` / `landscape` / `both` | Which orientations layouts must support        |
-| `themeModes`             | `day` / `night` / `both`          | Day / night / both theme resources             |
-| `applicationId`          | string                            | Root package / applicationId                   |
-| `appName`                | string                            | Display name                                   |
+| `orientation`            | `portrait` / `landscape` / `both` | Which orientations layouts must support                     |
+| `themeModes`             | `day` / `night` / `both`          | Day / night / both theme resources                          |
+| `applicationId`          | string                            | Root package / applicationId                                |
+| `appName`                | string                            | Display name                                                |
 
 ## Skill map
 
 ```
-project/setup-new-project          Bootstrap multi-module app + persist settings (+ firebase-messaging on core-platform)
+project/setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 feature/create-mvi                 Presentation MVI only (no domain/data)
 feature/create-clean-architecture  Domain + data + core pieces as needed
 ui/figma-to-xml                    XML layouts (+ Figma design-to-code); absorbs freeform screen XML
@@ -79,19 +79,19 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 
 ## Rules index (`00`–`27`)
 
-| File                   | Role                                                        |
-|------------------------|-------------------------------------------------------------|
-| `00-global`            | Always-on stack + Always/Never law                          |
-| `01-feature-checklist` | Feature scaffolding checklist (not always-on)               |
-| `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)              |
-| `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)      |
+| File                   | Role                                                                                                                                |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `00-global`            | Always-on stack + Always/Never law                                                                                                  |
+| `01-feature-checklist` | Feature scaffolding checklist (not always-on)                                                                                       |
+| `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)                                                                                      |
+| `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)                                                                              |
 | `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`), resources/XML, manifest (`09` → `reference/`) |
-| `11`–`13`              | Testing, naming, libraries                                  |
-| `14`–`16`              | Security (always), compatibility, logging (always)          |
-| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions     |
-| `21`–`25`              | Ads/billing, Firebase, startup, Figma assets, in-app update |
-| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                |
-| `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)         |
+| `11`–`13`              | Testing, naming, libraries                                                                                                          |
+| `14`–`16`              | Security (always), compatibility, logging (always)                                                                                  |
+| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions                                                                             |
+| `21`–`25`              | Ads/billing, Firebase, startup, Figma assets, in-app update                                                                         |
+| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                                                                                        |
+| `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)                                                                                 |
 
 ### `rules/reference/` (full detail)
 
@@ -103,7 +103,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 | `mvi-presentation.md`                               | `04-mvi-presentation`     |
 | `base-ui.md`                                        | `19-base-ui`              |
 | `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence`     |
-| `premium-billing.md`                                  | `21-ads-billing`          |
+| `premium-billing.md`                                | `21-ads-billing`          |
 
 ## Future distribution (not in v1)
 

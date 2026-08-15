@@ -14,7 +14,7 @@ Obey `.cursor/project-settings.json` when present (`writeTestsWithFeatures`).
 
 ## Goal
 
-Complete RC stack (Qibla pattern + domain UseCase):
+Complete RC stack (Speak-Translate DataSource + cache-to-prefs):
 
 1. Fetch/activate (`minimumFetchIntervalInSeconds(0)`)
 2. Cache every needed key into `SharedPrefManager`
@@ -49,13 +49,21 @@ Typical keys (only if the app has that surface): `appOpen`, `banner*`, `inter*`,
 Latest stable, `# Firebase` / `// Firebase` sections (`gradle-organize`).
 
 ```toml
-firebaseConfig = "…"   # latest stable
-firebase-config = { group = "com.google.firebase", name = "firebase-config", version.ref = "firebaseConfig" }
+firebaseBom = "…"   # latest stable
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config" }
+
+# Kotlin Coroutines
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
 ```
 
 ```kotlin
 // Firebase
+implementation(platform(libs.firebase.bom))
 implementation(libs.firebase.config)   // :data (or :app if single-module)
+
+// Kotlin Coroutines
+implementation(libs.kotlinx.coroutines.play.services)  // Task.await()
 ```
 
 `:app` still needs `google-services` + `google-services.json`. This skill does not add FCM.
@@ -93,7 +101,11 @@ Copy templates; set package to `applicationId`. Paths (multi-module):
 | [templates/RemoteConfigRepositoryImpl.kt](templates/RemoteConfigRepositoryImpl.kt) | `:data` `remoteConfig/repository/`   |
 | [templates/FetchRemoteConfigUseCase.kt](templates/FetchRemoteConfigUseCase.kt)     | `:domain` `usecase/remoteConfig/`    |
 
-Fill `saveValues()` from Step 0 keys (`remoteDataSource.getInt(appOpen)` → `rcAppOpen = …`). Always `saveValues()` even when fetch fails (keep last / default cache). Register live listener → `saveValues()` again.
+**DataSource (Speak-Translate):** `Mutex` + lazy `FirebaseRemoteConfig`; `minimumFetchIntervalInSeconds(0L)`; `setConfigSettingsAsync().await()` then `fetchAndActivate().await()`; **`addConfigUpdateListener`**; getters `getLong(key, default)` / `getInt(key)` / `getBoolean(key, default)` / `getString(key, default)`.
+
+Fill `saveValues()` from Step 0 keys (`remoteConfigDataSource.getInt(appOpen)` → `rcAppOpen = …`). Save **only when activate succeeds** (offline / failed fetch keeps last prefs). Register the live listener **once** in the repository (`listenerRegistered`) via `addConfigUpdateListener { saveValues() }`.
+
+Needs `kotlinx-coroutines-play-services` on `:data` (and `:core-platform` if it uses `Task.await()`).
 
 Logs: `TAG_REMOTE_CONFIG`, `ClassName: functionName: State: details`.
 
@@ -144,8 +156,10 @@ If there is no `EntranceFragment`: **AskQuestion** for the host (prefer `nav_gra
 ## Step 6 — Verify
 
 - [ ] `firebase-config` in catalog + module `implementation`
-- [ ] `minimumFetchIntervalInSeconds(0)`
-- [ ] `saveValues()` writes every confirmed key to `SharedPrefManager`
+- [ ] `kotlinx-coroutines-play-services` on `:data`
+- [ ] `minimumFetchIntervalInSeconds(0L)` + `Mutex` + `.await()`
+- [ ] `addConfigUpdateListener` (repository owns `listenerRegistered`)
+- [ ] `saveValues()` writes every confirmed key to `SharedPrefManager` when activate succeeds
 - [ ] Features read cache via `SharedPrefRepository` / manager — not RC SDK in UI
 - [ ] `FetchRemoteConfigUseCase` in `:domain`; repository interface in `:domain`
 - [ ] Entrance (or agreed host) calls the UseCase
@@ -155,6 +169,7 @@ If there is no `EntranceFragment`: **AskQuestion** for the host (prefer `nav_gra
 
 ## Do not
 
+- `addLiveUpdateListener` (use `addConfigUpdateListener`)
 - Read Remote Config from Fragments
 - `PlatformFirebase` with `Context`
 - `remote_config_defaults.xml` unless the user asks

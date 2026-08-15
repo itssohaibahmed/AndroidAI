@@ -14,7 +14,7 @@ alwaysApply: false
 | Lifecycle | viewmodel-ktx, runtime-ktx |
 | DI | Koin (default) |
 | Coroutines | kotlinx-coroutines-core, play-services integration |
-| Firebase (new projects) | `firebase-messaging` on `:core-platform` — mandatory via `setup-new-project` (dependency only) |
+| Firebase (new projects) | BOM + analytics/crashlytics/`firebase-messaging` on `:core-platform`; `firebase-config` + `kotlinx-coroutines-play-services` on `:data` — via `setup-new-project` (FCM: dependency only, no service) |
 | Images | Glide — **always** load via `ImageView.loadImage(...)` (`ImageViewExtensions`; works on `ShapeableImageView`) |
 | Splash | core-splashscreen |
 | Desugaring | desugar_jdk_libs (for java.time on older APIs) |

@@ -38,18 +38,18 @@ If greenfield (Qibla / Photo Collage):
 
 ## Poster
 
+Speak-Translate / `setup-new-project` shape (`PlatformFirebase` in `:core-platform`):
+
 ```kotlin
 fun String.postFirebaseEvent() {
-    try {
-        val bundle = Bundle().also { it.putString(this, this) }
-        Firebase.analytics.logEvent(this, bundle)
-        Log.d(TAG_FIREBASE, "PlatformFirebase: postFirebaseEvent: Success: event=$this")
-    } catch (ex: Exception) {
-        ex.recordException("PlatformFirebase: postFirebaseEvent: Failed: event=$this")
+    val bundle = Bundle().apply {
+        putString(FirebaseAnalytics.Param.ITEM_NAME, this@postFirebaseEvent)
     }
+    Firebase.analytics.logEvent(this, bundle)
+    Log.d(TAG_FIREBASE, "PlatformFirebase: postFirebaseEvent: Success: event=$this")
 }
 ```
 
-`PlatformFirebase` stays an `object` **without** `Context`. Do not add ads-revenue helpers here.
+`PlatformFirebase` stays an `object` **without** a `Context` field. Do not add ads-revenue helpers in the events skill (`logRevenueEvent(context)` only when the app has ads — Context as an argument).
 
-Log format: `ClassName: functionName: State: details`. Never log PII.
+Log format: `ClassName: functionName: State: details`. Never log PII or tokens.

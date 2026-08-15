@@ -93,11 +93,11 @@ Put Android Core libs **first without a header** (or under an implied core group
 
 ### Naming (fix while organizing)
 
-| Kind | Convention | Example |
-|------|------------|---------|
-| Version key | camelCase | `coreKtx`, `koinAndroid` |
+| Kind          | Convention | Example                                        |
+|---------------|------------|------------------------------------------------|
+| Version key   | camelCase  | `coreKtx`, `koinAndroid`                       |
 | Library alias | kebab-case | `androidx-core-ktx` → `libs.androidx.core.ktx` |
-| Plugin alias | kebab-case | `android-application`, `navigation-safe-args` |
+| Plugin alias  | kebab-case | `android-application`, `navigation-safe-args`  |
 
 - One shared version key per family (`lifecycle` for viewmodel/runtime/process)
 - Prefer `group` + `name` + `version.ref`
@@ -161,18 +161,18 @@ Derive `AppName` / `Account` from existing `archivesName`, folder name, or `proj
 
 Keep the same **relative** order. **Do not add** what does not belong:
 
-| Section | Include? |
-|---------|----------|
-| `plugins` | Yes (`android.library` + extras the module already needs) |
-| `namespace` / `compileSdk` | Yes |
-| `defaultConfig` | `minSdk` only — no `applicationId` / versions |
-| `signingConfigs` | **No** |
-| `buildTypes` | Yes — minify **off** for debug + release |
-| `buildFeatures` | Only if UI / needed (`viewBinding`, `buildConfig`) |
-| `compileOptions` | Yes |
-| `kotlin` / `jvm` | Only if already present |
-| `bundle` | **No** |
-| `base` | **No** |
+| Section                    | Include?                                                  |
+|----------------------------|-----------------------------------------------------------|
+| `plugins`                  | Yes (`android.library` + extras the module already needs) |
+| `namespace` / `compileSdk` | Yes                                                       |
+| `defaultConfig`            | `minSdk` only — no `applicationId` / versions             |
+| `signingConfigs`           | **No**                                                    |
+| `buildTypes`               | Yes — minify **off** for debug + release                  |
+| `buildFeatures`            | Only if UI / needed (`viewBinding`, `buildConfig`)        |
+| `compileOptions`           | Yes                                                       |
+| `kotlin` / `jvm`           | Only if already present                                   |
+| `bundle`                   | **No**                                                    |
+| `base`                     | **No**                                                    |
 
 `:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. Use the library template in [reference/gradle.md](../../../rules/reference/gradle.md).
 
@@ -220,6 +220,7 @@ dependencies {
 
     // Kotlin Coroutines
     // (domain often: // Core coroutine support for Flows)
+    // :data and :core-platform also: kotlinx-coroutines-play-services (Task.await)
 
     // CameraView
 
@@ -239,15 +240,15 @@ dependencies {
 
 ### Per-module expectations (reference)
 
-| Module | Typical sections |
-|--------|------------------|
-| `:app` | projects → Android Core → Firebase → Koin → Testing → Desugaring |
-| `:presentation` | projects → Android Core → Lifecycle → Fragment → Navigation → Google → Play Services → Firebase → Koin → Camera/Lottie/Glide/Dots/Shimmer |
-| `:data` | projects → Android Core → Google → Firebase → Location → Koin |
-| `:core-ui` | projects → Android Core → Splash → Lifecycle → Navigation → Google → Firebase → Koin → Glide |
-| `:core-platform` | projects → Android Core → Firebase (`firebase-messaging` mandatory on new projects) → Play Services Location → Koin |
-| `:gmaAds` | projects → Android Core → Lifecycle → Google (`api` ads) → Koin |
-| `:domain` | Coroutines + Koin DSL for `useCaseModule` (+ optional pure `project(":feature-*")`) |
+| Module           | Typical sections                                                                                                                             |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `:app`           | projects → Android Core → Firebase → Koin → Testing → Desugaring                                                                             |
+| `:presentation`  | projects → Android Core → Lifecycle → Fragment → Navigation → Google → Play Services → Firebase → Koin → Camera/Lottie/Glide/Dots/Shimmer    |
+| `:data`          | projects → Android Core → Google → Firebase (`firebase-config` + BOM) → Koin → Kotlin Coroutines (`play-services` for `await()`)             |
+| `:core-ui`       | projects → Android Core → Splash → Lifecycle → Navigation → Google → Firebase → Koin → Glide                                                 |
+| `:core-platform` | projects → Android Core → Firebase (BOM + analytics/crashlytics/`firebase-messaging` mandatory) → Koin → Kotlin Coroutines (`play-services`) |
+| `:gmaAds`        | projects → Android Core → Lifecycle → Google (`api` ads) → Koin                                                                              |
+| `:domain`        | Coroutines + Koin DSL for `useCaseModule` (+ optional pure `project(":feature-*")`)                                                          |
 
 ### Scopes while organizing
 

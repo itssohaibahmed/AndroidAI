@@ -18,16 +18,19 @@ alwaysApply: false
 
 ## PlatformFirebase
 
+Speak-Translate shape (`:core-platform` `firebase/PlatformFirebase.kt` — see `setup-new-project` template):
+
 ```kotlin
 object PlatformFirebase {
-    fun Throwable.recordException(log: String)
-    fun String.postFirebaseEvent()
-    fun getDeviceToken()
+    fun Throwable.recordException(log: String)  // Log.e + Crashlytics.log + recordException
+    fun String.postFirebaseEvent()             // Bundle ITEM_NAME + Firebase.analytics.logEvent
+    fun getDeviceToken()                      // FirebaseInstallations; log Success/Failed, never the token
 }
 ```
 
-- **`object` — no Context** field/constructor
-- Logs: `TAG_FIREBASE` / `TAG` per `16-logging`
+- **`object` — no Context field/constructor**
+- Logs: `TAG_FIREBASE` per `16-logging`
+- Ads: optional `fun Float.logRevenueEvent(context: Context)` — Context as an argument only; this app’s prefs keys
 - Do not call Firebase SDKs from Fragments when this wrapper exists
 
 ## Firebase Cloud Messaging (new projects)
@@ -43,11 +46,12 @@ object PlatformFirebase {
 
 ## Remote Config + SharedPreferences cache
 
-1. `RemoteConfigDataSource`: Firebase RC only; **`minimumFetchIntervalInSeconds(0)`**; fetch/activate + live listener; typed getters
-2. `RemoteConfigRepositoryImpl` (IO dispatcher): fetch → **`saveValues()` into `SharedPrefManager`** → register listener to re-cache
+1. `RemoteConfigDataSource`: `Mutex` + lazy SDK; **`minimumFetchIntervalInSeconds(0L)`**; `setConfigSettingsAsync().await()` then `fetchAndActivate().await()`; **`addConfigUpdateListener`**; getters `getLong` / `getInt` / `getBoolean` / `getString` with defaults (`runCatching`)
+2. `RemoteConfigRepositoryImpl` (IO dispatcher): internet check → fetch → if activated **`saveValues()` into `SharedPrefManager`** → register listener once (`listenerRegistered`)
 3. Runtime feature flags: read from **prefs cache** (`SharedPrefRepository` / `SharedPrefManager`), not from Fragments talking to RC SDK
 4. Offline / failed fetch: keep last cached prefs values
-5. Logs: `TAG_REMOTE_CONFIG`
+5. Logs: `TAG_REMOTE_CONFIG` (`Success: activated=$activated`)
+6. `:data` needs `kotlinx-coroutines-play-services` for `Task.await()`
 
 DataSource: **no** dispatcher. Repository: `withContext(ioDispatcher)`.
 
@@ -58,7 +62,8 @@ DataSource: **no** dispatcher. Repository: `withContext(ioDispatcher)`.
 
 ## Forbidden
 
-- `PlatformFirebase` holding `Context`
+- `PlatformFirebase` holding `Context` (ads revenue may take `Context` as a parameter)
+- `addLiveUpdateListener` — use `addConfigUpdateListener`
 - RC SDK calls from feature Fragments
 - Parallel event-name constants outside `EventsProvider`
-- Logging PII in Analytics / RC logs
+- Logging PII, Installation tokens, or FCM tokens

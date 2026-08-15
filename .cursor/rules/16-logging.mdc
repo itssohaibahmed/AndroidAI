@@ -37,7 +37,7 @@ Examples:
 Log.d(TAG, "HomeRepositoryImpl: fetchCategories: Success: ${list.size}")
 Log.e(TAG, "HomeRepositoryImpl: fetchCategories: Failed: ${e.message}")
 Log.d(TAG_ADS, "BannerAdManager: loadAd: Requested")
-Log.d(TAG_REMOTE_CONFIG, "RemoteConfigDataSource: fetchAndActivate: Success")
+Log.d(TAG_REMOTE_CONFIG, "RemoteConfigDataSource: fetchAndActivate: Success: activated=$activated")
 Log.d(TAG_FIREBASE, "FirebaseUtils: logEvent: event=$name")
 ```
 

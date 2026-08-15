@@ -38,15 +38,15 @@ All later skills **must read** `.cursor/project-settings.json` and obey it.
 
 ## Module set (mandatory)
 
-| Module           | Required | Role                                                        |
-|------------------|----------|-------------------------------------------------------------|
-| `:app`           | Must     | `App`, manifest, DI aggregation only — **no `res/values/`** |
-| `:domain`        | Must     | Entities, repository interfaces, use cases                  |
-| `:data`          | Must     | Repository impls, DataSources, SharedPref + RC cache        |
-| `:presentation`  | Must     | Screens, MVI, nav graphs, MainActivity host UI              |
-| `:core-common`   | Required | `Constants` (TAGs), `EventsProvider`                        |
-| `:core-ui`       | Required | **All** themes/strings/colors/splash, Parent*, extensions   |
-| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI, **`firebase-messaging` dep** |
+| Module           | Required | Role                                                                                                          |
+|------------------|----------|---------------------------------------------------------------------------------------------------------------|
+| `:app`           | Must     | `App`, manifest, DI aggregation only — **no `res/values/`**                                                   |
+| `:domain`        | Must     | Entities, repository interfaces, use cases                                                                    |
+| `:data`          | Must     | Repository impls, DataSources, SharedPref + RC cache                                                          |
+| `:presentation`  | Must     | Screens, MVI, nav graphs, MainActivity host UI                                                                |
+| `:core-common`   | Required | `Constants` (TAGs), `EventsProvider`                                                                          |
+| `:core-ui`       | Required | **All** themes/strings/colors/splash, Parent*, extensions                                                     |
+| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI, **Firebase BOM + analytics / crashlytics / messaging** |
 
 ```
 app (Composition Root) — no values resources
@@ -70,7 +70,7 @@ Follow `08-gradle.mdc` + [reference/gradle.md](../../../rules/reference/gradle.m
 6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
 7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
 8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
-9. **Firebase Messaging (mandatory):** catalog entry + `implementation(libs.firebase.messaging)` on **`:core-platform`** under `// Firebase` — latest stable; **no** service/manifest/token code (see **`implement-firebase-messaging`**)
+9. **Firebase (mandatory):** catalog BOM + analytics / crashlytics / **messaging** on **`:core-platform`**; **config** + `kotlinx-coroutines-play-services` on **`:data`**. Latest stable. **No** `FirebaseMessagingService` / FCM manifest / token UI during setup (see **`implement-firebase-messaging`**)
 
 Organize dependency sections with **`gradle-organize`**.
 
@@ -80,12 +80,12 @@ Copy the `:app` and library shapes from [reference/gradle.md](../../../rules/ref
 
 **`:app` must include**
 
-| Item | Rule |
-|------|------|
+| Item                    | Rule                                                                                                                     |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | `android` section order | `defaultConfig` → `signingConfigs` → `buildTypes` → `buildFeatures` → `compileOptions` → (`jvm` only if used) → `bundle` |
-| `signingConfigs` | Always — search `*.jks` in root then `app/`; set `storeFile` if found; else empty strings; do not invent passwords |
-| `bundle` | Always `language { enableSplit = false }` |
-| `base.archivesName` | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known |
+| `signingConfigs`        | Always — search `*.jks` in root then `app/`; set `storeFile` if found; else empty strings; do not invent passwords       |
+| `bundle`                | Always `language { enableSplit = false }`                                                                                |
+| `base.archivesName`     | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known              |
 
 **Library modules** (`:presentation`, `:data`, `:domain`, `:core-*`): same relative order; **omit** `signingConfigs`, `bundle`, `base`, and app-only `defaultConfig` fields. UI modules get View Binding; `:domain` / `:core-common` may omit `buildFeatures`.
 
@@ -209,22 +209,40 @@ Also add: Fragment/Activity/Context/ImageView extensions (`FragmentExtensions` /
 
 ## Step 7 — `:core-platform`
 
-### Firebase Messaging (mandatory — dependency only)
+### Firebase (catalog + `:core-platform` / `:data`)
 
-Follow **`implement-firebase-messaging`**. Every new project **must** include:
+Follow **`implement-firebase-messaging`** for FCM. Every new project **must** include Messaging; Analytics + Crashlytics + Remote Config match Speak-Translate.
 
 ```toml
 # Firebase
-firebaseMessaging = "…"   # latest stable
-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+firebaseBom = "…"   # latest stable
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+
+# Kotlin Coroutines
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
 ```
 
 ```kotlin
-// Firebase
+// Firebase — :core-platform
+implementation(platform(libs.firebase.bom))
+implementation(libs.firebase.analytics)
+implementation(libs.firebase.crashlytics)
 implementation(libs.firebase.messaging)
+
+// Kotlin Coroutines — :core-platform and :data (Task.await)
+implementation(libs.kotlinx.coroutines.android)
+implementation(libs.kotlinx.coroutines.play.services)
+
+// Firebase — :data
+implementation(platform(libs.firebase.bom))
+implementation(libs.firebase.config)
 ```
 
-On **`:core-platform`** only — `:app` pulls it transitively. Do **not** add `FirebaseMessagingService`, FCM manifest entries, or token handling during setup.
+On **`:core-platform`**: analytics, crashlytics, messaging. On **`:data`**: config + `kotlinx-coroutines-play-services`. Do **not** add `FirebaseMessagingService`, FCM manifest entries, or token handling during setup.
 
 ### Dispatchers (no named qualifiers)
 
@@ -253,26 +271,45 @@ Koin resolves `Dispatchers.IO` / `Dispatchers.Default` as distinct `CoroutineDis
 
 > If both are type `CoroutineDispatcher`, prefer constructor defaults `= Dispatchers.IO` in repos (reference style) **or** inject only IO via DI and use `Dispatchers.Default` explicitly for CPU work. Do **not** introduce named qualifiers.
 
-### PlatformFirebase — `object`, no Context
+### PlatformFirebase — `object`, no Context field
+
+Copy [templates/firebase/PlatformFirebase.kt](templates/firebase/PlatformFirebase.kt) → `:core-platform` `firebase/PlatformFirebase.kt`. Replace `YOUR.PACKAGE`.
 
 ```kotlin
 object PlatformFirebase {
 
-    fun Throwable.recordException(log: String) { /* Crashlytics + Log */
+    fun Throwable.recordException(log: String) {
+        Log.e(TAG_FIREBASE, "PlatformFirebase: recordException: Failed: $log")
+        FirebaseCrashlytics.getInstance().log(log)
+        FirebaseCrashlytics.getInstance().recordException(this)
     }
 
-    fun String.postFirebaseEvent() { /* Analytics bundle + TAG_FIREBASE log */
+    fun String.postFirebaseEvent() {
+        val bundle = Bundle().apply {
+            putString(FirebaseAnalytics.Param.ITEM_NAME, this@postFirebaseEvent)
+        }
+        Firebase.analytics.logEvent(this, bundle)
+        Log.d(TAG_FIREBASE, "PlatformFirebase: postFirebaseEvent: Success: event=$this")
     }
 
-    fun getDeviceToken() { /* FirebaseInstallations token log */
+    fun getDeviceToken() {
+        FirebaseInstallations.getInstance().getToken(false)
+            .addOnCompleteListener { task ->
+                when {
+                    task.isSuccessful && task.result != null ->
+                        Log.d(TAG_FIREBASE, "PlatformFirebase: getDeviceToken: Success")
+                    else ->
+                        Log.e(TAG_FIREBASE, "PlatformFirebase: getDeviceToken: Failed")
+                }
+            }
     }
 }
 ```
 
-- **No** `Context` constructor / property on the object
-- Live in `:core-platform` `firebase/PlatformFirebase.kt`
+- **No** `Context` field / constructor on the object
 - Event name constants in `:core-common` `EventsProvider`
-- Ads revenue logging (if needed later): keep out of this object or pass primitives only — do not bake Context into `PlatformFirebase`
+- Do **not** log the Installation token value (`14-security-secrets`)
+- Ads revenue (`fun Float.logRevenueEvent(context: Context, threshold: Float = 0.1f)`): add **only** when the app has ads. Pass `Context` as an argument. Use this app's prefs name / cache key / event string — never copy Speak-Translate `rossPref` / `TaichiTroasCache`
 
 ### InternetManager
 
@@ -295,19 +332,21 @@ data:
   remoteConfig/repository/RemoteConfigRepositoryImpl.kt
 ```
 
-**RemoteConfigDataSource** (no dispatcher):
+**RemoteConfigDataSource** (no dispatcher). Copy [templates/remoteconfig/RemoteConfigDataSource.kt](templates/remoteconfig/RemoteConfigDataSource.kt) (same shape as `implement-firebase-remote-config` templates). Replace `YOUR.PACKAGE`.
 
-- `minimumFetchIntervalInSeconds(0)` always
-- `fetchAndActivate()`, live update listener, typed `getInt` / `getBoolean` / `getString`
-- Mutex around fetch; log with `TAG_REMOTE_CONFIG`
+- `private val fetchMutex = Mutex()` + `by lazy { FirebaseRemoteConfig.getInstance() }`
+- `minimumFetchIntervalInSeconds(0L)` always
+- `setConfigSettingsAsync(settings).await()` then `fetchAndActivate().await()` (needs `kotlinx-coroutines-play-services`)
+- Live listener method name: **`addConfigUpdateListener(onUpdated: () -> Unit)`** — not `addLiveUpdateListener`
+- Getters: `getLong(key, default)`, `getInt(key)` (default `0`), `getBoolean(key, default)`, `getString(key, default)` via `runCatching`
+- Log with `TAG_REMOTE_CONFIG` (`Success: activated=$activated`)
 
-**RemoteConfigRepositoryImpl** (dispatcher here):
+**RemoteConfigRepositoryImpl** (dispatcher here; `listenerRegistered` lives here, not in the DataSource):
 
-1. Check `InternetManager`
-2. `remoteDataSource.fetchAndActivate()`
-3. **`saveValues()`** — copy every needed RC key into `SharedPrefManager` properties (cache)
-4. Register live listener → `saveValues()` again on update
-5. If fetch fails, prefs still hold last cache — app reads cache via `SharedPrefRepository`
+1. Check `InternetManager` — if offline, return `false` (keep last prefs cache)
+2. `remoteConfigDataSource.fetchAndActivate()`
+3. If **activated**: **`saveValues()`** (copy every needed RC key into `SharedPrefManager`) then `addConfigUpdateListener { saveValues() }` once
+4. If fetch fails, prefs still hold last cache — app reads cache via `SharedPrefRepository`
 
 **Read path for features:** Prefer **cached prefs** (`SharedPrefRepository` / managers) for flags used at runtime — not live RC SDK in UI.
 
@@ -353,10 +392,13 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
 - [ ] `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
 - [ ] Glide on `:core-ui` (+ presentation if needed); all programmatic image binds use `loadImage`
-- [ ] `firebase-messaging` in catalog + `implementation(libs.firebase.messaging)` on `:core-platform` (no MessagingService)
-- [ ] `PlatformFirebase` is `object` without Context
+- [ ] Firebase BOM + analytics/crashlytics/messaging on `:core-platform`; `firebase-config` on `:data` (no MessagingService)
+- [ ] `kotlinx-coroutines-play-services` on `:core-platform` and `:data`
+- [ ] `PlatformFirebase` is `object` without a Context field; poster uses `Param.ITEM_NAME` + `Firebase.analytics`
+- [ ] `getDeviceToken` logs Success/Failed without the token value
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
-- [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager`
+- [ ] RC DataSource: Mutex, lazy instance, `await()`, `addConfigUpdateListener`, getters with defaults
+- [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager` only when activate succeeds
 - [ ] `presentation` ↛ `:data`
 - [ ] `assembleDebug` succeeds; orientation / theme modes match `project-settings.json`
 
@@ -365,7 +407,9 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - Compose / Data Binding / Hilt
 - App-level `values` resources
 - Named dispatcher qualifiers
-- `PlatformFirebase` holding Context
+- `PlatformFirebase` holding Context (ads revenue may take `Context` as a parameter only)
+- `addLiveUpdateListener` — method is `addConfigUpdateListener`
+- Logging Installation / FCM tokens
 - Reading RC only from SDK in Fragments (use prefs cache)
 - Hardcode secrets / lock orientation unless product requires
 - Skip writing `project-settings.json`
