@@ -373,4 +373,4 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 ## After setup
 
-Next: language / onboarding / home via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; wire Entrance Effects in `nav_graph.xml`.
+Next: language / onboarding / home via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; wire Entrance Effects in `nav_graph.xml`. Existing apps missing RC or Analytics: `implement-firebase-remote-config`, `implement-firebase-events`; later screens: `add-firebase-events`.

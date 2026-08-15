@@ -58,6 +58,10 @@ build/build-release-bundle        Release signing + AAB (no device)
 platform/implement-in-app-update   Play In-App Updates
 platform/implement-in-app-review   Play In-App Review
 platform/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
+firebase/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
+firebase/implement-firebase-remote-config  First-time RC + SharedPref cache + Entrance fetch
+firebase/implement-firebase-events  First-time full-app Analytics (EventsProvider; screens/buttons)
+firebase/add-firebase-events       Add Analytics events for selected screens
 premium/implement-in-app-billing   Greenfield Play billing (subs + in-app, v4 stack)
 premium/add-subscription-packages  Add subscription tiers to existing billing
 premium/add-inapp-packages         Add one-time in-app products to existing billing
