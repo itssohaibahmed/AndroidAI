@@ -60,6 +60,7 @@ platform/implement-in-app-review   Play In-App Review
 platform/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
 firebase/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
 firebase/implement-firebase-remote-config  First-time RC + SharedPref cache + Entrance fetch
+firebase/add-firebase-remote-config  Add RC keys to existing SharedPref + Remote Config classes
 firebase/implement-firebase-events  First-time full-app Analytics (EventsProvider; screens/buttons)
 firebase/add-firebase-events       Add Analytics events for selected screens
 premium/implement-in-app-billing   Greenfield Play billing (subs + in-app, v4 stack)

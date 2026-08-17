@@ -1,6 +1,6 @@
 ---
 name: implement-firebase-remote-config
-description: First-time Firebase Remote Config with SharedPreferences cache, FetchRemoteConfigUseCase, and EntranceFragment fetch. Use when adding Remote Config, RC cache, fetchAndActivate, or /implement-firebase-remote-config — not for analytics events.
+description: First-time Firebase Remote Config with SharedPreferences cache, FetchRemoteConfigUseCase, and EntranceFragment fetch. Use when adding the RC stack for the first time, fetchAndActivate, or /implement-firebase-remote-config — not for extra keys on an existing cache (use add-firebase-remote-config) and not for analytics events.
 ---
 
 # Implement Firebase Remote Config (first time)
@@ -25,7 +25,7 @@ Complete RC stack (Speak-Translate DataSource + cache-to-prefs):
 
 | App state                                                            | Action                                                                                                             |
 |----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| DataSource + Repository + prefs cache + Entrance fetch already wired | Stop. Report what exists.                                                                                          |
+| DataSource + Repository + prefs cache + Entrance fetch already wired | Stop. Report what exists. New keys → **`add-firebase-remote-config`**.                                             |
 | Stubs from `setup-new-project`                                       | Complete missing pieces only.                                                                                      |
 | No RC                                                                | Continue.                                                                                                          |
 | Legacy helper (`RemoteConfiguration` in Application)                 | Do **not** rewrite unless the user approves. Offer to add cache + Entrance fetch into the existing helper instead. |
@@ -174,5 +174,6 @@ If there is no `EntranceFragment`: **AskQuestion** for the host (prefer `nav_gra
 - `PlatformFirebase` with `Context`
 - `remote_config_defaults.xml` unless the user asks
 - Rewrite a working legacy RC helper without approval
+- Extra keys on an existing cache (`add-firebase-remote-config`)
 - Analytics / `EventsProvider` (use `implement-firebase-events`)
 - `FirebaseMessagingService` / FCM UI

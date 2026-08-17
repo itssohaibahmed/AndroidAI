@@ -74,7 +74,7 @@ EventsProvider.SETTING_RATE_US_BUTTON.postFirebaseEvent()
 ## Do not
 
 - Full-app sweep (that is `implement-firebase-events`)
-- Remote Config
+- Remote Config (`add-firebase-remote-config`)
 - Replace `FirebaseUtils` with `PlatformFirebase` without approval
 - Weak assertions / unused dummy events
 - Log PII

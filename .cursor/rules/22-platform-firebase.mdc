@@ -55,6 +55,8 @@ object PlatformFirebase {
 
 DataSource: **no** dispatcher. Repository: `withContext(ioDispatcher)`.
 
+Adding keys later (existing cache): skill **`add-firebase-remote-config`**.
+
 ## Connectivity
 
 - Check `InternetManager` before RC/network when UI must show offline state

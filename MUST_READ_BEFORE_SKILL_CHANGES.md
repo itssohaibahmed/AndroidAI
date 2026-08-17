@@ -10,13 +10,13 @@ Full map of existing rules/skills: [`.cursor/README.md`](.cursor/README.md)
 
 ## What lives where
 
-| Thing                   | Path                                                  | Use for                                                   |
-|-------------------------|-------------------------------------------------------|-----------------------------------------------------------|
-| **Rules**               | `.cursor/rules/*.mdc`                                 | Standing law (architecture, naming, invariants)           |
-| **Long detail**         | `.cursor/rules/reference/*.md`                        | Full examples / tables (linked from short `.mdc` stubs)   |
-| **Skills**              | `.cursor/skills/**/SKILL.md`                          | Multi-step playbooks (`/skill-name` or agent auto-pick)   |
-| **Project settings**    | `.cursor/project-settings.json`                       | Per-app knobs (tests, orientation, theme, app id)         |
-| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML                           |
+| Thing                   | Path                                                  | Use for                                                 |
+|-------------------------|-------------------------------------------------------|---------------------------------------------------------|
+| **Rules**               | `.cursor/rules/*.mdc`                                 | Standing law (architecture, naming, invariants)         |
+| **Long detail**         | `.cursor/rules/reference/*.md`                        | Full examples / tables (linked from short `.mdc` stubs) |
+| **Skills**              | `.cursor/skills/**/SKILL.md`                          | Multi-step playbooks (`/skill-name` or agent auto-pick) |
+| **Project settings**    | `.cursor/project-settings.json`                       | Per-app knobs (tests, orientation, theme, app id)       |
+| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML                         |
 
 **Rules** = “always do it this way.”  
 **Skills** = “when I ask, follow these steps.”
@@ -116,18 +116,18 @@ Obey `.cursor/project-settings.json` when present.
 
 ### Pick the right area
 
-| You want to…                                        | Prefer                                                         |
-|-----------------------------------------------------|----------------------------------------------------------------|
-| Scaffold a screen (Intent/State/Effect/VM/Fragment) | `feature/create-mvi` (extend or new skill under `feature/`)    |
-| Add domain/data/repo                                | `feature/create-clean-architecture`                            |
-| XML / Figma layout only                             | `ui/figma-to-xml` (or dialog / bottom-sheet)                   |
-| Review PR / architecture / perf / security          | `review/review-*` (+ wire into `review-complete` if full gate) |
-| Unit / integration / E2E tests                      | `test/test-*` (+ `test-complete` if full suite)                |
-| Gradle catalog / organize                           | `gradle/`                                                      |
-| Ship checklist                                      | `release/pre-release`                                          |
-| In-app billing / subscriptions / premium            | `premium/implement-in-app-billing`, `premium/add-subscription-packages`, `premium/add-inapp-packages` |
-| Firebase RC / Analytics events                      | `firebase/implement-firebase-remote-config`, `firebase/implement-firebase-events`, `firebase/add-firebase-events` |
-| New multi-step product feature (ads, IAP, …)        | New skill under a clear area; add **rules** for invariants     |
+| You want to…                                        | Prefer                                                                                                                                                   |
+|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Scaffold a screen (Intent/State/Effect/VM/Fragment) | `feature/create-mvi` (extend or new skill under `feature/`)                                                                                              |
+| Add domain/data/repo                                | `feature/create-clean-architecture`                                                                                                                      |
+| XML / Figma layout only                             | `ui/figma-to-xml` (or dialog / bottom-sheet)                                                                                                             |
+| Review PR / architecture / perf / security          | `review/review-*` (+ wire into `review-complete` if full gate)                                                                                           |
+| Unit / integration / E2E tests                      | `test/test-*` (+ `test-complete` if full suite)                                                                                                          |
+| Gradle catalog / organize                           | `gradle/`                                                                                                                                                |
+| Ship checklist                                      | `release/pre-release`                                                                                                                                    |
+| In-app billing / subscriptions / premium            | `premium/implement-in-app-billing`, `premium/add-subscription-packages`, `premium/add-inapp-packages`                                                    |
+| Firebase RC / Analytics events                      | `firebase/implement-firebase-remote-config`, `firebase/add-firebase-remote-config`, `firebase/implement-firebase-events`, `firebase/add-firebase-events` |
+| New multi-step product feature (ads, IAP, …)        | New skill under a clear area; add **rules** for invariants                                                                                               |
 
 ### Skill vs rule (quick)
 
