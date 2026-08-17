@@ -23,6 +23,7 @@ android {
     signingConfigs {
         create("release") {
             // No .jks in repo — fill locally or via CI / local.properties before release
+            storeFile = file("")
             storePassword = ""
             keyAlias = ""
             keyPassword = ""
