@@ -1,0 +1,25 @@
+---
+description: Base UI classes, ViewBinding lifecycle, and Flow collection
+paths:
+  - "**/ui/**/*.kt"
+  - "**/base/**/*.kt"
+  - "**/presentation/**/*.kt"
+  - "**/core/ui/**/*.kt"
+---
+
+# Base UI (invariants)
+
+**Full detail (Parent*/Base* API, Fragment member order template):** [reference/base-ui.md](reference/base-ui.md)
+
+## Must follow
+
+- Hierarchy: `:core-ui` Parent* (Activity/Fragment/Dialog/Sheet) → optional `:presentation` Base* → Feature
+- Templates: `.claude/skills/project/setup-new-project/templates/base/` (+ that folder’s README)
+- Clear `_binding` in `onDestroyView`; ParentSheet **null-safe** (no `!!`)
+- Theme: `enableMaterialDynamicTheme` after Koin in Application — no `GlobalContext` probes (`07`, `23`)
+- Collect on **`viewLifecycleOwner`** via `FragmentExtensions`; nav via `navigateTo` / `popFrom`; toasts via `ContextExtensions`; images via `loadImage`
+- Naming: `<Receiver>Extensions.kt` only — never shared `FlowCollectionExtensions.kt`
+- Feature Fragment order: properties → `onViewCreated` (`screenStarted` + **inline** clicks — no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown
+- Forbidden: Binding in ViewModel; `findViewById` / Data Binding; ads SDK in Parent*; collectors on Fragment `lifecycle` instead of `viewLifecycleOwner`
+
+Read [reference/base-ui.md](reference/base-ui.md) when changing base UI or feature Fragments.
