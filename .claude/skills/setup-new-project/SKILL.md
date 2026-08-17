@@ -60,7 +60,7 @@ core-common / core-ui / core-platform
 
 ## Step 1 — Gradle
 
-Follow `08-gradle.md` + [reference/gradle.md](../../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
+Follow `08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
 
 1. `settings.gradle.kts` — `include` all modules above
 2. Root plugins `apply false` via catalog; **latest stable** versions
@@ -76,7 +76,7 @@ Organize dependency sections with **`gradle-organize`**.
 
 ### Module scripts (scaffold from reference)
 
-Copy the `:app` and library shapes from [reference/gradle.md](../../../rules/reference/gradle.md) — module order `plugins` → `android` → (`base` on `:app`) → `dependencies`.
+Copy the `:app` and library shapes from [reference/gradle.md](../../rules/reference/gradle.md) — module order `plugins` → `android` → (`base` on `:app`) → `dependencies`.
 
 **`:app` must include**
 

@@ -5,7 +5,7 @@ description: Organize Gradle module scripts (plugins/android/base/dependencies),
 
 # Gradle Organize
 
-Follow `.claude/rules/08-gradle.md` + [reference/gradle.md](../../../rules/reference/gradle.md). Match the standard section headers and order below.
+Follow `.claude/rules/08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md). Match the standard section headers and order below.
 
 Reference shape: Speak-Translate / Qibla Finder `:app` (`plugins` → `android` sections → `base` → `dependencies`).
 
@@ -108,7 +108,7 @@ Put Android Core libs **first without a header** (or under an implied core group
 
 ## Step 2 — Organize each module script shape
 
-Canonical Kotlin for `:app` and libraries lives in [reference/gradle.md](../../../rules/reference/gradle.md) — **do not invent a parallel template**. Apply that order while organizing.
+Canonical Kotlin for `:app` and libraries lives in [reference/gradle.md](../../rules/reference/gradle.md) — **do not invent a parallel template**. Apply that order while organizing.
 
 ### Top-level order (mandatory)
 
@@ -174,7 +174,7 @@ Keep the same **relative** order. **Do not add** what does not belong:
 | `bundle`                   | **No**                                                    |
 | `base`                     | **No**                                                    |
 
-`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. Use the library template in [reference/gradle.md](../../../rules/reference/gradle.md).
+`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. Use the library template in [reference/gradle.md](../../rules/reference/gradle.md).
 
 ---
 

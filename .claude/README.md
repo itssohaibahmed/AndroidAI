@@ -34,39 +34,39 @@ All feature/UI/test skills **must read and obey** this file when present:
 
 ## Skill map
 
+All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `/<name>`.
+
 ```
-project/setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
-feature/create-mvi                 Presentation MVI only (no domain/data)
-feature/create-clean-architecture  Domain + data + core pieces as needed
-ui/figma-to-xml                    XML layouts (+ Figma design-to-code); absorbs freeform screen XML
-ui/create-dialog                   Dialog XML (orchestrates figma-to-xml)
-ui/create-bottom-sheet             Bottom sheet XML (orchestrates figma-to-xml)
-ui/create-custom-view              Custom View / ViewGroup
-review/review-architecture         Architecture / MVI / boundaries
-review/review-performance          ANR / lists / dispatchers
-review/review-security             Secrets / manifest / PII
-review/review-complete             Runs all review-* + summary report
-test/test-unit                     Write+run JVM unit/Flow tests; consent before fix
-test/test-integration              Write+run multi-layer tests; consent before fix
-test/test-e2e                      Write+run E2E on device; consent before fix
-test/test-complete                 Full run + walkthrough; consent before fix
-gradle/gradle-organize             Catalog + android/base/dependencies section order (signingConfigs, bundle)
-gradle/gradle-update               Bump all deps (catalog + hardcodes); migrate to libs.versions.toml + sections
-build/build-debug-apk              Debug APK → device install + launch
-build/build-release-apk           Release signing + APK → device install + launch
-build/build-release-bundle        Release signing + AAB (no device)
-platform/implement-in-app-update   Play In-App Updates
-platform/implement-in-app-review   Play In-App Review
-platform/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
-firebase/implement-firebase-messaging  firebase-messaging dep (:core-platform) only
-firebase/implement-firebase-remote-config  First-time RC + SharedPref cache + Entrance fetch
-firebase/add-firebase-remote-config  Add RC keys to existing SharedPref + Remote Config classes
-firebase/implement-firebase-events  First-time full-app Analytics (EventsProvider; screens/buttons)
-firebase/add-firebase-events       Add Analytics events for selected screens
-premium/implement-in-app-billing   Greenfield Play billing (subs + in-app, v4 stack)
-premium/add-subscription-packages  Add subscription tiers to existing billing
-premium/add-inapp-packages         Add one-time in-app products to existing billing
-release/pre-release                Ship checklist
+setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
+create-mvi                 Presentation MVI only (no domain/data)
+create-clean-architecture  Domain + data + core pieces as needed
+figma-to-xml               XML layouts (+ Figma design-to-code); absorbs freeform screen XML
+create-dialog               Dialog XML (orchestrates figma-to-xml)
+create-bottom-sheet         Bottom sheet XML (orchestrates figma-to-xml)
+create-custom-view          Custom View / ViewGroup
+review-architecture         Architecture / MVI / boundaries
+review-performance           ANR / lists / dispatchers
+review-security              Secrets / manifest / PII
+review-complete              Runs all review-* + summary report
+test-unit                    Write+run JVM unit/Flow tests; consent before fix
+test-integration              Write+run multi-layer tests; consent before fix
+test-e2e                      Write+run E2E on device; consent before fix
+test-complete                 Full run + walkthrough; consent before fix
+gradle-organize               Catalog + android/base/dependencies section order (signingConfigs, bundle)
+gradle-update                 Bump all deps (catalog + hardcodes); migrate to libs.versions.toml + sections
+build-debug-apk               Debug APK → device install + launch
+build-release-apk             Release signing + APK → device install + launch
+build-release-bundle          Release signing + AAB (no device)
+implement-in-app-update       Play In-App Updates
+implement-in-app-review       Play In-App Review
+implement-firebase-messaging  firebase-messaging dep (:core-platform) only
+implement-firebase-remote-config  First-time RC + SharedPref cache + Entrance fetch
+add-firebase-remote-config    Add RC keys to existing SharedPref + Remote Config classes
+implement-firebase-events     First-time full-app Analytics (EventsProvider; screens/buttons)
+add-firebase-events           Add Analytics events for selected screens
+implement-in-app-billing      Greenfield Play billing (subs + in-app, v4 stack)
+add-subscription-packages     Add subscription tiers to existing billing
+add-inapp-packages            Add one-time in-app products to existing billing
 ```
 
 ### Typical feature flow

@@ -5,7 +5,7 @@ description: Create Android dialog XML (dialog_*.xml) from a Figma link or name.
 
 # Create Dialog Layout (XML only)
 
-Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md), `12-naming-conventions.md`.
+Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md), `12-naming-conventions.md`.
 
 Obey `.claude/project-settings.json` when present.
 
@@ -23,7 +23,7 @@ Obey `.claude/project-settings.json` when present.
 
 ## Rules
 
-Obey **all** XML invariants in `09-resources-xml.md` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md) (and naming via `12-naming-conventions.md`). Do not re-invent Material / ID / string rules here.
+Obey **all** XML invariants in `09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md) (and naming via `12-naming-conventions.md`). Do not re-invent Material / ID / string rules here.
 
 **Skill-specific (dialog):**
 

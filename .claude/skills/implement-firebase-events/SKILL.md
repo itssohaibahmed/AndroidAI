@@ -72,7 +72,7 @@ Ensure `Constants.TAG_FIREBASE` exists (`16-logging`).
 Multi-module greenfield:
 
 1. Copy [templates/EventsProvider.kt](templates/EventsProvider.kt) → `:core-common` `…/core/common/` (or `…/core/common/constants/events/` if that package already exists)
-2. Add `fun String.postFirebaseEvent()` to existing `PlatformFirebase` (`:core-platform`) using the [events.md](../events.md) poster (`Param.ITEM_NAME` + `Firebase.analytics`). Create the `object` only if missing — copy `setup-new-project` [templates/firebase/PlatformFirebase.kt](../../project/setup-new-project/templates/firebase/PlatformFirebase.kt) (`recordException` + poster + `getDeviceToken`). No `Context` field; no ads-revenue helper in this skill.
+2. Add `fun String.postFirebaseEvent()` to existing `PlatformFirebase` (`:core-platform`) using the [events.md](../events.md) poster (`Param.ITEM_NAME` + `Firebase.analytics`). Create the `object` only if missing — copy `setup-new-project` [templates/firebase/PlatformFirebase.kt](../setup-new-project/templates/firebase/PlatformFirebase.kt) (`recordException` + poster + `getDeviceToken`). No `Context` field; no ads-revenue helper in this skill.
 
 Single-module / existing helper: add constants + `postFirebaseEvent` **there**.
 

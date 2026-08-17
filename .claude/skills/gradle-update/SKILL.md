@@ -5,7 +5,7 @@ description: Bump all project dependencies to latest stable — catalog versions
 
 # Gradle Update
 
-Follow `.claude/rules/08-gradle.md` + [reference/gradle.md](../../../rules/reference/gradle.md), `13-libraries-stack.md`.
+Follow `.claude/rules/08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md), `13-libraries-stack.md`.
 
 This skill **bumps versions**. Section order / catalog layout → **`gradle-organize`** (run its logic as part of this flow when hardcodes or section placement are wrong).
 
@@ -25,7 +25,7 @@ This skill **bumps versions**. Section order / catalog layout → **`gradle-orga
 
 Scan the whole repo for versions to bump:
 
-- Every key under `[versions]` in `libs.versions.toml` (create the file with `[versions]` / `[plugins]` / `[libraries]` if absent — see `gradle-organize` / [reference/gradle.md](../../../rules/reference/gradle.md))
+- Every key under `[versions]` in `libs.versions.toml` (create the file with `[versions]` / `[plugins]` / `[libraries]` if absent — see `gradle-organize` / [reference/gradle.md](../../rules/reference/gradle.md))
 - Every module script string like `implementation("com.github.bumptech.glide:glide:5.0.5")`
 - `buildscript` / plugin version literals still outside the catalog
 - Gradle wrapper (`gradle-wrapper.properties`) when AGP requires a newer Gradle

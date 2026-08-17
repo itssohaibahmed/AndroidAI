@@ -14,7 +14,7 @@ paths:
 ## Must follow
 
 - Hierarchy: `:core-ui` Parent* (Activity/Fragment/Dialog/Sheet) → optional `:presentation` Base* → Feature
-- Templates: `.claude/skills/project/setup-new-project/templates/base/` (+ that folder’s README)
+- Templates: `.claude/skills/setup-new-project/templates/base/` (+ that folder’s README)
 - Clear `_binding` in `onDestroyView`; ParentSheet **null-safe** (no `!!`)
 - Theme: `enableMaterialDynamicTheme` after Koin in Application — no `GlobalContext` probes (`07`, `23`)
 - Collect on **`viewLifecycleOwner`** via `FragmentExtensions`; nav via `navigateTo` / `popFrom`; toasts via `ContextExtensions`; images via `loadImage`

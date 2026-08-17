@@ -16,7 +16,7 @@ Full detail for `19-base-ui.md`. Do not delete lines from this file — edit her
 ```
 
 **Templates (copy + replace `YOUR.PACKAGE`):**  
-`.claude/skills/project/setup-new-project/templates/base/`  
+`.claude/skills/setup-new-project/templates/base/`  
 See that folderâ€™s `README.md`. Same shape as the company template; `ParentSheet` is null-safe (not `!!`).
 
 ### ParentFragment

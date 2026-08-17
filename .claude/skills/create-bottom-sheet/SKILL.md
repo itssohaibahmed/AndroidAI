@@ -5,7 +5,7 @@ description: Create Android bottom sheet XML (bottom_sheet_*.xml) from a Figma l
 
 # Create Bottom Sheet Layout (XML only)
 
-Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md).
+Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md).
 
 Obey `.claude/project-settings.json` when present.
 
@@ -30,7 +30,7 @@ Example: `bottom_sheet_filter_options.xml`, `bottom_sheet_compass_guidelines.xml
 
 ## Rules
 
-Obey **all** XML invariants in `09-resources-xml.md` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md). Do not re-invent Material / ID / string rules here.
+Obey **all** XML invariants in `09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md). Do not re-invent Material / ID / string rules here.
 
 **Skill-specific (bottom sheet):**
 

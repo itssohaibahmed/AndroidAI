@@ -5,7 +5,7 @@ description: Create Android XML layouts and drawables from a Figma URL or freefo
 
 # Figma / Screen → Android XML (XML only)
 
-Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md), `12-naming-conventions.md`, `24-figma-assets.md`.
+Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md), `12-naming-conventions.md`, `24-figma-assets.md`.
 
 Obey `.claude/project-settings.json` when present (`orientation`, `themeModes`).
 
@@ -50,7 +50,7 @@ Per `24-figma-assets`:
 
 ## Rules
 
-Obey **all** XML invariants in `09-resources-xml.md` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md) (Material widgets, Hungarian IDs, IconButton, button tint/stroke, chip selectors, no `dimens.xml`, `:core-ui` strings/`cd_*`, View Binding, RecyclerView in XML, closing-tag formatting). Also `12-naming-conventions.md`.
+Obey **all** XML invariants in `09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md) (Material widgets, Hungarian IDs, IconButton, button tint/stroke, chip selectors, no `dimens.xml`, `:core-ui` strings/`cd_*`, View Binding, RecyclerView in XML, closing-tag formatting). Also `12-naming-conventions.md`.
 
 **Skill-specific (Figma / screen XML):**
 
