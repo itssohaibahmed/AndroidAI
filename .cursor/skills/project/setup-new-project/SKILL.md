@@ -1,6 +1,6 @@
 ---
 name: setup-new-project
-description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, Remote Config → SharedPreferences cache, and mandatory firebase-messaging on core-platform. Use when starting a new project or converting a single-module app. Confirms and persists project settings first.
+description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, Remote Config → SharedPreferences cache, and mandatory firebase-messaging on core-platform. Use when starting a greenfield project. Do not use on an existing production app — use setup-old-project. Confirms and persists project settings first.
 ---
 
 # Setup New Project
@@ -404,6 +404,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 ## Do not
 
+- Use on an existing production app — use `setup-old-project`
 - Compose / Data Binding / Hilt
 - App-level `values` resources
 - Named dispatcher qualifiers

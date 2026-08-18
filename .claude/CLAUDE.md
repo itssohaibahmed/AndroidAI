@@ -10,7 +10,7 @@ When [`.claude/project-settings.json`](project-settings.json) exists, obey `writ
 
 ## Typical feature flow
 
-1. `/setup-new-project` (once per app)
+1. `/setup-new-project` (greenfield) or `/setup-old-project` (existing production app)
 2. `/figma-to-xml` (or `/create-dialog` / `/create-bottom-sheet`) — XML only
 3. `/create-mvi` — presentation Intent / State / Effect / ViewModel / Fragment
 4. `/create-clean-architecture` — only when new domain / data is required

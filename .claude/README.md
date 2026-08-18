@@ -18,7 +18,7 @@ This is the Claude Code package (Cursor users copy [`.cursor/`](../.cursor/) ins
 
 ## Project settings
 
-After `setup-new-project` (or when joining an app), settings live in:
+After `setup-new-project` / `setup-old-project` (or when joining an app), settings live in:
 
 **[`.claude/project-settings.json`](project-settings.json)**
 
@@ -38,6 +38,7 @@ All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `
 
 ```
 setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
+setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
 create-mvi                 Presentation MVI only (no domain/data)
 create-clean-architecture  Domain + data + core pieces as needed
 figma-to-xml               XML layouts (+ Figma design-to-code); absorbs freeform screen XML
@@ -71,7 +72,7 @@ add-inapp-packages            Add one-time in-app products to existing billing
 
 ### Typical feature flow
 
-1. `setup-new-project` (once per app)
+1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app)
 2. `figma-to-xml` (or dialog / bottom-sheet) — XML only
 3. `create-mvi` — presentation Intent/State/Effect/VM/Fragment
 4. `create-clean-architecture` — when new domain/data is required

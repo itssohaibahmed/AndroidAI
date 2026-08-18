@@ -18,7 +18,7 @@ Use this folder as the single source of truth while building the template. Share
 
 ## Project settings
 
-After `setup-new-project` (or when joining an app), settings live in:
+After `setup-new-project` / `setup-old-project` (or when joining an app), settings live in:
 
 **[`.cursor/project-settings.json`](project-settings.json)**
 
@@ -36,6 +36,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 
 ```
 project/setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
+project/setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
 feature/create-mvi                 Presentation MVI only (no domain/data)
 feature/create-clean-architecture  Domain + data + core pieces as needed
 ui/figma-to-xml                    XML layouts (+ Figma design-to-code); absorbs freeform screen XML
@@ -71,7 +72,7 @@ release/pre-release                Ship checklist
 
 ### Typical feature flow
 
-1. `setup-new-project` (once per app)
+1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app)
 2. `figma-to-xml` (or dialog / bottom-sheet) — XML only
 3. `create-mvi` — presentation Intent/State/Effect/VM/Fragment
 4. `create-clean-architecture` — when new domain/data is required
