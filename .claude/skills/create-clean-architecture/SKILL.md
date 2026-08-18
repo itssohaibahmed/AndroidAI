@@ -21,6 +21,7 @@ Obey `.claude/project-settings.json` when present (`writeTestsWithFeatures`).
 - Confirm which pieces are needed: remote API / Room cache / SharedPreferences / pure domain UseCase over existing repo
 - Optional: screen or Figma refs for context only (do not implement UI here)
 - **Add Retrofit / Room / new libs only with human approval** — catalog first
+- Do **not** rebuild `:gmaAds` as a new domain/data MVI feature unless the user **explicitly** asks. Ads keep their existing module structure (`21-ads-billing`)
 
 ## Create only what’s missing
 
@@ -47,12 +48,12 @@ core-* (only if required)
 
 ## Pattern selection
 
-| Need | Follow |
-|------|--------|
-| REST / HTTP | `reference/retrofit.md` + `26-data-persistence` |
-| Local DB / cache | `reference/room.md` + `26-data-persistence` |
-| Flags / settings / RC cache | `reference/shared-preferences.md` + `22-platform-firebase` |
-| Existing repo, new UseCase only | Domain UseCase + `useCaseModule` factory |
+| Need                            | Follow                                                     |
+|---------------------------------|------------------------------------------------------------|
+| REST / HTTP                     | `reference/retrofit.md` + `26-data-persistence`            |
+| Local DB / cache                | `reference/room.md` + `26-data-persistence`                |
+| Flags / settings / RC cache     | `reference/shared-preferences.md` + `22-platform-firebase` |
+| Existing repo, new UseCase only | Domain UseCase + `useCaseModule` factory                   |
 
 ## DI (`lazyModule` only)
 

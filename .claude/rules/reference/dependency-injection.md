@@ -80,47 +80,47 @@ Every `lazyModule` body must use **clear section headers** so bindings stay read
 
 ### Standard section names by module type
 
-| Module | Section order (use only what applies) |
-|--------|----------------------------------------|
-| `dataModule` / data area modules | `//// DataSources` â†’ `//// Repositories` (optional `//// Managers` / SDK wrappers **before** DataSources if needed) |
-| `useCaseModule` | Group by domain area: `//// Entrance`, `//// Location`, `//// Prayer`, â€¦ â€” never dump all factories in one unsorted list when areas differ |
-| `*PresentationModule` | `//// ViewModels` (optional `//// Helpers` if feature-scoped singles) |
-| `corePlatformModule` | `//// Dispatchers` â†’ `//// Managers` â†’ `//// Other` |
-| `coreModule` / UI core | `//// Observers` / `//// Providers` / concern-named sections |
-| `appModule` | `//// App` (info providers, app-scoped singles) |
-| Ads feature modules | `//// DataSources` â†’ `//// Repositories` â†’ `//// UseCases` â†’ `//// ViewModels` â†’ `//// Managers` / `//// Config` |
-| `KoinModules` list | Group returned modules: `//// Core` â†’ `//// Data` â†’ `//// Domain` â†’ `//// Presentation` â†’ `//// Ads` |
+| Module                           | Section order (use only what applies)                                                                                                          |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dataModule` / data area modules | `//// DataSources` â†’ `//// Repositories` (optional `//// Managers` / SDK wrappers **before** DataSources if needed)                          |
+| `useCaseModule`                  | Group by domain area: `//// Entrance`, `//// Location`, `//// Prayer`, â€¦ â€” never dump all factories in one unsorted list when areas differ |
+| `*PresentationModule`            | `//// ViewModels` (optional `//// Helpers` if feature-scoped singles)                                                                          |
+| `corePlatformModule`             | `//// Dispatchers` â†’ `//// Managers` â†’ `//// Other`                                                                                        |
+| `coreModule` / UI core           | `//// Observers` / `//// Providers` / concern-named sections                                                                                   |
+| `appModule`                      | `//// App` (info providers, app-scoped singles)                                                                                                |
+| Ads feature modules              | `//// DataSources` â†’ `//// Repositories` â†’ `//// UseCases` â†’ `//// ViewModels` â†’ `//// Managers` / `//// Config`                       |
+| `KoinModules` list               | Group returned modules: `//// Core` â†’ `//// Data` â†’ `//// Domain` â†’ `//// Presentation` â†’ `//// Ads`                                   |
 
 Do **not** invent cryptic headers (`//// stuff`, `//// temp`). Name the concern.
 
 ## Module organization
 
-| Location | Contents |
-|----------|----------|
-| `app/di/` | App-level singles, **module aggregation** (`KoinModules`) only â€” not UseCases / repo interfaces |
-| `domain/di/` | UseCase **factories** (`useCaseModule` / `domainModule`) |
-| `data/di/` | DataSource + Repository **impl** bindings (`dataModule`) |
-| `presentation/<feature>/di/` | Feature ViewModels |
-| `core-*/di/` | Platform and UI dependencies |
-| ads module `di/` | Ad managers / ad ViewModels (named qualifiers per placement) |
+| Location                     | Contents                                                                                             |
+|------------------------------|------------------------------------------------------------------------------------------------------|
+| `app/di/`                    | App-level singles, **module aggregation** (`KoinModules`) only â€” not UseCases / repo interfaces    |
+| `domain/di/`                 | UseCase **factories** (`useCaseModule` / `domainModule`)                                             |
+| `data/di/`                   | DataSource + Repository **impl** bindings (`dataModule`)                                             |
+| `presentation/<feature>/di/` | Feature ViewModels                                                                                   |
+| `core-*/di/`                 | Platform and UI dependencies                                                                         |
+| ads module `di/`             | Existing ad managers / ad ViewModels (named qualifiers per placement) — not MVI unless the user asks |
 
 ### Domain vs data ownership (DI + source)
 
-| Create in `:domain` | Create in `:data` | Never in `:data` |
-|---------------------|-------------------|------------------|
-| Repository **interfaces** | Repository **impls** (`*RepositoryImpl`) | UseCase classes |
-| UseCase classes (`*UseCase`) | DataSources / managers | Repository **interfaces** |
-| `useCaseModule` factories | `dataModule` bindings | â€” |
+| Create in `:domain`          | Create in `:data`                        | Never in `:data`          |
+|------------------------------|------------------------------------------|---------------------------|
+| Repository **interfaces**    | Repository **impls** (`*RepositoryImpl`) | UseCase classes           |
+| UseCase classes (`*UseCase`) | DataSources / managers                   | Repository **interfaces** |
+| `useCaseModule` factories    | `dataModule` bindings                    | â€”                       |
 
 Presentation injects UseCases and repository **interfaces** â€” never `*RepositoryImpl` or DataSources from `:data`.
 
 ## Binding types
 
-| Scope | Use for |
-|-------|---------|
-| `single` | Repositories, DataSources, managers, dispatchers |
-| `factory` | UseCases (stateless, cheap to recreate) |
-| `viewModel` | ViewModels |
+| Scope       | Use for                                          |
+|-------------|--------------------------------------------------|
+| `single`    | Repositories, DataSources, managers, dispatchers |
+| `factory`   | UseCases (stateless, cheap to recreate)          |
+| `viewModel` | ViewModels                                       |
 
 ## Examples
 
@@ -193,7 +193,9 @@ val corePlatformModule = lazyModule {
 }
 ```
 
-### Ads (separation of concerns)
+### Ads (existing architecture — not MVI)
+
+Keep this ads DI shape. Do not replace ad ViewModels with Intent/State/Effect unless the user **explicitly** asks (`21-ads-billing`).
 
 ```kotlin
 val bannerAdModule = lazyModule {

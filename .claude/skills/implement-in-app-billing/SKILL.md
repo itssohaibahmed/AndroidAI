@@ -203,7 +203,7 @@ koin.get<BillingDataSource>().start(applicationScope)
 
 - Pref key `is_app_purchased` (boolean, default `false`)
 - Sync from `purchasesState` + set on `PurchaseOutcome.Success` / `AlreadyOwned`
-- Gate ads managers on `isAppPurchased`
+- Gate ads managers on `isAppPurchased` — do not convert ads to MVI as part of billing work unless the user **explicitly** asks
 - Non-consumable in-app → same flag; consumable → separate balance unless product says otherwise
 
 ---

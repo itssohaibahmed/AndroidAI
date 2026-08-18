@@ -80,19 +80,19 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 
 ## Rules index (`00`–`27`)
 
-| File                   | Role                                                                                                                                |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| `00-global`            | Always-on stack + Always/Never law                                                                                                  |
-| `01-feature-checklist` | Feature scaffolding checklist (not always-on)                                                                                       |
-| `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)                                                                                      |
-| `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)                                                                              |
-| `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`), resources/XML, manifest (`09` → `reference/`) |
-| `11`–`13`              | Testing, naming, libraries                                                                                                          |
-| `14`–`16`              | Security (always), compatibility, logging (always)                                                                                  |
-| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions                                                                             |
-| `21`–`25`              | Ads/billing, Firebase, startup, Figma assets, in-app update                                                                         |
-| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                                                                                        |
-| `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)                                                                                 |
+| File                   | Role                                                                                                                                    |
+|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| `00-global`            | Always-on stack + Always/Never law                                                                                                      |
+| `01-feature-checklist` | Feature scaffolding checklist (not always-on)                                                                                           |
+| `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)                                                                                          |
+| `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)                                                                                  |
+| `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`), resources/XML, manifest (`09` → `reference/`)     |
+| `11`–`13`              | Testing, naming, libraries                                                                                                              |
+| `14`–`16`              | Security (always), compatibility, logging (always)                                                                                      |
+| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions                                                                                 |
+| `21`–`25`              | Ads/billing (**ads are not MVI** — keep existing ads architecture unless the user asks), Firebase, startup, Figma assets, in-app update |
+| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                                                                                            |
+| `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)                                                                                     |
 
 ### `rules/reference/` (full detail)
 

@@ -87,7 +87,7 @@ Register in `data/di/DataModule.kt` (or split module val).
 ## Consumption
 
 - Presentation / UseCases → **domain `SharedPrefRepository` interface**
-- Avoid injecting `SharedPrefManager` in presentation (reference `gmaAds` does — prefer repository when refactoring)
+- Avoid injecting `SharedPrefManager` in presentation. Reference `gmaAds` may inject it — **leave ads as-is** unless the user explicitly asks to refactor ads
 
 ## Forbidden
 

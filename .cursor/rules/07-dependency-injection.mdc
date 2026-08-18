@@ -16,6 +16,7 @@ alwaysApply: false
 - Every `lazyModule` uses `//// Section` headers (DataSources → Repositories; area UseCases; ViewModels; composition root Core → Data → Domain → Presentation → Ads)
 - Domain owns UseCases + repository **interfaces** + `useCaseModule`; data owns impls + DataSources + `dataModule` — never UseCases or repo interfaces in `:data`
 - Bindings: `single` (repos/sources/managers/dispatchers), `factory` (UseCases), `viewModel` (VMs)
+- Ads DI keeps existing managers / ad ViewModels (not MVI Intent/State/Effect) unless the user explicitly asks (`21-ads-billing`)
 - Register every new module in the composition root; bind `single<XRepository> { XRepositoryImpl(get()) }`
 - Dispatchers: `single { Dispatchers.IO }` / `Dispatchers.Default` — no `named("io")` unless true parallel instances (e.g. ad placements)
 

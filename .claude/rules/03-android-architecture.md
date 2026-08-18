@@ -18,12 +18,14 @@ Presentation  →  Domain  →  Data
 Dependencies always point inward.
 
 ### Presentation
+
 - UI logic and state rendering only
 - ViewModels manage state — no direct DB/API calls
 - Navigate via Effects, not direct Fragment transactions from ViewModel
 - Fragments / Activities / Adapters bind and render only — no heavy mapping
 
 ### Domain
+
 - Business logic and use cases
 - Repository **interfaces** only — never implementations
 - UseCase classes live **only** here (`domain.usecase.*`) — never under `:data`
@@ -31,6 +33,7 @@ Dependencies always point inward.
 - Heavy domain transforms / aggregation / filtering belong in UseCases when relevant
 
 ### Data
+
 - Repository **implementations** (`*RepositoryImpl`) only — never repository interfaces, never UseCases
 - Local/remote DataSources — **sync or thin SDK wrappers; no dispatcher injection**
 - DTO ↔ entity mapping (heavy parsing / list shaping belongs here when data-bound)
@@ -39,18 +42,20 @@ Dependencies always point inward.
 
 ## Mapping ownership
 
-| Mapping | Where |
-|---------|--------|
-| DTO / JSON / DB entity → domain | Repository (data) |
-| Domain transforms, filter, sort, aggregate | UseCase and/or Repository |
-| Domain → UI model (`toUi()`) | ViewModel (or dedicated mapper called from ViewModel) |
-| Never | Fragment, Activity, Adapter, XML |
+| Mapping                                    | Where                                                 |
+|--------------------------------------------|-------------------------------------------------------|
+| DTO / JSON / DB entity → domain            | Repository (data)                                     |
+| Domain transforms, filter, sort, aggregate | UseCase and/or Repository                             |
+| Domain → UI model (`toUi()`)               | ViewModel (or dedicated mapper called from ViewModel) |
+| Never                                      | Fragment, Activity, Adapter, XML                      |
 
 - If `toUi()` / list mapping may be heavy (large lists), run it with an appropriate dispatcher (`Default` / `IO`) inside the ViewModel (or lower layer before emitting)
 - Adapters receive already-mapped UI models — bind views only
 
 ## ViewModel
 
+- This MVI ViewModel contract applies to **feature screens** in `:presentation` only
+- Ads (`:gmaAds` / AdMob) keep existing managers / ad ViewModels — **not** Intent / State / Effect — unless the user **explicitly** asks (`21-ads-billing`)
 - Extend `androidx.lifecycle.ViewModel`
 - Expose `StateFlow<*State>` and `SharedFlow<*Effect>`
 - Single entry: `fun handleIntent(intent: *Intent) = viewModelScope.launch(exceptionHandler) { … }`
@@ -92,7 +97,7 @@ Moved from former `ANDROID_PROJECT_RULES.md` — keep here so nothing is lost.
 ### Single Responsibility (S)
 
 - UseCase = one business capability area.
-- ViewModel = state reduction + intent handling for one screen.
+- ViewModel = state reduction + intent handling for one **feature** screen (ads ViewModels are not this pattern — see `21-ads-billing`).
 - Repository = one data concern (location, billing, language, …).
 - Modules split UI / domain / data / ads / features.
 

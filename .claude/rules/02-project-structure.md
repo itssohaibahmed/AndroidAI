@@ -8,18 +8,18 @@ paths:
 
 ## Standard modules
 
-| Module | Responsibility |
-|--------|----------------|
-| `:app` | Application class, DI aggregation, manifest, composition root only — **no `res/values/`** (themes/strings/colors in `:core-ui`) |
-| `:domain` | Entities, repository **interfaces**, UseCases, `useCaseModule` (`lazyModule`) — no Android UI; **never** repo impls |
-| `:data` | Repository **impls**, DataSources, `dataModule` (`lazyModule` with `//// DataSources` then `//// Repositories`) — **never** UseCases or repo interfaces |
-| `:presentation` | Screens, ViewModels, navigation, feature MVI packages |
-| `:core-*` | Shared utilities — create as many core modules as needed |
-| `:core-common` | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI |
-| `:core-platform` | Network, location, Firebase helpers, platform services, **`firebase-messaging` dep** (new projects) |
-| `:core-ui` | Base UI (`Parent*`), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions |
-| `:feature-*` | Optional self-contained feature libraries |
-| `:gmaAds` (optional) | AdMob / mediation — only when product has ads |
+| Module               | Responsibility                                                                                                                                                |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `:app`               | Application class, DI aggregation, manifest, composition root only — **no `res/values/`** (themes/strings/colors in `:core-ui`)                               |
+| `:domain`            | Entities, repository **interfaces**, UseCases, `useCaseModule` (`lazyModule`) — no Android UI; **never** repo impls                                           |
+| `:data`              | Repository **impls**, DataSources, `dataModule` (`lazyModule` with `//// DataSources` then `//// Repositories`) — **never** UseCases or repo interfaces       |
+| `:presentation`      | Screens, ViewModels, navigation, feature MVI packages                                                                                                         |
+| `:core-*`            | Shared utilities — create as many core modules as needed                                                                                                      |
+| `:core-common`       | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI                                                                                           |
+| `:core-platform`     | Network, location, Firebase helpers, platform services, **`firebase-messaging` dep** (new projects)                                                           |
+| `:core-ui`           | Base UI (`Parent*`), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions                                                              |
+| `:feature-*`         | Optional self-contained feature libraries                                                                                                                     |
+| `:gmaAds` (optional) | AdMob / mediation — only when product has ads. Keep the **existing** ads architecture (managers / ad ViewModels). **Not** MVI unless the user explicitly asks |
 
 - Use as many `:core-*` modules as the project needs; keep each focused
 - Gradle module names: kebab-case (`:core-ui`, `:feature-auth`, `:gmaAds`)
@@ -39,7 +39,7 @@ presentation/<featureName>/
   mapper/      # optional domain → UI mappers
 ```
 
-Feature folders: camelCase (`onBoarding`, `userProfile`).
+Feature folders: camelCase (`onBoarding`, `userProfile`). Ads (`:gmaAds`) do **not** use this MVI package layout — keep the existing ads module structure unless the user explicitly asks.
 
 ## Package naming
 
@@ -47,22 +47,22 @@ Feature folders: camelCase (`onBoarding`, `userProfile`).
 <applicationId>.<layer>.<area>.<subpackage>
 ```
 
-| Layer | Example suffix |
-|-------|----------------|
-| Domain | `domain.entity`, `domain.repository.*`, `domain.usecase.*` |
-| Data | `data.*.repository`, `data.*.dataSource`, `data.di` |
+| Layer        | Example suffix                                                      |
+|--------------|---------------------------------------------------------------------|
+| Domain       | `domain.entity`, `domain.repository.*`, `domain.usecase.*`          |
+| Data         | `data.*.repository`, `data.*.dataSource`, `data.di`                 |
 | Presentation | `presentation.<feature>.{intent\|state\|effect\|viewModel\|ui\|di}` |
-| Core | `core.common`, `core.platform`, `core.ui` |
+| Core         | `core.common`, `core.platform`, `core.ui`                           |
 
 ## Allowed dependencies
 
-| From | To |
-|------|----|
-| `presentation` | `domain`, any `core-*`, optional `feature-*`, optional ads module |
-| `data` | `domain`, any `core-*` (prefer **not** depending on `:core-ui`) |
-| `domain` | coroutines-core, Koin DSL (`lazyModule` for UseCases), optional pure feature libs |
-| ads module | `data` and/or `core-*` when gating on premium/prefs (if project uses that pattern) |
-| `app` | all modules (composition root) |
+| From           | To                                                                                 |
+|----------------|------------------------------------------------------------------------------------|
+| `presentation` | `domain`, any `core-*`, optional `feature-*`, optional ads module                  |
+| `data`         | `domain`, any `core-*` (prefer **not** depending on `:core-ui`)                    |
+| `domain`       | coroutines-core, Koin DSL (`lazyModule` for UseCases), optional pure feature libs  |
+| ads module     | `data` and/or `core-*` when gating on premium/prefs (if project uses that pattern) |
+| `app`          | all modules (composition root)                                                     |
 
 ```
 app (Composition Root)
@@ -78,10 +78,10 @@ core modules (shared utilities)
 
 Every Gradle module must include its own `.gitignore` (in addition to the root `.gitignore`).
 
-| Module type | Typical contents |
-|-------------|------------------|
-| Library (`:domain`, `:data`, `:presentation`, `:core-*`, `:feature-*`, ads) | `/build` |
-| Application (`:app`) | `/build` and `/release` |
+| Module type                                                                 | Typical contents        |
+|-----------------------------------------------------------------------------|-------------------------|
+| Library (`:domain`, `:data`, `:presentation`, `:core-*`, `:feature-*`, ads) | `/build`                |
+| Application (`:app`)                                                        | `/build` and `/release` |
 
 ```gitignore
 /build

@@ -47,6 +47,8 @@ Dependencies always point inward.
 
 ## ViewModel
 
+- This MVI ViewModel contract applies to **feature screens** in `:presentation` only
+- Ads (`:gmaAds` / AdMob) keep existing managers / ad ViewModels — **not** Intent / State / Effect — unless the user **explicitly** asks (`21-ads-billing`)
 - Extend `androidx.lifecycle.ViewModel`
 - Expose `StateFlow<*State>` and `SharedFlow<*Effect>`
 - Single entry: `fun handleIntent(intent: *Intent) = viewModelScope.launch(exceptionHandler) { … }`
@@ -88,7 +90,7 @@ Moved from former `ANDROID_PROJECT_RULES.md` — keep here so nothing is lost.
 ### Single Responsibility (S)
 
 - UseCase = one business capability area.
-- ViewModel = state reduction + intent handling for one screen.
+- ViewModel = state reduction + intent handling for one **feature** screen (ads ViewModels are not this pattern — see `21-ads-billing`).
 - Repository = one data concern (location, billing, language, …).
 - Modules split UI / domain / data / ads / features.
 

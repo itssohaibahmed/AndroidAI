@@ -17,7 +17,7 @@ alwaysApply: false
 | `:core-platform` | Network, location, Firebase helpers, platform services, **`firebase-messaging` dep** (new projects) |
 | `:core-ui` | Base UI (`Parent*`), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions |
 | `:feature-*` | Optional self-contained feature libraries |
-| `:gmaAds` (optional) | AdMob / mediation — only when product has ads |
+| `:gmaAds` (optional) | AdMob / mediation — only when product has ads. Keep the **existing** ads architecture (managers / ad ViewModels). **Not** MVI unless the user explicitly asks |
 
 - Use as many `:core-*` modules as the project needs; keep each focused
 - Gradle module names: kebab-case (`:core-ui`, `:feature-auth`, `:gmaAds`)
@@ -37,7 +37,7 @@ presentation/<featureName>/
   mapper/      # optional domain → UI mappers
 ```
 
-Feature folders: camelCase (`onBoarding`, `userProfile`).
+Feature folders: camelCase (`onBoarding`, `userProfile`). Ads (`:gmaAds`) do **not** use this MVI package layout — keep the existing ads module structure unless the user explicitly asks.
 
 ## Package naming
 

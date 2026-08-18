@@ -9,7 +9,7 @@ alwaysApply: false
 | Layer | Priority |
 |-------|----------|
 | UseCases | High — pure JVM, fake repositories |
-| ViewModels | High — drive via Intents, assert State + Effects |
+| ViewModels | High — drive via Intents, assert State + Effects (**feature** ViewModels). Ads / `:gmaAds` ViewModels are not MVI — do not require Intent/State/Effect tests unless the user asked to convert ads |
 | Mappers | Medium |
 | Flow (with fakes) | Medium — emission order / failures under `test-unit` |
 | Repositories (real layers) | Medium — Room in-memory / MockWebServer under `test-integration` |
@@ -24,7 +24,8 @@ alwaysApply: false
 
 ## ViewModel testing
 
-- Send Intents → assert StateFlow emissions and SharedFlow effects
+- **Feature** ViewModels: send Intents → assert StateFlow emissions and SharedFlow effects
+- Ads / `:gmaAds` ViewModels: keep the project’s existing ads test style — do not convert to Intent/State/Effect tests unless the user **explicitly** asks
 - Use `runTest` for coroutine tests
 - No real Android framework in unit tests
 

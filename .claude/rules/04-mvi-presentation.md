@@ -1,16 +1,14 @@
 ---
-description: MVI pattern — Intent, State, Effect, ViewModel
+description: MVI pattern for feature screens — Intent, State, Effect, ViewModel. Does not apply to ads / :gmaAds.
 paths:
   - "**/presentation/**/*.kt"
-  - "**/viewModel/**/*.kt"
-  - "**/intent/**/*.kt"
-  - "**/state/**/*.kt"
-  - "**/effect/**/*.kt"
 ---
 
 # MVI presentation (invariants)
 
 **Full detail (full ViewModel template, DiffUtil, mapping):** [reference/mvi-presentation.md](reference/mvi-presentation.md)
+
+**Out of scope: ads.** `:gmaAds` / AdMob managers / existing ad ViewModels stay on the project’s ads architecture — not Intent / State / Effect. Do not apply this rule to ads unless the user **explicitly** asks. See `21-ads-billing`.
 
 ## Must follow
 

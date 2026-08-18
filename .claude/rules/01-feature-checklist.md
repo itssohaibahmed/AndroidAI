@@ -21,6 +21,6 @@ description: New feature / screen scaffolding checklist — use when adding a fe
 - [ ] Verify no `:presentation` → `:data` dependency
 - [ ] Large-list path: `ListAdapter` + DiffUtil / background mapping considered; `layoutManager` / orientation / spanCount in XML unless dynamic
 - [ ] Images: `ShapeableImageView` + Glide `loadImage` for programmatic binds (not `setImageResource` in adapters)
-- [ ] If ads/premium: gate on entitlement + RC; use existing managers — not raw SDK in Fragments
+- [ ] If ads/premium: gate on entitlement + RC; use existing ads managers / ad ViewModels — not raw SDK in Fragments. **Do not** wrap ads in MVI unless the user explicitly asks (`21-ads-billing`)
 - [ ] Obey `.claude/project-settings.json` (tests / orientation / theme modes)
-- [ ] Presentation-only scaffold via `create-mvi`; new domain/data via `create-clean-architecture`
+- [ ] Presentation-only scaffold via `create-mvi` (feature screens only — not ads); new domain/data via `create-clean-architecture`

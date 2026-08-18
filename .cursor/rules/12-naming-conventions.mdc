@@ -13,7 +13,7 @@ alwaysApply: false
 | Implementations | `Impl` suffix | `UserRepositoryImpl` |
 | ViewModels | `*ViewModel` | `HomeViewModel` |
 | UseCases | `*UseCase` | `GetUserUseCase` |
-| MVI types | `*Intent` / `*State` / `*Effect` | `HomeIntent` |
+| MVI types | `*Intent` / `*State` / `*Effect` for **feature screens** only — not ads | `HomeIntent` |
 | DI modules | `*Module` val | `homePresentationModule` |
 | Functions | camelCase, verb-first | `handleIntent`, `savePreferences` |
 | Backing flows | `_state`, `_effect` (private) | `_state.update { }` |

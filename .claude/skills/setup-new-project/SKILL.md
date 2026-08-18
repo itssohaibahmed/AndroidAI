@@ -31,7 +31,7 @@ Confirm with the user before scaffolding. Write answers to **`.claude/project-se
 
 Also ask:
 
-1. Optional: **ads** — do not add ad SDKs without approval
+1. Optional: **ads** — do not add ad SDKs without approval. If adding later, copy the existing ads architecture from the reference app — do **not** convert ads to MVI unless the user **explicitly** asks
 2. **Firebase Cloud Messaging** is **mandatory** for every new project: add `firebase-messaging` to the catalog + `implementation` on `:core-platform` only (dependency — no `FirebaseMessagingService` or push UI). See **`implement-firebase-messaging`**.
 
 All later skills **must read** `.claude/project-settings.json` and obey it.

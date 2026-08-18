@@ -34,7 +34,7 @@ Obey `.cursor/project-settings.json`: if `writeTestsWithFeatures` is `false`, on
 ## Priority
 
 1. **UseCases** — fake domain repositories, JVM tests
-2. **ViewModels** — Intents → State + Effects
+2. **ViewModels** — Intents → State + Effects (**feature** screens). Skip converting `:gmaAds` / ads ViewModels to MVI tests unless the user **explicitly** asks
 3. **Mappers** — pure Kotlin when non-trivial
 4. **Flow / coroutine behavior** — UseCase or repository APIs that return `Flow` / use `withContext`, still with **fakes** (no real network/DB)
 
@@ -76,11 +76,11 @@ class GetUserUseCaseTest {
 ```kotlin
 @Test
 fun viewModel_whenLoadFails_thenEmitsShowError() = runTest {
-    fakeRepo.shouldFail = true
-    viewModel.handleIntent(FeatureIntent.Load)
-    advanceUntilIdle()
-    // assert state error flag or effect
-}
+        fakeRepo.shouldFail = true
+        viewModel.handleIntent(FeatureIntent.Load)
+        advanceUntilIdle()
+        // assert state error flag or effect
+    }
 ```
 
 ## Flow / coroutine tests (with fakes)
@@ -96,10 +96,10 @@ fun viewModel_whenLoadFails_thenEmitsShowError() = runTest {
 ```kotlin
 @Test
 fun repository_whenDataSourceEmits_thenMapsToDomain() = runTest {
-    fakeDataSource.items = listOf(dto)
-    val emissions = repository.observeItems().take(1).toList()
-    assertEquals(expectedDomain, emissions.first().first())
-}
+        fakeDataSource.items = listOf(dto)
+        val emissions = repository.observeItems().take(1).toList()
+        assertEquals(expectedDomain, emissions.first().first())
+    }
 ```
 
 ## Location

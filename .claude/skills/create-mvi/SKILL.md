@@ -1,6 +1,6 @@
 ---
 name: create-mvi
-description: Scaffold presentation-layer MVI only (Intent/State/Effect/ViewModel/Fragment/DI/nav). No domain or data. Use when adding a new screen with ViewModel under presentation. For new UseCases/repositories use create-clean-architecture.
+description: Scaffold presentation-layer MVI only (Intent/State/Effect/ViewModel/Fragment/DI/nav). No domain or data. Use when adding a new screen with ViewModel under presentation. For new UseCases/repositories use create-clean-architecture. Do not use for ads / :gmaAds.
 ---
 
 # Create MVI Feature (presentation only)
@@ -15,6 +15,7 @@ Obey `.claude/project-settings.json` when present (`writeTestsWithFeatures`, `or
 - Confirm layouts exist (or run `figma-to-xml` / `create-dialog` / `create-bottom-sheet` first)
 - Read existing similar feature for patterns (base Fragment, DI module naming, nav)
 - If **new** domain capability is needed (new UseCase / repository / DataSource): run **`create-clean-architecture`** first (or after) — **do not** invent domain/data files inside this skill’s required path
+- **Do not** use this skill for ads / `:gmaAds` / AdMob. Ads keep the project’s existing managers / ad ViewModels (`21-ads-billing`) unless the user **explicitly** asks to convert ads to MVI
 
 ## Package layout (`:presentation` only)
 
@@ -36,11 +37,11 @@ presentation/<featureName>/
 2. **State** — data class, defaults, computed `show*` flags
 3. **Effect** — navigation, permissions, `@StringRes` errors
 4. **ViewModel** — follow `04-mvi-presentation` structure:
-   - `handleIntent` = single `viewModelScope.launch(exceptionHandler) { when … }`
-   - handlers = `private suspend fun onX()`
-   - `exceptionHandler` → `handleError`; **`handleError` last** in the class
-   - sparse logs (repo primary; ViewModel failures/`Log.w` guards only)
-   - Inject **existing** UseCases / domain repos only — do not create new ones here
+    - `handleIntent` = single `viewModelScope.launch(exceptionHandler) { when … }`
+    - handlers = `private suspend fun onX()`
+    - `exceptionHandler` → `handleError`; **`handleError` last** in the class
+    - sparse logs (repo primary; ViewModel failures/`Log.w` guards only)
+    - Inject **existing** UseCases / domain repos only — do not create new ones here
 5. **Fragment** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (`screenStarted` + **inline** `setOnClickListener` — no `setupClicks()`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown lifecycle (if any); `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`** (`FragmentExtensions`); navigate with `navigateTo` / `popFrom`
 6. **Mapping** — heavy work in Repo/UseCase; `toUi()` in ViewModel with dispatcher if large lists
 7. **Logs** — `Constants.TAG*` format; prefer Repository; ViewModel not every method
@@ -78,10 +79,7 @@ Do **not** add `useCaseModule` / `dataModule` entries here — that belongs to `
 - Every `<action>` must use reference slide anims (`17-navigation`):
 
 ```xml
-app:enterAnim="@anim/slide_in_right"
-app:exitAnim="@anim/slide_out_left"
-app:popEnterAnim="@anim/slide_in_left"
-app:popExitAnim="@anim/slide_out_right"
+app:enterAnim="@anim/slide_in_right"app:exitAnim="@anim/slide_out_left"app:popEnterAnim="@anim/slide_in_left"app:popExitAnim="@anim/slide_out_right"
 ```
 
 ## Strings

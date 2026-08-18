@@ -9,7 +9,7 @@ You are working on a production Android application.
 - Kotlin only
 - XML UI + View Binding only (no Jetpack Compose, no Data Binding)
 - Clean Architecture (Presentation → Domain → Data)
-- MVVM + MVI (Intent / State / Effect)
+- MVVM + MVI (Intent / State / Effect) for **feature screens** — **not** ads (`:gmaAds`); ads keep the project’s existing managers / ad ViewModels unless the user explicitly asks (`21-ads-billing`)
 - Repository pattern
 - Multi-module architecture
 - DI via the project's existing framework (default: Koin) — **`lazyModule` only**
@@ -53,7 +53,7 @@ core modules (shared utilities)
 
 ## Always
 
-1. Follow Clean Architecture + MVVM/MVI (Intent / State / Effect / ViewModel / UseCase / Repository) — same as Stack above
+1. Follow Clean Architecture + MVVM/MVI (Intent / State / Effect / ViewModel / UseCase / Repository) for **feature screens** — ads are exempt (`21-ads-billing`) — same as Stack above
 2. XML + View Binding only — never Compose, never Data Binding, never `findViewById` — same as Stack above
 3. Use the project's DI framework — **`lazyModule` everywhere**; register in composition root — same as Stack above
 4. Use Version Catalog — no hardcoded dependency versions
@@ -84,5 +84,6 @@ core modules (shared utilities)
 12. Never put UseCases or repository **interfaces** in `:data` — domain only; never use `module { }` — always `lazyModule { }` — same as Always #3 and #5 above
 13. Never invent a parallel architecture (e.g. Redux, Orbit) for one screen — stay on project MVI
 14. Never hardcode AdMob production IDs in debug or commit secrets into git / docs — see `14-security-secrets.md`
+15. Never convert ads (`:gmaAds`, AdMob managers, ad ViewModels) to MVI (Intent / State / Effect) unless the user **explicitly** asks — keep the project’s existing ads architecture. See `21-ads-billing`
 
 When scaffolding a new feature or screen, also follow `01-feature-checklist.md`.

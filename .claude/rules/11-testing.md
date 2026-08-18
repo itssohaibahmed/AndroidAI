@@ -7,14 +7,14 @@ paths:
 
 ## What to test
 
-| Layer | Priority |
-|-------|----------|
-| UseCases | High — pure JVM, fake repositories |
-| ViewModels | High — drive via Intents, assert State + Effects |
-| Mappers | Medium |
-| Flow (with fakes) | Medium — emission order / failures under `test-unit` |
-| Repositories (real layers) | Medium — Room in-memory / MockWebServer under `test-integration` |
-| E2E (Espresso) | Critical user-visible flows only |
+| Layer                      | Priority                                                                                                                                                                                          |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| UseCases                   | High — pure JVM, fake repositories                                                                                                                                                                |
+| ViewModels                 | High — drive via Intents, assert State + Effects (**feature** ViewModels). Ads / `:gmaAds` ViewModels are not MVI — do not require Intent/State/Effect tests unless the user asked to convert ads |
+| Mappers                    | Medium                                                                                                                                                                                            |
+| Flow (with fakes)          | Medium — emission order / failures under `test-unit`                                                                                                                                              |
+| Repositories (real layers) | Medium — Room in-memory / MockWebServer under `test-integration`                                                                                                                                  |
+| E2E (Espresso)             | Critical user-visible flows only                                                                                                                                                                  |
 
 ## Approach
 
@@ -25,7 +25,8 @@ paths:
 
 ## ViewModel testing
 
-- Send Intents → assert StateFlow emissions and SharedFlow effects
+- **Feature** ViewModels: send Intents → assert StateFlow emissions and SharedFlow effects
+- Ads / `:gmaAds` ViewModels: keep the project’s existing ads test style — do not convert to Intent/State/Effect tests unless the user **explicitly** asks
 - Use `runTest` for coroutine tests
 - No real Android framework in unit tests
 
@@ -36,6 +37,7 @@ paths:
 ```
 
 Examples:
+
 - `GetUserUseCase_whenRepositoryReturnsNull_thenReturnsNull`
 - `LoginViewModel_whenCredentialsInvalid_thenEmitsShowError`
 
@@ -47,12 +49,12 @@ Examples:
 
 ## Skills (playbooks)
 
-| Skill | Use for |
-|-------|---------|
-| `test/test-unit` | Write missing JVM unit/Flow tests → run → report (no device) |
+| Skill                   | Use for                                                                  |
+|-------------------------|--------------------------------------------------------------------------|
+| `test/test-unit`        | Write missing JVM unit/Flow tests → run → report (no device)             |
 | `test/test-integration` | Write missing multi-layer tests → run → report (device if `androidTest`) |
-| `test/test-e2e` | Write missing E2E → run on device → report (device required) |
-| `test/test-complete` | Full suite run + walkthrough (device required) |
+| `test/test-e2e`         | Write missing E2E → run on device → report (device required)             |
+| `test/test-complete`    | Full suite run + walkthrough (device required)                           |
 
 ### Write → run → consent → fix → retest
 

@@ -235,6 +235,7 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 - Add always-on rules for niche topics.
 - Create duplicate skill names or a second skill tree (`screens/` vs `ui/`, etc.).
 - Put Retrofit/Room/prefs as new skills — use `26-data-persistence` + `reference/`.
+- Convert ads (`:gmaAds`) to MVI unless the user **explicitly** asks; keep the project’s existing ads architecture.
 - Change Speak-Translate or other apps unless the user asks to sync.
 
 ---

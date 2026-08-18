@@ -2,6 +2,8 @@
 
 Full detail for `04-mvi-presentation.md`. Do not delete lines from this file — edit here and keep the rule stub in sync.
 
+**Out of scope: ads.** This pattern is for **feature screens** in `:presentation`. Do not convert `:gmaAds` / AdMob managers / existing ad ViewModels to Intent / State / Effect unless the user **explicitly** asks. Keep the project’s existing ads architecture (`21-ads-billing`).
+
 ## Intent (user/system actions)
 
 ```kotlin
