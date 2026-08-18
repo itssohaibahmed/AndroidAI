@@ -24,8 +24,8 @@ Parse `figma.com/design/:fileKey/:name?node-id=A-B` → `fileKey`, `nodeId` `A:B
 | Need | How |
 |------|-----|
 | Pages | `get_metadata` without `nodeId`, or `use_figma` listing `figma.root.children` |
-| Primitive palette | `get_variable_defs` / `get_design_context` on Foundation **Colors** (not the whole file) |
-| Semantic light/dark | Tokens page rows (`Light value` / `Dark value`), or `use_figma` on `_Color token base` instances |
+| Primitive palette | `get_variable_defs` / `get_design_context` on Foundation **Colors** (not the whole file). These are the **only** hex values. |
+| Semantic light/dark | Tokens page or `use_figma` on the semantic collection. Values are Figma `VARIABLE_ALIAS` → primitive names (Light vs Dark swap the target). Record **which primitive**, not resolved hex. |
 | Type ramp | `figma.getLocalTextStyles()` — family, size, weight, lineHeight, letterSpacing |
 | Spacing / radius | Foundation Spacing table + radius variables (document as inline `dp` comments; **no `dimens.xml`**) |
 | Shadows | Effect styles → Material elevation only if useful; do not invent `dimens` |
@@ -36,8 +36,8 @@ Skip bulk `getLocalVariablesAsync` dumps of the entire file.
 
 | File | Contents |
 |------|----------|
-| `values/colors.xml` | App `md_theme_*` → General primitives → semantic tokens. Section headers per `09`. |
-| `values-night/colors.xml` | Semantic + `md_theme_*` only (when `themeModes` is `night` or `both`). Primitives stay in `values/`. |
+| `values/colors.xml` | App `md_theme_*` (aliases to semantics) → General primitives (**hex only here**) → semantic tokens (`@color/primitive_*` aliases). Section headers per `09`. |
+| `values-night/colors.xml` | Semantic + `md_theme_*` only (when `themeModes` is `night` or `both`). Semantics alias **different** primitives. Primitives stay in `values/`. |
 | `values/attrs.xml` | Extra semantic attrs (`colorTextTertiary`, `colorTextLink`, …) if Figma has them |
 | `values/themes.xml` | `Base.Theme.*` + `Theme.*` + `TextStyle.*` + `ButtonStyle.*` + `ShapeAppearance.App.*` |
 | `values-night/themes.xml` | Dark `Base.Theme.*` (window/status bar light flags false) |
@@ -46,6 +46,50 @@ Skip bulk `getLocalVariablesAsync` dumps of the entire file.
 | `values/strings.xml` | Only add missing `cd_*` / actions. Do not invent feature screens. |
 
 All user-facing strings stay in the **one** `:core-ui` `strings.xml`.
+
+## Color alias graph (mandatory)
+
+Match Figma: primitives own hex; semantics are aliases; Material is a bridge — do **not** flatten.
+
+```
+primitive_* (hex, values/ only)
+    ↑ @color alias
+semantic (values/ light targets, values-night/ dark targets)
+    ↑ @color alias
+md_theme_* (keep — aliases semantics; Material-only roles may alias a primitive)
+    ↑ theme items
+colorPrimary / colorSurface / android:windowBackground / …
+```
+
+Keep **Material theming and `md_theme_*`**. `Theme.Material3.DayNight.NoActionBar` + `colorPrimary` / `colorOnPrimary` / containers / error / outline / `colorSurfaceContainer*` so MaterialButton, cards, ripples, and checkboxes do not fall back to default purple. Layouts still use `?attr/colorOnSurface` and extra attrs (`?attr/colorTextTertiary`).
+
+When extracting, follow `VARIABLE_ALIAS` hops and write the **primitive resource name**, not the resolved hex:
+
+```xml
+<!-- values/ — primitives: hex only -->
+<color name="primitive_neutral_90">#FF171717</color>
+<color name="primitive_primary_50">#FF2563EB</color>
+
+<!-- values/ — semantics: alias primitives (light) -->
+<color name="color_text_neutral_primary">@color/primitive_neutral_90</color>
+<color name="color_button_primary_bg">@color/primitive_primary_50</color>
+<color name="color_bg_surface">@color/primitive_neutral_0</color>
+
+<!-- values/ — md_theme_*: alias semantics -->
+<color name="md_theme_primary">@color/color_button_primary_bg</color>
+<color name="md_theme_surface">@color/color_bg_surface</color>
+```
+
+```xml
+<!-- values-night/ — same semantic names, dark primitive targets -->
+<color name="color_text_neutral_primary">@color/primitive_neutral_0</color>
+<color name="color_button_primary_bg">@color/primitive_primary_40</color>
+<color name="color_bg_surface">@color/primitive_neutral_100</color>
+```
+
+- Alpha tokens: Figma `#RRGGBBAA` → Android `#AARRGGBB`; semantics alias `primitive_black_a*` / `primitive_white_a*`.
+- Material-only roles with no Figma semantic (`onPrimaryContainer`, `inversePrimary`) may alias a primitive per mode.
+- **Forbidden:** hex on semantic or `md_theme_*` entries (except those Material-only primitive aliases). Changing a primitive must update every semantic token that points at it.
 
 ## Theme items (required)
 

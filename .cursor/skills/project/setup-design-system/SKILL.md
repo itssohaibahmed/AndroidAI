@@ -22,8 +22,8 @@ Extraction file map + `:core-ui` scaffold: [reference.md](reference.md).
 
 1. Ensure `:core-ui` exists and `:app` `implementation(project(":core-ui"))`. If the module was missing, scaffold it first, then continue this list in the same turn.
 2. Parse URL → `fileKey` + `nodeId` (`-` → `:`). Load **figma-design-to-code** before `get_design_context`; load **figma-use** before `use_figma`.
-3. Extract tokens with **targeted** reads only (Foundation / Tokens pages, local text styles, semantic light/dark rows). No whole-file variable dumps.
-4. Write `:core-ui` resources per [reference.md](reference.md): primitive + semantic colors, `md_theme_*`, fonts, `TextStyle.*`, `ButtonStyle.*`, `ShapeAppearance.App.*`, theme items including **`android:windowBackground`**.
+3. Extract tokens with **targeted** reads only (Foundation / Tokens pages, local text styles, semantic light/dark rows). Follow Figma `VARIABLE_ALIAS` — semantics reference primitives; do not flatten to hex. No whole-file variable dumps.
+4. Write `:core-ui` resources per [reference.md](reference.md): primitive hex → semantic `@color/primitive_*` aliases → `md_theme_*` → Material theme attrs. Keep Material theming (`Theme.Material3.DayNight`, `colorPrimary` / `colorSurface` / `windowBackground`). Fonts, `TextStyle.*`, `ButtonStyle.*`, `ShapeAppearance.App.*`.
 5. **Theme-first:** default screen color lives on the theme. Do **not** set `android:background="?attr/colorSurface"` (or equivalent) on default layout roots. Layout `android:background` only when that region is a **different** surface.
 6. Do not invent screens, `dimens.xml`, or port the full icon/component library (screens stay `figma-to-xml`).
 7. `assembleDebug`. Report what landed (palette, type family, button styles) and that layouts inherit `windowBackground`.
@@ -34,4 +34,6 @@ Extraction file map + `:core-ui` scaffold: [reference.md](reference.md).
 - Create `:presentation`, `:domain`, `:data`, Entrance, or `Parent*`
 - Implement a product screen from this file (`figma-to-xml`)
 - Paint default roots with `colorSurface`
+- Duplicate hex on semantic (or `md_theme_*`) tokens — only primitives hold hex
+- Drop Material theming / `md_theme_*` (widgets fall back to default purple)
 - Add always-on rules; XML law stays in `09` + `reference/resources-xml.md`
