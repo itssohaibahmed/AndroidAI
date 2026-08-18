@@ -1,6 +1,21 @@
 # Setup Design System — extraction and files
 
-Used by [SKILL.md](SKILL.md). XML naming, strings, Material widgets: `09-resources-xml` + `reference/resources-xml.md` (do not duplicate those tables here).
+Used by [SKILL.md](SKILL.md). XML naming, strings, Material widgets: `09-resources-xml` + `reference/resources-xml.md`. Library Gradle: `08-gradle` + `reference/gradle.md`. Do not duplicate those tables here.
+
+## If `:core-ui` is missing — create it, then continue
+
+Do this in the **same turn**. Match existing `:app` AGP / `compileSdk` style.
+
+1. Version catalog: add `android-library` plugin if absent. Root `build.gradle.kts`: `alias(libs.plugins.android.library) apply false`.
+2. `settings.gradle.kts`: `include(":core-ui")`.
+3. `core-ui/build.gradle.kts`: library shape from `reference/gradle.md` (no `signingConfigs` / `bundle` / `base`). `namespace` = `{applicationId}.core.ui` when `applicationId` in `project-settings.json` is non-empty; else `{ :app namespace }.core.ui`. View Binding on. `minSdk` matches `:app`.
+4. `core-ui/.gitignore` containing `/build` (`02-project-structure`).
+5. `core-ui/src/main/AndroidManifest.xml` — empty `<manifest />` (library).
+6. `:app` `implementation(project(":core-ui"))`.
+7. If `:app` still has `res/values/` themes / strings / colors, **move** them into `:core-ui` (app keeps mipmap / xml backup only). Point the app manifest `android:theme` at the `:core-ui` `Theme.*`.
+8. Do **not** add `:presentation`, `:domain`, `:data`, `:core-common`, `:core-platform`, Entrance, or `Parent*` from this skill.
+
+Then write Figma tokens into that module.
 
 ## Figma reads (targeted)
 
@@ -66,4 +81,4 @@ Set `android:background` only for a **different** surface (card, overlay, tinted
 
 ## Out of scope
 
-Full icon library, every Figma component frame, product screens, `dimens.xml`, new Gradle modules.
+Full icon library, every Figma component frame, product screens, `dimens.xml`, modules other than `:core-ui`.

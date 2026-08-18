@@ -40,7 +40,7 @@ All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `
 ```
 setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
-setup-design-system        Figma design-system file → :core-ui tokens/themes (theme-first windowBackground)
+setup-design-system        Figma design-system file → :core-ui tokens/themes (creates :core-ui if missing; theme-first windowBackground)
 create-mvi                 Presentation MVI only (no domain/data)
 create-clean-architecture  Domain + data + core pieces as needed
 figma-to-xml               XML layouts (+ Figma design-to-code); absorbs freeform screen XML

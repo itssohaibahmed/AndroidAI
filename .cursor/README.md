@@ -38,7 +38,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 ```
 project/setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 project/setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
-project/setup-design-system        Figma design-system file → :core-ui tokens/themes (theme-first windowBackground)
+project/setup-design-system        Figma design-system file → :core-ui tokens/themes (creates :core-ui if missing; theme-first windowBackground)
 feature/create-mvi                 Presentation MVI only (no domain/data)
 feature/create-clean-architecture  Domain + data + core pieces as needed
 ui/figma-to-xml                    XML layouts (+ Figma design-to-code); absorbs freeform screen XML
