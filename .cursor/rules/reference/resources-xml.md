@@ -130,8 +130,34 @@ File: `:core-ui` `values/colors.xml` (+ `values-night/colors.xml` when needed).
 | 2 | General / common | `colorPrimary`, `colorTextBody`, â€¦ |
 | 3 | Screen / feature-wise | `premiumGradientStart`, â€¦ |
 
-- Prefer `?attr/colorSurface` in layouts
+- Prefer `?attr/colorOnSurface` (and other theme color attrs) for **text / icons**
+- **Default screen fill belongs on the theme**, not the layout:
+  - Set `android:windowBackground` (and `android:colorBackground` / `colorSurface`) in `:core-ui` `themes.xml` / `values-night/themes.xml`
+  - Do **not** set `android:background="?attr/colorSurface"` (or `@color/md_theme_surface`) on default screen roots — the window already paints that color
+  - Set `android:background` on a view **only** when that region is a **different** surface (card, overlay, tinted header)
 - Light/dark via `values` + `values-night`
+
+```xml
+<!-- BAD — default root repeating the window color -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/clRootHome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
+
+<!-- GOOD — inherit windowBackground; tint only a different region -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/clRootHome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mcvBannerHome"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        … />
+```
 
 ## Themes
 
@@ -141,6 +167,8 @@ File: `:core-ui` `values/colors.xml` (+ `values-night/colors.xml` when needed).
 | `splash.xml` | `Theme.App.Starting` only (`23-app-startup`) |
 
 Order in `themes.xml`: App theme â†’ TextStyle/ButtonStyle (incl. `ButtonStyle.IconButton`) â†’ screen-specific styles only if needed.
+
+Default window fill: `android:windowBackground` (+ `android:colorBackground` / `colorSurface`) on the app theme — see Colors above. Figma design-system import: `setup-design-system`.
 
 ## Orientation (mandatory)
 

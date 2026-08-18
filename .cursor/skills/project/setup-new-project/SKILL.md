@@ -17,7 +17,8 @@ Confirm with the user before scaffolding. Write answers to **`.cursor/project-se
   "orientation": "both",
   "themeModes": "both",
   "applicationId": "com.company.app",
-  "appName": "App Display Name"
+  "appName": "App Display Name",
+  "figmaDesignSystemUrl": ""
 }
 ```
 
@@ -28,11 +29,18 @@ Confirm with the user before scaffolding. Write answers to **`.cursor/project-se
 | `writeTestsWithFeatures`       | `true` / `false`                  | Whether later skills add UseCase/ViewModel tests with features |
 | `orientation`                  | `portrait` / `landscape` / `both` | Layout orientation support (default `both`)                    |
 | `themeModes`                   | `day` / `night` / `both`          | Theme resource folders (default `both`)                        |
+| `figmaDesignSystemUrl`         | Figma `/design/` URL or `""`      | Optional; set when user picks design-system option **a**       |
 
 Also ask:
 
 1. Optional: **ads** — do not add ad SDKs without approval. If adding later, copy the existing ads architecture from the reference app — do **not** convert ads to MVI unless the user **explicitly** asks
 2. **Firebase Cloud Messaging** is **mandatory** for every new project: add `firebase-messaging` to the catalog + `implementation` on `:core-platform` only (dependency — no `FirebaseMessagingService` or push UI). See **`implement-firebase-messaging`**.
+3. **Design system (Figma)** — ask the user to pick:
+   - **a)** Provide a Figma link to build the design system (`figma.com/design/...`)
+   - **b)** Ignore design system now (later)
+
+   If **a**: save the URL as `figmaDesignSystemUrl` in `project-settings.json`. After Step 6 (`:core-ui` exists), run **`setup-design-system`** with that URL (theme-first tokens in `:core-ui`).  
+   If **b**: leave `figmaDesignSystemUrl` empty; scaffold default Material3 `themes.xml` / `colors.xml` in Step 6. User can invoke `/setup-design-system` later.
 
 All later skills **must read** `.cursor/project-settings.json` and obey it.
 
@@ -207,6 +215,8 @@ See [templates/base/README.md](templates/base/README.md) for hierarchy and notes
 
 Also add: Fragment/Activity/Context/ImageView extensions (`FragmentExtensions` / `ActivityExtensions` / `ContextExtensions.showToast` / `ImageViewExtensions.loadImage` via Glide; Fragment uses `viewLifecycleOwner`), `themes.xml` (include `ButtonStyle.IconButton` parent of `Widget.Material3.Button.IconButton`), **`splash.xml`**, `strings.xml` / `colors.xml` with **app → general → screen-wise** sections (`09-resources-xml`). Add Glide to version catalog + `implementation(libs.glide)` on `:core-ui`.
 
+If the user chose design-system **a**, **stop here and run `setup-design-system`** with `figmaDesignSystemUrl` before Step 7. That replaces default Material3 colors/type with Figma tokens and sets `android:windowBackground` — do **not** paint default layouts with `?attr/colorSurface`. If **b**, keep the Step 6 default theme and continue.
+
 ## Step 7 — `:core-platform`
 
 ### Firebase (catalog + `:core-platform` / `:data`)
@@ -378,7 +388,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 ## Step 9 — Verify
 
-- [ ] `.cursor/project-settings.json` written and valid
+- [ ] `.cursor/project-settings.json` written and valid (incl. `figmaDesignSystemUrl` if option **a**)
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
 - [ ] Modules: app, domain, data, presentation, core-common, core-ui, core-platform
@@ -401,6 +411,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager` only when activate succeeds
 - [ ] `presentation` ↛ `:data`
 - [ ] `assembleDebug` succeeds; orientation / theme modes match `project-settings.json`
+- [ ] Design system: option **a** ran `setup-design-system` (theme `windowBackground`, no default layout `colorSurface`); or **b** left default Material3 theme
 
 ## Do not
 
@@ -418,4 +429,4 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 ## After setup
 
-Next: language / onboarding / home via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; wire Entrance Effects in `nav_graph.xml`. Existing apps missing RC or Analytics: `implement-firebase-remote-config`, `implement-firebase-events`; later screens: `add-firebase-events`; extra RC keys: `add-firebase-remote-config`.
+Next: if design system was skipped, optional `/setup-design-system`; then language / onboarding / home via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; wire Entrance Effects in `nav_graph.xml`. Existing apps missing RC or Analytics: `implement-firebase-remote-config`, `implement-firebase-events`; later screens: `add-firebase-events`; extra RC keys: `add-firebase-remote-config`.

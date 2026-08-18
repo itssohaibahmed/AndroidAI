@@ -220,4 +220,4 @@ Dispatchers: register **without** `named("io")` / `named("default")`.
 
 ## After setup
 
-Same as `setup-new-project`: screens via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; `review-complete` before PR. Missing RC / Analytics coverage: `implement-firebase-remote-config`, `implement-firebase-events`, then `add-firebase-*` for later screens.
+Same as `setup-new-project`: optional later `/setup-design-system`; screens via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; `review-complete` before PR. Missing RC / Analytics coverage: `implement-firebase-remote-config`, `implement-firebase-events`, then `add-firebase-*` for later screens.

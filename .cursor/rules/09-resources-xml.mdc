@@ -21,6 +21,7 @@ alwaysApply: false
 - Clickable chips / language selectors: `MaterialButton` + `iconGravity="end"` — not MTV + `drawableEnd`
 - View Binding only; RecyclerView manager / orientation / spanCount in XML unless dynamic
 - Portrait + landscape; theme attrs for colors; section headers in strings/colors/themes
+- Default screen color via theme `android:windowBackground` — **not** `android:background="?attr/colorSurface"` on default roots
 - XML closing: blank line between nested container closes; no extra blank after root
 
 Read [reference/resources-xml.md](reference/resources-xml.md) before writing or changing layouts.

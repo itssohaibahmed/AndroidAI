@@ -56,6 +56,7 @@ Obey **all** XML invariants in `09-resources-xml.mdc` + [reference/resources-xml
 
 - **Portrait + landscape** — responsive ConstraintLayout; add `layout-land/` if needed — **unless** `project-settings.json` `orientation` is `portrait` or `landscape` only
 - Theme modes: add `values-night` colors/themes when `themeModes` is `night` or `both`
+- **Theme-first background:** do not set `android:background="?attr/colorSurface"` on default screen roots — window color comes from `:core-ui` `android:windowBackground` (`09` / `reference/resources-xml.md`)
 - Programmatic loads → `siv.loadImage(...)` (Glide / `ImageViewExtensions`) when documenting bind notes
 - **Button fill + stroke from Figma:** apply on `MaterialButton` with `app:backgroundTint`, `app:strokeColor`, `app:strokeWidth`, `app:cornerRadius` — **do not** export/create `bg_shape_*` oval/rect (solid+stroke only), and **do not** use `android:background` + `backgroundTint="@null"` + inset hacks
     - Circle icon button: `cornerRadius` ≈ half of width/height

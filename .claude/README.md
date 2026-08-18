@@ -31,6 +31,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 | `themeModes`             | `day` / `night` / `both`          | Day / night / both theme resources                          |
 | `applicationId`          | string                            | Root package / applicationId                                |
 | `appName`                | string                            | Display name                                                |
+| `figmaDesignSystemUrl`   | Figma `/design/` URL or omit/`""` | Optional; Figma file for `setup-design-system`              |
 
 ## Skill map
 
@@ -39,6 +40,7 @@ All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `
 ```
 setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
+setup-design-system        Figma design-system file → :core-ui tokens/themes (theme-first windowBackground)
 create-mvi                 Presentation MVI only (no domain/data)
 create-clean-architecture  Domain + data + core pieces as needed
 figma-to-xml               XML layouts (+ Figma design-to-code); absorbs freeform screen XML
@@ -73,9 +75,10 @@ add-inapp-packages            Add one-time in-app products to existing billing
 ### Typical feature flow
 
 1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app)
-2. `figma-to-xml` (or dialog / bottom-sheet) — XML only
-3. `create-mvi` — presentation Intent/State/Effect/VM/Fragment
-4. `create-clean-architecture` — when new domain/data is required
+2. `setup-design-system` — Figma tokens/themes in `:core-ui` (skip if user chose ignore-for-now)
+3. `figma-to-xml` (or dialog / bottom-sheet) — XML only
+4. `create-mvi` — presentation Intent/State/Effect/VM/Fragment
+5. `create-clean-architecture` — when new domain/data is required
 
 Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/rules/reference/`](rules/reference/) — not separate skills.
 

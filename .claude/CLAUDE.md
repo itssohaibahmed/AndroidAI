@@ -6,15 +6,16 @@ Production Android app. Kotlin, XML + View Binding, Clean Architecture, MVVM + M
 
 Follow [`.claude/rules/`](rules/) (especially `00-global`, `14-security-secrets`, `16-logging`). Path-scoped rules load when matching files are touched. Full patterns: [`.claude/rules/reference/`](rules/reference/).
 
-When [`.claude/project-settings.json`](project-settings.json) exists, obey `writeTestsWithFeatures`, `orientation`, `themeModes`, `applicationId`, `appName`.
+When [`.claude/project-settings.json`](project-settings.json) exists, obey `writeTestsWithFeatures`, `orientation`, `themeModes`, `applicationId`, `appName`, optional `figmaDesignSystemUrl`.
 
 ## Typical feature flow
 
 1. `/setup-new-project` (greenfield) or `/setup-old-project` (existing production app)
-2. `/figma-to-xml` (or `/create-dialog` / `/create-bottom-sheet`) — XML only
-3. `/create-mvi` — presentation Intent / State / Effect / ViewModel / Fragment
-4. `/create-clean-architecture` — only when new domain / data is required
-5. `/review-complete` before PR
+2. `/setup-design-system` — Figma tokens/themes in `:core-ui` (skip if ignored at setup)
+3. `/figma-to-xml` (or `/create-dialog` / `/create-bottom-sheet`) — XML only
+4. `/create-mvi` — presentation Intent / State / Effect / ViewModel / Fragment
+5. `/create-clean-architecture` — only when new domain / data is required
+6. `/review-complete` before PR
 
 ## Skills
 
