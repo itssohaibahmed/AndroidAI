@@ -254,6 +254,8 @@ koin.get<BillingDataSource>().start(applicationScope)
 
 ### 3.x → 4.0.0 migration
 
+**Workflow skill:** `billing/update-in-app-billing` (`.cursor`) / `update-in-app-billing` (`.claude`).
+
 | 3.x                                        | 4.0.0                                      |
 |--------------------------------------------|--------------------------------------------|
 | `BillingManager(context, scope)`           | `BillingManager(context)`                  |

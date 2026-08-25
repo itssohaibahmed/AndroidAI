@@ -19,7 +19,7 @@ Cross-skills: `create-clean-architecture` (domain/data), `create-mvi` + `figma-t
 
 ## Step 0 — Mandatory user confirmation (do NOT write code until done)
 
-Use **`AskQuestion`** for every block below. If billing already exists (`BillingDataSource`, `BillingRepository`, paywall screens) → stop and redirect to `add-subscription-packages` or `add-inapp-packages`.
+Use **`AskQuestion`** for every block below. If billing already exists (`BillingDataSource`, `BillingRepository`, paywall screens) on **v3** → stop and redirect to **`update-in-app-billing`**. On **v4** → redirect to `add-subscription-packages` or `add-inapp-packages`.
 
 ### Subscriptions block
 

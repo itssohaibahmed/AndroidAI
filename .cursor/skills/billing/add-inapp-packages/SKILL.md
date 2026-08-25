@@ -20,7 +20,7 @@ For greenfield billing → use `implement-in-app-billing`. For subscription tier
 | App state           | Action                                |
 |---------------------|---------------------------------------|
 | No billing stack    | Stop → **`implement-in-app-billing`** |
-| Legacy v3 listeners | Migrate to v4 first (reference §7)    |
+| Legacy v3 listeners | Stop → **`update-in-app-billing`**    |
 | Billing exists      | Continue below                        |
 
 ---

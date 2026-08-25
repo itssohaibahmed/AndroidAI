@@ -20,7 +20,7 @@ For greenfield billing → use `implement-in-app-billing`. For in-app products �
 | App state                                                  | Action                                |
 |------------------------------------------------------------|---------------------------------------|
 | No `BillingDataSource` / `BillingRepository` / paywall     | Stop → **`implement-in-app-billing`** |
-| Legacy v3 (`BillingPurchaseListener`, `startConnection()`) | Migrate to v4 first (reference §7)    |
+| Legacy v3 (`BillingPurchaseListener`, `startConnection()`) | Stop → **`update-in-app-billing`**    |
 | Billing exists                                             | Continue below                        |
 
 ---

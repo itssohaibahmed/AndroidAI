@@ -68,6 +68,7 @@ add-firebase-remote-config    Add RC keys to existing SharedPref + Remote Config
 implement-firebase-events     First-time full-app Analytics (EventsProvider; screens/buttons)
 add-firebase-events           Add Analytics events for selected screens
 implement-in-app-billing      Greenfield Play billing (subs + in-app, v4 stack)
+update-in-app-billing         Migrate hypersoft inappbilling v3 → v4.0.0
 add-subscription-packages     Add subscription tiers to existing billing
 add-inapp-packages            Add one-time in-app products to existing billing
 ```
