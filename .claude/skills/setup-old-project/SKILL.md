@@ -118,7 +118,7 @@ Then migrate using [migration.md](migration.md). Prefer the detect → action ta
 
 Follow `08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md) and **`gradle-organize`**.
 
-1. Groovy → Kotlin DSL if needed (`settings.gradle.kts`, module scripts, catalog).
+1. Groovy → Kotlin DSL if needed (`settings.gradle.kts`, module scripts, catalog). **Same conversion contract as `gradle-update` Step 0** — keep both docs aligned when this changes (`MUST_READ_BEFORE_SKILL_CHANGES.md`).
 2. `include` the mandatory module set from `setup-new-project` (`:app`, `:domain`, `:data`, `:presentation`, `:core-common`, `:core-ui`, `:core-platform`; keep `:gmaAds` / extra modules if they already exist).
 3. Move existing dependencies into `libs.versions.toml` **at the same versions**. Do not run a full `gradle-update` bump. Bump a library only if the new architecture cannot compile without it; tell the user what changed.
 4. View Binding on UI modules; Safe Args on `:presentation`. Remove Data Binding when replacing it with View Binding (keep layouts working).

@@ -23,6 +23,9 @@ Reference shape: Speak-Translate / Qibla Finder `:app` (`plugins` → `android` 
 1. `gradle/libs.versions.toml`
 2. Every module `build.gradle.kts` (`app`, `presentation`, `data`, `domain`, `core-*`, ads, features)
 3. Do **not** change versions unless user also asks to bump — organizing ≠ upgrading (use `gradle-update` for bumps). If **`gradle-update`** finds hardcodes, it must migrate them into this catalog and place them under the correct section (same headers as below).
+4. If Groovy `*.gradle` / `settings.gradle` still exist → convert to Kotlin DSL **first** (`gradle-update` Step 0 / `setup-old-project` Step 2). This skill organizes `.kts` + catalog only.
+
+When you change section headers or catalog layout here, also update `gradle-update`, `setup-new-project` / `setup-old-project` Gradle steps, `08-gradle` + `reference/gradle.md`, and `.claude` twins.
 
 ---
 

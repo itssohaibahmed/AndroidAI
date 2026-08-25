@@ -34,6 +34,41 @@ Do **not** grow a large `.cursor/commands/` tree — prefer skills with `/` invo
 5. **Update** [`.cursor/README.md`](.cursor/README.md) skill map / rules index when you add or rename something.
 6. Skills that create features/UI/tests must **read and obey** `.cursor/project-settings.json` when present.
 7. **New product skills** must be based on reference apps (see below) and **shown to the user for acceptance** before any skill files are written.
+8. **Always update related skills/rules together** — never change one file in a topic cluster and leave siblings stale (see below). Mirror the same edit under `.claude/` when a twin skill/rule exists.
+
+---
+
+## Keep related skills / rules in sync
+
+When you change a **skill**, **rule**, or **reference** doc, find every peer that teaches the same invariant or workflow and **update those in the same change**. Partial updates cause agents to follow contradictory playbooks.
+
+### How to decide peers
+
+1. Same topic area (`gradle/`, `firebase/`, `review/`, `test/`, …).
+2. Skills that **call or defer to** each other (`gradle-update` ↔ `gradle-organize`; `setup-old-project` ↔ Gradle skills).
+3. Matching **rule + `rules/reference/`** pair (`08-gradle.mdc` ↔ `reference/gradle.md`).
+4. Orchestrators that list the skill (`review-complete`, `test-complete`, skill map in `.cursor/README.md`).
+5. `.claude/skills/` / `.claude/rules/` twins of anything under `.cursor/`.
+
+### Example clusters (not exhaustive)
+
+| If you change…                          | Also update…                                                                                                                                                                      |
+|-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **`gradle/gradle-update`**              | `gradle/gradle-organize`, Groovy → Kotlin DSL steps in `project/setup-old-project` (+ `migration.md`), `08-gradle.mdc`, `rules/reference/gradle.md`, `.claude` Gradle twins       |
+| **`gradle/gradle-organize`**            | `gradle-update`, `setup-new-project` / `setup-old-project` Gradle steps, `08` + `reference/gradle.md`                                                                             |
+| **Groovy → Kotlin DSL guidance**        | Lives in / must stay aligned with **`gradle-update`** (convert before bump) **and** `setup-old-project` Step 2 / `migration.md`; do not teach Groovy conversion in only one place |
+| **`setup-design-system`**               | Skill `reference.md`, color/theme notes in `09` / `reference/resources-xml.md` if invariants change, `.claude` twin                                                               |
+| **`create-mvi` / MVI law**              | `04-mvi-presentation` + `reference/mvi-presentation.md`, `01-feature-checklist`, `review-architecture` if gates change                                                            |
+| **Any `test-*` skill**                  | Sibling `test-*` banners/consent rules, `test-complete`, `11-testing.mdc`                                                                                                         |
+| **Any `review-*` skill**                | Sibling `review-*`, `review-complete`                                                                                                                                             |
+| **Firebase / billing / platform skill** | Sibling skills in that area + matching numbered rule if one exists                                                                                                                |
+
+### Checklist before finishing a template edit
+
+- [ ] Updated every peer in the topic cluster (table above or same pattern).
+- [ ] Updated `.cursor/README.md` if name/path/description changed.
+- [ ] Updated `.claude/` twin when present.
+- [ ] No contradictory “Do not” / step order left between siblings.
 
 ---
 
@@ -195,8 +230,8 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 
 ### Updates (deps, Gradle, platform)
 
-1. Prefer updating `gradle/gradle-update`, `gradle/gradle-organize`, or `08` / `reference/gradle.md`.
-2. **`gradle-update`** must bump catalog **and** hardcoded `"g:a:v"` lines, migrate them into `libs.versions.toml`, and place under organize section headers.
+1. Prefer updating `gradle/gradle-update`, `gradle/gradle-organize`, or `08` / `reference/gradle.md` — **and always the whole Gradle cluster together** (including Groovy → Kotlin DSL in `gradle-update` + `setup-old-project`).
+2. **`gradle-update`** must: convert remaining Groovy `*.gradle` → Kotlin DSL when present; bump catalog **and** hardcoded `"g:a:v"` lines; migrate them into `libs.versions.toml`; place under organize section headers.
 3. Library allow/deny list → `13-libraries-stack.mdc`.
 4. No new libraries without explicit human approval (`00-global`) — migrating an existing hardcode into the catalog is required, not a new library.
 
@@ -226,6 +261,7 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 - Link to `reference/` instead of duplicating long text.
 - Keep skill `description` specific (when to use + when not to).
 - Use simple wording in new docs.
+- When editing one skill/rule, **update every related peer** (Gradle cluster, test siblings, review siblings, `.claude` twins, etc.).
 
 **Don’t**
 
@@ -237,12 +273,13 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 - Put Retrofit/Room/prefs as new skills — use `26-data-persistence` + `reference/`.
 - Convert ads (`:gmaAds`) to MVI unless the user **explicitly** asks; keep the project’s existing ads architecture.
 - Change Speak-Translate or other apps unless the user asks to sync.
+- Update only `gradle-update` (or only `setup-old-project`) when Groovy → Kotlin DSL / catalog / organize behavior changes — keep the whole Gradle cluster aligned.
 
 ---
 
 ## Suggested prompt when attaching this file
 
-> Read `README.md` (this guide) and `.cursor/README.md` first. Then: \<your task\>. Follow the template rules: no content loss, prefer move/link, update the skill map if you add skills. For new product skills, search the reference apps (priority order), show me the plan (template + host screen), wait for my acceptance, then create the skill.
+> Read `MUST_READ_BEFORE_SKILL_CHANGES.md` and `.cursor/README.md` first. Then: \<your task\>. Follow the template rules: no content loss, prefer move/link, update the skill map if you add skills, **always update related skills/rules in the same topic cluster** (e.g. Gradle: gradle-update + Groovy→KTS + gradle-organize + 08/reference). For new product skills, search the reference apps (priority order), show me the plan (template + host screen), wait for my acceptance, then create the skill.
 
 ---
 

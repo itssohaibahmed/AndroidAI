@@ -282,13 +282,17 @@ implementation("androidx.core:core-ktx:1.12.0")
 
 When the user runs **`gradle-update`** (or asks to bump dependencies):
 
-1. Inventory **both** `libs.versions.toml` `[versions]` **and** every hardcoded `"group:artifact:version"` in module Gradle scripts
-2. Resolve latest stable for **each** (do not skip Glide / ads / Firebase / etc. because they were hardcoded)
-3. If `gradle/libs.versions.toml` is missing → **create** it (`[versions]` / `[plugins]` / `[libraries]` + section comments per this doc / `gradle-organize`)
-4. Migrate each hardcoded dep into the catalog (version key + library alias under the correct section, e.g. `# Glide`), then replace with `implementation(libs.…)`
-5. Place module `implementation` lines under the matching `//` header (`// Glide`, not under `// Testing`)
-6. Migrating an **existing** hardcoded dependency into the catalog is **not** “adding a new library” — it is required on every update run
-7. Leave **zero** hardcoded Maven coordinates in `*.gradle.kts` when the update finishes
+1. If Groovy `build.gradle` / `settings.gradle` remain → convert to Kotlin DSL **first** (same contract as `setup-old-project` Step 2 / `gradle-update` Step 0). Keep versions during conversion; bump after.
+2. Inventory **both** `libs.versions.toml` `[versions]` **and** every hardcoded `"group:artifact:version"` in module Gradle scripts
+3. Resolve latest stable for **each** (do not skip Glide / ads / Firebase / etc. because they were hardcoded)
+4. If `gradle/libs.versions.toml` is missing → **create** it (`[versions]` / `[plugins]` / `[libraries]` + section comments per this doc / `gradle-organize`)
+5. Migrate each hardcoded dep into the catalog (version key + library alias under the correct section, e.g. `# Glide`), then replace with `implementation(libs.…)`
+6. Place module `implementation` lines under the matching `//` header (`// Glide`, not under `// Testing`)
+7. Migrating an **existing** hardcoded dependency into the catalog is **not** “adding a new library” — it is required on every update run
+8. Leave **zero** hardcoded Maven coordinates in `*.gradle.kts` when the update finishes
+9. Leave **zero** Groovy module/settings scripts when conversion was possible
+
+Editing this section → also update `gradle-update`, `gradle-organize`, `setup-old-project` (+ `migration.md`), `08-gradle.md`, and `.cursor` twins.
 
 ```kotlin
 // ❌ BAD — leftover hardcode after gradle-update

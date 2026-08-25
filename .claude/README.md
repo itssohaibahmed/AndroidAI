@@ -56,7 +56,7 @@ test-integration              Write+run multi-layer tests; consent before fix
 test-e2e                      Write+run E2E on device; consent before fix
 test-complete                 Full run + walkthrough; consent before fix
 gradle-organize               Catalog + android/base/dependencies section order (signingConfigs, bundle)
-gradle-update                 Bump all deps (catalog + hardcodes); migrate to libs.versions.toml + sections
+gradle-update                 Groovy→KTS if needed; bump all deps (catalog + hardcodes); migrate to libs.versions.toml + sections
 build-debug-apk               Debug APK → device install + launch
 build-release-apk             Release signing + APK → device install + launch
 build-release-bundle          Release signing + AAB (no device)
