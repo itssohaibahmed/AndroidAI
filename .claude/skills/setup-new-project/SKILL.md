@@ -77,10 +77,10 @@ core-common / core-ui / core-platform  (+ :core-design when compose)
 Follow `08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
 
 1. `settings.gradle.kts` — `include` all modules above
-2. Root plugins `apply false` via catalog; **latest stable** versions
+2. Root plugins `apply false` via catalog; **latest stable AGP 9+**. Do **not** apply `org.jetbrains.kotlin.android` — AGP has built-in Kotlin.
 3. Catalog sections/naming per `08-gradle.md` / `gradle-organize`
 4. Dependency graph: UI modules (`:presentation` or `:feature-*`) **never** → `:data`; `domain` → coroutines only
-5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. **compose:** `kotlin.compose` plugin + `buildFeatures { compose = true }` on `:app`, `:core-design`, `:feature-*`; Compose BOM + Navigation Compose + Coil 3 + `koin-androidx-compose` in catalog (latest stable). No View Binding on feature modules.
+5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. **compose:** Compose Compiler plugin (`kotlin-compose`) + `buildFeatures { compose = true }` on `:app`, `:core-design`, `:feature-*` — **not** `kotlin-android`; Compose BOM + Navigation Compose + Coil 3 + `koin-androidx-compose` in catalog (latest stable). No View Binding on feature modules.
 6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
 7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
 8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
@@ -96,7 +96,7 @@ Copy the `:app` and library shapes from [reference/gradle.md](../../rules/refere
 
 | Item                    | Rule                                                                                                                     |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| `android` section order | `defaultConfig` → `signingConfigs` → `buildTypes` → `buildFeatures` → `compileOptions` → (`jvm` only if used) → `bundle` |
+| `android` section order | `defaultConfig` → `signingConfigs` → `buildTypes` → `buildFeatures` → `compileOptions` → `bundle` |
 | `signingConfigs`        | Always — search `*.jks` in root then `app/`; set `storeFile` if found; else empty strings; do not invent passwords       |
 | `bundle`                | Always `language { enableSplit = false }`                                                                                |
 | `base.archivesName`     | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known              |

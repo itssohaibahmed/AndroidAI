@@ -121,13 +121,14 @@ Then migrate using [migration.md](migration.md). Prefer the detect → action ta
 Follow `08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md) and **`gradle-organize`**.
 
 1. Groovy → Kotlin DSL if needed (`settings.gradle.kts`, module scripts, catalog). **Same conversion contract as `gradle-update` Step 0** — keep both docs aligned when this changes (`MUST_READ_BEFORE_SKILL_CHANGES.md`).
-2. `include` the mandatory module set from `setup-new-project` (`:app`, `:domain`, `:data`, `:core-common`, `:core-ui`, `:core-platform`; **xml:** also `:presentation`; **compose:** also `:core-design` + `:feature-*` — keep `:gmaAds` / extra modules if they already exist).
-3. Move existing dependencies into `libs.versions.toml` **at the same versions**. Do not run a full `gradle-update` bump. Bump a library only if the new architecture cannot compile without it; tell the user what changed.
-4. **xml:** View Binding on UI modules; Safe Args on `:presentation`. Remove Data Binding when replacing it with View Binding (keep layouts working). **compose:** `kotlin.compose` + `compose = true` on `:app` / `:core-design` / `:feature-*`; Coil 3; no View Binding on feature modules.
-5. Preserve `signingConfigs`, `versionCode` / `versionName`, `applicationId`, existing `.jks` paths, `google-services.json`, ProGuard keep rules. Do not invent passwords.
-6. `:app` script shape from `setup-new-project` Step 1 (`android` section order, `bundle.language.enableSplit = false`, `base.archivesName`).
-7. Every module `.gitignore` (`/build`; `:app` also `/release`).
-8. Organize sections with **`gradle-organize`**.
+2. If AGP is below 9 or `kotlin-android` is applied → bump to **AGP 9+** and remove `org.jetbrains.kotlin.android` / `kotlin-kapt` / `android.kotlinOptions` (`gradle-update` Step 0.5). Built-in Kotlin. Do not set `android.builtInKotlin=false`.
+3. `include` the mandatory module set from `setup-new-project` (`:app`, `:domain`, `:data`, `:core-common`, `:core-ui`, `:core-platform`; **xml:** also `:presentation`; **compose:** also `:core-design` + `:feature-*` — keep `:gmaAds` / extra modules if they already exist).
+4. Move existing dependencies into `libs.versions.toml` **at the same versions**. Do not run a full `gradle-update` bump. Bump a library only if the new architecture cannot compile without it; tell the user what changed.
+5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. Remove Data Binding when replacing it with View Binding (keep layouts working). **compose:** Compose Compiler plugin (`kotlin-compose`) + `compose = true` on `:app` / `:core-design` / `:feature-*` — **not** `kotlin-android`; Coil 3; no View Binding on feature modules.
+6. Preserve `signingConfigs`, `versionCode` / `versionName`, `applicationId`, existing `.jks` paths, `google-services.json`, ProGuard keep rules. Do not invent passwords.
+7. `:app` script shape from `setup-new-project` Step 1 (`android` section order, `bundle.language.enableSplit = false`, `base.archivesName`).
+8. Every module `.gitignore` (`/build`; `:app` also `/release`).
+9. Organize sections with **`gradle-organize`**.
 
 ## Step 3 — Modules + composition root
 

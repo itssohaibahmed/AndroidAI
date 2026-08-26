@@ -7,6 +7,7 @@ Companion to [SKILL.md](SKILL.md). Target architecture: [setup-new-project](../s
 | Current setup                                            | Action                                                                                                                   |
 |----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | Gradle Groovy (`build.gradle`, `settings.gradle`)        | Convert to Kotlin DSL + Version Catalog. Keep versions. Same contract as **`gradle-update` Step 0** — keep both aligned. |
+| AGP 8.x / `kotlin-android` / `kotlin-kapt`               | Bump **AGP 9+**. Remove `org.jetbrains.kotlin.android`. Built-in Kotlin. kapt → KSP if needed. Do **not** set `android.builtInKotlin=false`. |
 | No `libs.versions.toml`                                  | Move existing `g:a:v` into the catalog at the **same** versions.                                                         |
 | Single-module `:app`                                     | Create mandatory modules; **move** code out of `:app`.                                                                   |
 | Some modules already exist                               | Fill gaps only; do not rename a working module without need.                                                             |
@@ -35,7 +36,7 @@ Companion to [SKILL.md](SKILL.md). Target architecture: [setup-new-project](../s
 | Product flavors / build types                            | Keep.                                                                                                                    |
 | Portrait lock in manifest                                | Remove only if `orientation` is `both` or `landscape`. If user chose `portrait`, keep the lock.                          |
 | No `values-night`                                        | Add only if `themeModes` is `night` or `both`.                                                                           |
-| Old `compileSdk` / AGP blocking KTS/catalog/View Binding | Minimum bump to compile; report it. Otherwise leave SDK versions.                                                        |
+| Old `compileSdk` / AGP blocking KTS/catalog/View Binding | Minimum bump to compile; report it. If AGP is still < 9, bump to AGP 9+ and drop `kotlin-android`. |
 
 ## Extract example — API in an Activity
 

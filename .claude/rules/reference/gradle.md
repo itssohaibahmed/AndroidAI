@@ -21,6 +21,7 @@ Full detail for `08-gradle.md`. Do not delete lines from this file — edit here
 plugins {
     alias(libs.plugins.android.application)
     // google-services / crashlytics / safe-args / parcelize when needed
+    // compose: alias(libs.plugins.kotlin.compose) — Compose Compiler only, never kotlin-android
 }
 
 android {
@@ -69,9 +70,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    // Only if the project already has a kotlin/jvm block — place here; do not invent
-    // kotlin { … } / jvmToolchain(17)
-
     bundle {
         language {
             enableSplit = false
@@ -90,14 +88,14 @@ Same section order as `:app`, but **do not add** app-only pieces:
 
 | Section                 | Library modules                                                    |
 |-------------------------|--------------------------------------------------------------------|
-| `plugins`               | `android.library` (+ parcelize / safe-args when needed)            |
+| `plugins`               | `android.library` (+ parcelize / safe-args / `kotlin-compose` when needed). **Never** `kotlin-android` |
 | `compileSdk`            | Yes                                                                |
 | `defaultConfig`         | `minSdk` only (no `applicationId` / `versionCode` / `versionName`) |
 | `signingConfigs`        | **Never**                                                          |
 | `buildTypes`            | Yes — `isMinifyEnabled = false` for debug + release                |
 | `buildFeatures`         | xml UI: View Binding / `buildConfig`. compose `:feature-*` / `:core-design`: `compose = true` (no View Binding) |
 | `compileOptions`        | Yes (Java 17)                                                      |
-| `kotlin` / `jvm`        | Only if already present in that project                            |
+| `kotlin` / `jvm` / `kotlinOptions` | **Never** — AGP 9+ built-in Kotlin                        |
 | `bundle`                | **Never** (app only)                                               |
 | `base` / `archivesName` | **Never** (app only)                                               |
 
@@ -211,8 +209,7 @@ Keep **three** TOML tables. Inside `[versions]` and `[libraries]`, use the **sam
 ```toml
 [versions]
 # -------------- Plugins -------------- #
-agp = "â€¦"
-kotlin = "â€¦"
+agp = "…"   # latest stable 9.x
 
 # -------------- Dependencies -------------- #
 coreKtx = "â€¦"
@@ -231,7 +228,8 @@ coreKtx = "â€¦"
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-# â€¦
+# never: kotlin-android / org.jetbrains.kotlin.android
+# compose apps only: kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -250,7 +248,7 @@ koin-android = { â€¦ }
 |-----------------|-----------------|---------------------------------------------------------------|
 | Version keys    | camelCase       | `coreKtx`, `koinAndroid`, `playServicesLocation`              |
 | Library aliases | kebab-case      | `androidx-core-ktx`, `koin-android`, `play-services-location` |
-| Plugin aliases  | kebab-case      | `android-application`, `navigation-safe-args`                 |
+| Plugin aliases  | kebab-case      | `android-application`, `android-library`, `navigation-safe-args` |
 | Gradle accessor | dots from kebab | `libs.androidx.core.ktx`, `libs.koin.android`                 |
 
 Rules:
@@ -273,7 +271,7 @@ implementation("androidx.core:core-ktx:1.12.0")
 - When **adding** or **updating** any dependency/plugin, use the **latest stable** release available at that time
 - Look up current versions (Maven Central / Google Maven / library docs) — do not copy stale versions from memory or old projects
 - Prefer stable over alpha/beta/rc unless the user explicitly asks for a pre-release
-- Keep AGP, Kotlin, and related plugins compatible with each other when bumping
+- Keep **AGP 9+** (latest stable 9.x) and the Gradle wrapper compatible when bumping. Do **not** apply `org.jetbrains.kotlin.android`
 - Update the version in `[versions]` only — all aliases using `version.ref` pick it up
 - When scaffolding a new project (`setup-new-project`), seed the catalog with latest stable for the whole core stack
 - **`setup-new-project` mandatory:** Firebase BOM + `firebase-analytics` / `firebase-crashlytics` / `firebase-messaging` on **`:core-platform`**; `firebase-config` + `kotlinx-coroutines-play-services` on **`:data`** (see `implement-firebase-messaging` — no MessagingService). Place `kotlinx-coroutines-play-services` under `# Kotlin Coroutines` / `// Kotlin Coroutines`.
@@ -283,14 +281,15 @@ implementation("androidx.core:core-ktx:1.12.0")
 When the user runs **`gradle-update`** (or asks to bump dependencies):
 
 1. If Groovy `build.gradle` / `settings.gradle` remain → convert to Kotlin DSL **first** (same contract as `setup-old-project` Step 2 / `gradle-update` Step 0). Keep versions during conversion; bump after.
-2. Inventory **both** `libs.versions.toml` `[versions]` **and** every hardcoded `"group:artifact:version"` in module Gradle scripts
-3. Resolve latest stable for **each** (do not skip Glide / ads / Firebase / etc. because they were hardcoded)
-4. If `gradle/libs.versions.toml` is missing → **create** it (`[versions]` / `[plugins]` / `[libraries]` + section comments per this doc / `gradle-organize`)
-5. Migrate each hardcoded dep into the catalog (version key + library alias under the correct section, e.g. `# Glide`), then replace with `implementation(libs.…)`
-6. Place module `implementation` lines under the matching `//` header (`// Glide`, not under `// Testing`)
-7. Migrating an **existing** hardcoded dependency into the catalog is **not** “adding a new library” — it is required on every update run
-8. Leave **zero** hardcoded Maven coordinates in `*.gradle.kts` when the update finishes
-9. Leave **zero** Groovy module/settings scripts when conversion was possible
+2. Bump to **AGP 9+**. Remove `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions` / `android.builtInKotlin=false` (`gradle-update` Step 0.5). Built-in Kotlin — do not re-add the Kotlin Android plugin.
+3. Inventory **both** `libs.versions.toml` `[versions]` **and** every hardcoded `"group:artifact:version"` in module Gradle scripts
+4. Resolve latest stable for **each** (do not skip Glide / ads / Firebase / etc. because they were hardcoded)
+5. If `gradle/libs.versions.toml` is missing → **create** it (`[versions]` / `[plugins]` / `[libraries]` + section comments per this doc / `gradle-organize`)
+6. Migrate each hardcoded dep into the catalog (version key + library alias under the correct section, e.g. `# Glide`), then replace with `implementation(libs.…)`
+7. Place module `implementation` lines under the matching `//` header (`// Glide`, not under `// Testing`)
+8. Migrating an **existing** hardcoded dependency into the catalog is **not** “adding a new library” — it is required on every update run
+9. Leave **zero** hardcoded Maven coordinates in `*.gradle.kts` when the update finishes
+10. Leave **zero** Groovy module/settings scripts when conversion was possible
 
 Editing this section → also update `gradle-update`, `gradle-organize`, `setup-old-project` (+ `migration.md`), `08-gradle.md`, and `.cursor` twins.
 
@@ -316,6 +315,7 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 - minSdk = 24
 - targetSdk / compileSdk = **37** (bump when a newer platform ships)
 - Java 17 compatibility (`compileOptions`)
+- **AGP 9+** with built-in Kotlin (no `kotlin-android` plugin)
 - Kotlin official code style
 
 ## Dependency scope
@@ -333,7 +333,7 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 - Keep modules independent â€” no circular deps
 - Feature modules must not depend on each other directly
 - xml UI modules: View Binding on — never Data Binding
-- compose `:feature-*` / `:core-design`: `buildFeatures { compose = true }` + `kotlin.compose` plugin — never Data Binding, skip View Binding
+- compose `:feature-*` / `:core-design`: `buildFeatures { compose = true }` + Compose Compiler plugin (`kotlin-compose`) — never `kotlin-android`, never Data Binding, skip View Binding
 - App release: minify + shrink; library modules: minify off
 
 ## Build types
@@ -360,4 +360,4 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 
 - **Always** set `bundle.language.enableSplit = false` on `:app` (all locales in one APK/AAB)
 - Enable core library desugaring when using `java.time` below API 26
-- Place any existing `kotlin { }` / `jvmToolchain` block after `compileOptions` and before `bundle` — do not add JVM blocks to projects that never had them
+- Do **not** add `kotlin { }` / `jvmToolchain` / `android.kotlinOptions` on Android modules — AGP 9+ built-in Kotlin follows `compileOptions`

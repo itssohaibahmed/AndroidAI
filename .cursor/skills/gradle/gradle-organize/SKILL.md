@@ -42,9 +42,8 @@ When you change section headers or catalog layout here, also update `gradle-upda
 ```toml
 [versions]
 # -------------- Plugins -------------- #
-agp = "…"
-kotlin = "…"
-# google services / crashlytics gradle / safe-args plugin versions…
+agp = "…"   # latest stable 9.x — never 8.x after gradle-update
+# kotlin version key: only if Compose Compiler plugin is applied. Never for kotlin-android.
 
 # -------------- Dependencies -------------- #
 coreKtx = "…"
@@ -100,12 +99,13 @@ Put Android Core libs **first without a header** (or under an implied core group
 |---------------|------------|------------------------------------------------|
 | Version key   | camelCase  | `coreKtx`, `koinAndroid`                       |
 | Library alias | kebab-case | `androidx-core-ktx` → `libs.androidx.core.ktx` |
-| Plugin alias  | kebab-case | `android-application`, `navigation-safe-args`  |
+| Plugin alias  | kebab-case | `android-application`, `android-library`, `navigation-safe-args` |
 
 - One shared version key per family (`lifecycle` for viewmodel/runtime/process)
 - Prefer `group` + `name` + `version.ref`
 - Comment out unused with `#` — keep under the correct section
 - **Never** leave hardcoded `"g:a:v"` in module scripts — move into catalog (`gradle-update` must migrate + bump these, not only catalog keys)
+- **Never** catalog or apply `org.jetbrains.kotlin.android` / `kotlin-android` / `kotlin-kapt`. AGP 9+ has built-in Kotlin. Compose apps may keep `kotlin-compose` (`org.jetbrains.kotlin.plugin.compose`) only.
 
 ---
 
@@ -133,12 +133,13 @@ Reorder existing content into this order. **Add** missing `signingConfigs` and `
 5. `buildTypes` (`debug`, then `release`)
 6. `buildFeatures`
 7. `compileOptions`
-8. `kotlin` / `jvm` / `jvmToolchain` — **only if already in the project**; do not invent
-9. **`bundle`** (always)
+8. **`bundle`** (always)
+
+Do **not** add `kotlin { }` / `jvm` / `jvmToolchain` / `android.kotlinOptions` — AGP 9+ built-in Kotlin uses `compileOptions` only.
 
 Then:
 
-10. **`base { archivesName = "…" }`** — outside `android`, before `dependencies`
+9. **`base { archivesName = "…" }`** — outside `android`, before `dependencies`
 
 #### `signingConfigs` rules (always)
 
@@ -166,18 +167,18 @@ Keep the same **relative** order. **Do not add** what does not belong:
 
 | Section                    | Include?                                                  |
 |----------------------------|-----------------------------------------------------------|
-| `plugins`                  | Yes (`android.library` + extras the module already needs) |
+| `plugins`                  | Yes (`android.library` / `android.application` + extras the module already needs). **Never** `kotlin-android` |
 | `namespace` / `compileSdk` | Yes                                                       |
 | `defaultConfig`            | `minSdk` only — no `applicationId` / versions             |
 | `signingConfigs`           | **No**                                                    |
 | `buildTypes`               | Yes — minify **off** for debug + release                  |
 | `buildFeatures`            | Only if UI / needed (`viewBinding`, `compose = true`, `buildConfig`)        |
 | `compileOptions`           | Yes                                                       |
-| `kotlin` / `jvm`           | Only if already present                                   |
+| `kotlin` / `jvm` / `kotlinOptions` | **No** — built-in Kotlin                           |
 | `bundle`                   | **No**                                                    |
 | `base`                     | **No**                                                    |
 
-`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. **compose:** `:app`, `:core-design`, `:feature-*` get `compose = true` + `kotlin.compose`. Use the library template in [reference/gradle.md](../../../rules/reference/gradle.md).
+`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. **compose:** `:app`, `:core-design`, `:feature-*` get `compose = true` + Compose Compiler plugin (`kotlin-compose`) — **not** `kotlin-android`. Use the library template in [reference/gradle.md](../../../rules/reference/gradle.md).
 
 ---
 
@@ -275,6 +276,7 @@ dependencies {
 - [ ] No hardcoded Maven coordinates in `*.gradle.kts`
 - [ ] Aliases kebab-case; version keys camelCase
 - [ ] Sync/build still works (`assembleDebug` if practical)
+- [ ] AGP 9+; no `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions` on modules or in the catalog
 - [ ] Module boundaries unchanged (UI modules still must not depend on `:data`)
 
 ## Report to user
@@ -297,4 +299,5 @@ dependencies {
 - Break `api` vs `implementation` semantics
 - Add `signingConfigs` / `bundle` / `base` to library modules
 - Invent keystore passwords or commit secrets into docs
-- Add `kotlin`/`jvm` blocks to modules that never had them
+- Add `kotlin-android`, `kotlin-kapt`, `android.kotlinOptions`, `jvmToolchain`, or `android.builtInKotlin=false`
+- Add `kotlin`/`jvm` blocks to Android modules

@@ -23,7 +23,7 @@ Canonical structure: AnimeHub (`:feature-*`, `:core-design`, `:app` `NavGraph.kt
 - Root `NavHost` in `:app` `navigation/NavGraph.kt`; nested graphs for tabs (content slots, not feature→feature deps)
 - Features **never** take `NavController` — `onNavigate*` lambdas only; ViewModel emits Effects
 - Material3 + `AppTheme` from `:core-design`; strings in `:core-ui`; Coil `AsyncImage` for remote images
-- `buildFeatures { compose = true }` + `org.jetbrains.kotlin.plugin.compose`; Compose BOM via catalog
+- `buildFeatures { compose = true }` + Compose Compiler plugin (`org.jetbrains.kotlin.plugin.compose` / `kotlin-compose`) — **not** `kotlin-android`. Compose BOM via catalog
 - Feature modules depend on `:domain` + `:core-*` — **never** `:data` or other `:feature-*`
 - Previews wrap `AppTheme`; inline `dp`/`sp` multiples of 4; no `dimens.xml`
 

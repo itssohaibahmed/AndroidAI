@@ -188,7 +188,7 @@ dependencies {
 
 `:app` also: `activity-compose`, `navigation-compose`. Images: Coil 3 (`coil-compose` + `coil-network-okhttp`) on feature modules that load images — **not** Glide.
 
-Catalog keys (latest stable on add): `composeBom`, `navigationCompose`, `activityCompose`, `coilCompose`, plugin `kotlin-compose`.
+Catalog keys (latest stable on add): `composeBom`, `navigationCompose`, `activityCompose`, `coilCompose`, plugin `kotlin-compose` (`org.jetbrains.kotlin.plugin.compose` — Compose Compiler, **not** `kotlin-android`).
 
 Do **not** enable View Binding on Compose-only feature modules. XML `:core-ui` may still use resources without View Binding if it has no layouts.
 

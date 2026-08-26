@@ -1,26 +1,27 @@
 ---
 name: gradle-update
-description: Bump all project dependencies to latest stable — convert Groovy → Kotlin DSL when needed, bump catalog versions and any hardcoded group:artifact:version in modules. Migrate hardcodes into libs.versions.toml (create catalog if missing) and place deps under gradle-organize sections. Does not add brand-new libraries without approval.
+description: Bump all project dependencies to latest stable — AGP 9+ with built-in Kotlin (remove kotlin-android / kotlin-kapt). Convert Groovy → Kotlin DSL when needed, bump catalog versions and any hardcoded group:artifact:version in modules. Migrate hardcodes into libs.versions.toml (create catalog if missing) and place deps under gradle-organize sections. Does not add brand-new libraries without approval.
 ---
 
 # Gradle Update
 
 Follow `.claude/rules/08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md), `13-libraries-stack.md`.
 
-This skill **bumps versions**. Section order / catalog layout → **`gradle-organize`** (run its logic as part of this flow when hardcodes or section placement are wrong). Groovy `*.gradle` → Kotlin DSL → do that **before** bumping (same conversion contract as `setup-old-project` Step 2).
+This skill **bumps versions**. Section order / catalog layout → **`gradle-organize`** (run its logic as part of this flow when hardcodes or section placement are wrong). Groovy `*.gradle` → Kotlin DSL → do that **before** bumping (same conversion contract as `setup-old-project` Step 2). Then **AGP 9+ / built-in Kotlin** (Step 0.5) before or with the AGP bump.
 
 When you change this skill’s Gradle behavior, also update the Gradle cluster: `gradle-organize`, `setup-old-project` (+ `migration.md`), `08-gradle` + `reference/gradle.md`, and `.cursor` twins (`MUST_READ_BEFORE_SKILL_CHANGES.md`).
 
 ## Scope
 
 1. **Groovy → Kotlin DSL** when any `build.gradle` / `settings.gradle` (non-`.kts`) remains
-2. **All** dependency versions in the project:
+2. **AGP 9+** (latest stable 9.x) with **built-in Kotlin** — remove `org.jetbrains.kotlin.android` / `kotlin-android` / `kotlin-kapt` (see Step 0.5)
+3. **All** dependency versions in the project:
     - `gradle/libs.versions.toml` `[versions]` (and shared plugin/library refs)
     - **Hardcoded** `"group:artifact:version"` / `group: "…", name: "…", version = "…"` in every `*.gradle.kts` / `*.gradle`
-3. Create or extend `gradle/libs.versions.toml` if missing or incomplete
-4. Root / module scripts only when a plugin id or apply style must change
-5. Prefer **latest stable** — no alphas/betas/RCs unless user asks
-6. **Do not** introduce brand-new libraries the project never had — migrating an **existing** hardcoded dep into the catalog **is required** and is not a “new library”
+4. Create or extend `gradle/libs.versions.toml` if missing or incomplete
+5. Root / module scripts only when a plugin id or apply style must change
+6. Prefer **latest stable** — no alphas/betas/RCs unless user asks
+7. **Do not** introduce brand-new libraries the project never had — migrating an **existing** hardcoded dep into the catalog **is required** and is not a “new library”
 
 ## Steps (mandatory)
 
@@ -35,6 +36,22 @@ If the repo still has Groovy Gradle scripts:
 5. Same conversion rules as `setup-old-project` Step 2 / [migration.md](../setup-old-project/migration.md) — keep those docs aligned when this step changes
 
 Do **not** leave a mix of Groovy and Kotlin DSL module scripts after this skill finishes.
+
+### 0.5 — AGP 9+ / built-in Kotlin (mandatory)
+
+AGP 9+ compiles Kotlin **without** the Kotlin Android plugin. Keep module scripts simple: `com.android.application` / `com.android.library` (+ google-services / crashlytics / safe-args / parcelize / **compose compiler** when needed).
+
+If AGP is below 9 **or** any file still applies `org.jetbrains.kotlin.android` / `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions`:
+
+1. Bump catalog `agp` to the **latest stable 9.x**. Never leave 8.x after this skill.
+2. Bump the Gradle wrapper to the version that AGP 9 requires (see current AGP release notes).
+3. **Remove** `org.jetbrains.kotlin.android` and `kotlin-android` from every module `plugins { }`, the root `plugins { }` (`apply false`), and `[plugins]` in `libs.versions.toml`.
+4. Drop catalog `kotlin = "…"` **unless** the app still needs it for the **Compose Compiler** plugin (`org.jetbrains.kotlin.plugin.compose` / `kotlin-compose`). That plugin is **not** `kotlin-android`.
+5. Remove `android.kotlinOptions { }` and leftover `kotlin { }` / `jvmToolchain` on Android modules. JVM target follows `compileOptions` (Java 17).
+6. If the project uses **kapt**: migrate to **KSP**. Do **not** add `com.android.legacy-kapt`.
+7. Remove `android.builtInKotlin=false` and `android.newDsl=false` from `gradle.properties` if present — migrate; do not opt out.
+
+Do **not** re-add `kotlin-android` to “fix” a Compose or annotation-processor build.
 
 ### 1 — Inventory
 
@@ -51,7 +68,7 @@ For **each** inventoried artifact (catalog **and** hardcoded), look up the lates
 
 Example: Glide `com.github.bumptech.glide:glide` — bump `5.0.5` → current stable (e.g. `5.0.9`), never leave an old hardcoded pin.
 
-Keep AGP ↔ Kotlin ↔ KSP ↔ Gradle wrapper compatible.
+Keep **AGP 9+** ↔ Gradle wrapper compatible. Built-in Kotlin ships with AGP — do not pin `org.jetbrains.kotlin.android`. If KSP or Compose Compiler is present, use versions that match the AGP-bundled Kotlin (AGP upgrades a too-old KSP automatically).
 
 ### 3 — Migrate hardcodes into the catalog (before or while bumping)
 
@@ -68,7 +85,7 @@ If the catalog file does not exist → **create** `gradle/libs.versions.toml` in
 
 - Update `[versions]` only (aliases with `version.ref` follow)
 - One shared key per family (`lifecycle`, `koin`, …)
-- Update AGP/Kotlin/KSP/wrapper together when required
+- Update AGP 9+ / wrapper together; drop `kotlin-android`. Compose Compiler / KSP only if the project already uses them
 
 ### 5 — Apply `gradle-organize` placement
 
@@ -89,6 +106,7 @@ After bumps/migrations:
 ## Gradle update summary
 
 - Groovy → Kotlin DSL: … (converted / already .kts / none found)
+- AGP 9+ / built-in Kotlin: … (agp version; kotlin-android removed / already gone)
 - Bumped (catalog): …
 - Bumped / migrated (was hardcoded): … (e.g. Glide 5.0.5 → 5.0.9 → libs.glide)
 - Catalog created / extended: …
@@ -105,7 +123,8 @@ After bumps/migrations:
 - Skip bumping a dep because it was hardcoded instead of in the catalog
 - Add Compose / Hilt / new stacks the project never used (`13-libraries-stack`) without approval. **Exception:** when `uiFramework` is `compose`, bumping the existing Compose BOM / Navigation Compose / Coil is in scope
 - Change `api` vs `implementation` casually
-- Force incompatible AGP/Kotlin pairs
+- Leave AGP 8.x, or keep `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions` / `android.builtInKotlin=false` after an update run
+- Force incompatible AGP / Gradle-wrapper pairs
 - Commit secrets from `local.properties`
 - Dump new catalog entries at the bottom without the correct section comment
 - Change only this skill when Groovy → DSL / catalog / organize rules change — update the whole Gradle cluster (`MUST_READ_BEFORE_SKILL_CHANGES.md`)
