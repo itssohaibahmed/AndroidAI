@@ -118,7 +118,7 @@ Do **not** add `useCaseModule` / `dataModule` entries here — that belongs to `
 - [ ] No `:presentation` → `:data` and no `:feature-*` → `:data`
 - [ ] No new domain/data files created by this skill
 - [ ] Portrait + landscape (or per `project-settings.json`)
-- [ ] ProGuard keeps `state`/`intent`/`effect`/`model` packages (presentation **or** feature)
+- [ ] `src/main/keepRules/*.keep` keeps `state`/`intent`/`effect`/`model` packages (presentation **or** feature)
 - [ ] No business logic in Fragment / `*ScreenContent` beyond render + intent dispatch
 - [ ] xml: Fragment collectors use `viewLifecycleOwner`; nav via `navigateTo` / `popFrom`; member order per `19-base-ui`
 - [ ] compose: `*Screen` / `*ScreenContent` split; route const; NavGraph entry; `koinViewModel`; no `NavController` in feature

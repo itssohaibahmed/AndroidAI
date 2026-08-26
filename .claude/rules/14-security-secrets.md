@@ -33,8 +33,9 @@ description: Secrets, API keys, and security practices
 - Dangerous permissions at runtime only when required
 - Explain permission need to user before system prompt (via in-app UX)
 
-## ProGuard / R8
+## R8
 
-- Enable on release builds
+- Enable on `:app` **release** via `optimization { enable = true }` (AGP 9.3+ — code shrinking **and** resource shrinking)
+- Keep rules in `src/main/keepRules/*.keep` (app **and** library modules that need them) — not `proguard-rules.pro`
 - Keep rules for serialized models and reflection-used MVI classes
 - Do not disable obfuscation to "fix" crashes — add targeted keep rules

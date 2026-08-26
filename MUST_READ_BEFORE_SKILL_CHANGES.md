@@ -54,7 +54,7 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 
 | If you change…                          | Also update…                                                                                                                                                                      |
 |-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **`gradle/gradle-update`**              | `gradle/gradle-organize`, Groovy → Kotlin DSL + **AGP 9+ / built-in Kotlin** in `project/setup-old-project` (+ `migration.md`), `08-gradle.mdc`, `rules/reference/gradle.md`, `.claude` Gradle twins       |
+| **`gradle/gradle-update`**              | `gradle/gradle-organize`, Groovy → Kotlin DSL + **AGP 9.3+ / built-in Kotlin / R8 `optimization` + `keepRules`** in `project/setup-old-project` (+ `migration.md`), `08-gradle.mdc`, `rules/reference/gradle.md`, `.claude` Gradle twins       |
 | **`gradle/gradle-organize`**            | `gradle-update`, `setup-new-project` / `setup-old-project` Gradle steps, `08` + `reference/gradle.md`                                                                             |
 | **Groovy → Kotlin DSL guidance**        | Lives in / must stay aligned with **`gradle-update`** (convert before bump) **and** `setup-old-project` Step 2 / `migration.md`; do not teach Groovy conversion in only one place |
 | **`setup-design-system`**               | Skill `reference.md`, color/theme notes in `09` / `reference/resources-xml.md` if invariants change, `.claude` twin                                                               |
@@ -233,7 +233,7 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 ### Updates (deps, Gradle, platform)
 
 1. Prefer updating `gradle/gradle-update`, `gradle/gradle-organize`, or `08` / `reference/gradle.md` — **and always the whole Gradle cluster together** (including Groovy → Kotlin DSL in `gradle-update` + `setup-old-project`).
-2. **`gradle-update`** must: convert remaining Groovy `*.gradle` → Kotlin DSL when present; bump to **AGP 9+** and remove `kotlin-android` / `kotlin-kapt`; bump catalog **and** hardcoded `"g:a:v"` lines; migrate them into `libs.versions.toml`; place under organize section headers.
+2. **`gradle-update`** must: convert remaining Groovy `*.gradle` → Kotlin DSL when present; bump to **AGP 9.3+** and remove `kotlin-android` / `kotlin-kapt`; migrate R8 to `optimization { enable = true }` + `src/main/keepRules/*.keep`; bump catalog **and** hardcoded `"g:a:v"` lines; migrate them into `libs.versions.toml`; place under organize section headers.
 3. Library allow/deny list → `13-libraries-stack.mdc`.
 4. No new libraries without explicit human approval (`00-global`) — migrating an existing hardcode into the catalog is required, not a new library.
 

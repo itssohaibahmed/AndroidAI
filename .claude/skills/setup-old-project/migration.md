@@ -7,7 +7,8 @@ Companion to [SKILL.md](SKILL.md). Target architecture: [setup-new-project](../s
 | Current setup                                            | Action                                                                                                                   |
 |----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | Gradle Groovy (`build.gradle`, `settings.gradle`)        | Convert to Kotlin DSL + Version Catalog. Keep versions. Same contract as **`gradle-update` Step 0** — keep both aligned. |
-| AGP 8.x / `kotlin-android` / `kotlin-kapt`               | Bump **AGP 9+**. Remove `org.jetbrains.kotlin.android`. Built-in Kotlin. kapt → KSP if needed. Do **not** set `android.builtInKotlin=false`. |
+| AGP 8.x / 9.0–9.2 / `kotlin-android` / `kotlin-kapt` | Bump **AGP 9.3+**. Remove `org.jetbrains.kotlin.android`. Built-in Kotlin. kapt → KSP if needed. Do **not** set `android.builtInKotlin=false`. `compileOptions` → `VERSION_21`. `compileSdk` → 37.1 block. |
+| `isMinifyEnabled` / `proguardFiles` / `proguard-rules.pro` | Migrate to `optimization { enable = true }` on `:app` release + `src/main/keepRules/*.keep` (`gradle-update` Step 0.6). Resource shrinking stays on. |
 | No `libs.versions.toml`                                  | Move existing `g:a:v` into the catalog at the **same** versions.                                                         |
 | Single-module `:app`                                     | Create mandatory modules; **move** code out of `:app`.                                                                   |
 | Some modules already exist                               | Fill gaps only; do not rename a working module without need.                                                             |
@@ -32,11 +33,11 @@ Companion to [SKILL.md](SKILL.md). Target architecture: [setup-new-project](../s
 | AdMob / mediation / `:gmaAds`                            | Keep architecture. Relocate module if ads live in `:app`. Not MVI.                                                       |
 | Play Billing                                             | Keep purchase flow; domain interface + `:data` impl if extracting.                                                       |
 | `google-services.json` / `google-services` plugin        | Stay on `:app`.                                                                                                          |
-| ProGuard / R8 keep rules                                 | Keep; point at new class names after moves.                                                                              |
+| ProGuard / R8 keep rules                                 | Keep; move into `src/main/keepRules/*.keep`; point at new class names after moves. Delete `.pro` files. |
 | Product flavors / build types                            | Keep.                                                                                                                    |
 | Portrait lock in manifest                                | Remove only if `orientation` is `both` or `landscape`. If user chose `portrait`, keep the lock.                          |
 | No `values-night`                                        | Add only if `themeModes` is `night` or `both`.                                                                           |
-| Old `compileSdk` / AGP blocking KTS/catalog/View Binding | Minimum bump to compile; report it. If AGP is still < 9, bump to AGP 9+ and drop `kotlin-android`. |
+| Old `compileSdk` / AGP blocking KTS/catalog/View Binding | Minimum bump to compile; report it. If AGP is still < 9.3, bump to AGP 9.3+ and drop `kotlin-android`. Use compileSdk 37.1. |
 
 ## Extract example — API in an Activity
 

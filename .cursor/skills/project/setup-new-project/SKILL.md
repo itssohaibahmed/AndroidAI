@@ -77,7 +77,7 @@ core-common / core-ui / core-platform  (+ :core-design when compose)
 Follow `08-gradle.mdc` + [reference/gradle.md](../../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
 
 1. `settings.gradle.kts` — `include` all modules above
-2. Root plugins `apply false` via catalog; **latest stable AGP 9+**. Do **not** apply `org.jetbrains.kotlin.android` — AGP has built-in Kotlin.
+2. Root plugins `apply false` via catalog; **latest stable AGP 9.3+**. Do **not** apply `org.jetbrains.kotlin.android` — AGP has built-in Kotlin. `compileSdk { version = release(37) { minorApiLevel = 1 } }`; `targetSdk = 37`; `compileOptions` `VERSION_21`; first build `versionName = "1.0.1"`.
 3. Catalog sections/naming per `08-gradle.mdc` / `gradle-organize`
 4. Dependency graph: UI modules (`:presentation` or `:feature-*`) **never** → `:data`; `domain` → coroutines only
 5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. **compose:** Compose Compiler plugin (`kotlin-compose`) + `buildFeatures { compose = true }` on `:app`, `:core-design`, `:feature-*` — **not** `kotlin-android`; Compose BOM + Navigation Compose + Coil 3 + `koin-androidx-compose` in catalog (latest stable). No View Binding on feature modules.
@@ -100,6 +100,8 @@ Copy the `:app` and library shapes from [reference/gradle.md](../../../rules/ref
 | `signingConfigs`        | Always — search `*.jks` in root then `app/`; set `storeFile` if found; else empty strings; do not invent passwords       |
 | `bundle`                | Always `language { enableSplit = false }`                                                                                |
 | `base.archivesName`     | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known              |
+| First versions          | `versionCode = 1`, `versionName = "1.0.1"`                                                                               |
+| R8                      | `:app` release `optimization { enable = true }` (code **and** resource shrinking). Keep rules in `src/main/keepRules/*.keep` on `:app` and on library modules that need them. Copy [templates/keepRules/](templates/keepRules/). **No** `proguardFiles` / `isMinifyEnabled` / `isShrinkResources` |
 
 **Library modules** (`:presentation` xml, `:feature-*` compose, `:data`, `:domain`, `:core-*`): same relative order; **omit** `signingConfigs`, `bundle`, `base`, and app-only `defaultConfig` fields. xml UI modules get View Binding; compose UI modules get `compose = true`; `:domain` / `:core-common` may omit `buildFeatures`.
 
@@ -399,6 +401,8 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] **compose** modules: app, domain, data, core-design, feature-entrance, core-common, core-ui, core-platform — **no** `:presentation`
 - [ ] `:app` `android` section order: defaultConfig → signingConfigs → buildTypes → buildFeatures → compileOptions → bundle
 - [ ] `:app` has `signingConfigs` (`.jks` path if found, else empty strings) + `bundle.language.enableSplit = false` + `base.archivesName`
+- [ ] `:app` release `optimization { enable = true }`; `src/main/keepRules/rules.keep` on `:app` and on `:domain` / UI modules; no `proguard-rules.pro`
+- [ ] `compileSdk` 37.1 block, `targetSdk = 37`, `versionName = "1.0.1"`, `compileOptions` `VERSION_21`
 - [ ] Library modules omit `signingConfigs` / `bundle` / `base`
 - [ ] UseCases + repo interfaces only in `:domain`; `dataModule` has `//// DataSources` then `//// Repositories`
 - [ ] All DI uses `lazyModule` / `lazyModules` only; theme applied after `startKoin` (no `GlobalContext` probes)

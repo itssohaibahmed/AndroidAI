@@ -26,14 +26,18 @@ plugins {
 
 android {
     namespace = "com.company.app"
-    compileSdk = 37 // or compileSdk { version = release(37) { minorApiLevel = 1 } } if project uses it
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "com.company.app"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.1" // first Play / store build; bump both code + name together after that
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -49,14 +53,13 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".testing"
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // no optimization — debug stays unminified
         }
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            optimization {
+                enable = true // R8 code shrinking + optimized resource shrinking (AGP 9.3+)
+            }
         }
     }
 
@@ -66,8 +69,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     bundle {
@@ -89,12 +92,12 @@ Same section order as `:app`, but **do not add** app-only pieces:
 | Section                 | Library modules                                                    |
 |-------------------------|--------------------------------------------------------------------|
 | `plugins`               | `android.library` (+ parcelize / safe-args / `kotlin-compose` when needed). **Never** `kotlin-android` |
-| `compileSdk`            | Yes                                                                |
+| `compileSdk`            | Yes — same `release(37) { minorApiLevel = 1 }` block as `:app`     |
 | `defaultConfig`         | `minSdk` only (no `applicationId` / `versionCode` / `versionName`) |
 | `signingConfigs`        | **Never**                                                          |
-| `buildTypes`            | Yes — `isMinifyEnabled = false` for debug + release                |
+| `buildTypes`            | **Omit** unless flavors already exist. Never `optimization.enable`, `isMinifyEnabled`, or `proguardFiles` |
 | `buildFeatures`         | xml UI: View Binding / `buildConfig`. compose `:feature-*` / `:core-design`: `compose = true` (no View Binding) |
-| `compileOptions`        | Yes (Java 17)                                                      |
+| `compileOptions`        | Yes (Java 21)                                                      |
 | `kotlin` / `jvm` / `kotlinOptions` | **Never** — AGP 9+ built-in Kotlin                        |
 | `bundle`                | **Never** (app only)                                               |
 | `base` / `archivesName` | **Never** (app only)                                               |
@@ -106,21 +109,14 @@ plugins {
 
 android {
     namespace = "com.company.app.presentation"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         minSdk = 24
-    }
-
-    buildTypes {
-        debug {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
-        release {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
     }
 
     buildFeatures {
@@ -129,11 +125,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 ```
+
+Library keep rules (consumer rules for the app’s R8 pass) live in `src/main/keepRules/*.keep` — **not** `consumerProguardFiles` / `proguard-rules.pro`. See **R8** below.
 
 ### `signingConfigs` (always on `:app`)
 
@@ -209,7 +207,7 @@ Keep **three** TOML tables. Inside `[versions]` and `[libraries]`, use the **sam
 ```toml
 [versions]
 # -------------- Plugins -------------- #
-agp = "…"   # latest stable 9.x
+agp = "…"   # latest stable 9.x (9.3+)
 
 # -------------- Dependencies -------------- #
 coreKtx = "â€¦"
@@ -271,7 +269,7 @@ implementation("androidx.core:core-ktx:1.12.0")
 - When **adding** or **updating** any dependency/plugin, use the **latest stable** release available at that time
 - Look up current versions (Maven Central / Google Maven / library docs) — do not copy stale versions from memory or old projects
 - Prefer stable over alpha/beta/rc unless the user explicitly asks for a pre-release
-- Keep **AGP 9+** (latest stable 9.x) and the Gradle wrapper compatible when bumping. Do **not** apply `org.jetbrains.kotlin.android`
+- Keep **AGP 9.3+** (latest stable 9.x) and the Gradle wrapper compatible when bumping. Do **not** apply `org.jetbrains.kotlin.android`
 - Update the version in `[versions]` only — all aliases using `version.ref` pick it up
 - When scaffolding a new project (`setup-new-project`), seed the catalog with latest stable for the whole core stack
 - **`setup-new-project` mandatory:** Firebase BOM + `firebase-analytics` / `firebase-crashlytics` / `firebase-messaging` on **`:core-platform`**; `firebase-config` + `kotlinx-coroutines-play-services` on **`:data`** (see `implement-firebase-messaging` — no MessagingService). Place `kotlinx-coroutines-play-services` under `# Kotlin Coroutines` / `// Kotlin Coroutines`.
@@ -281,7 +279,7 @@ implementation("androidx.core:core-ktx:1.12.0")
 When the user runs **`gradle-update`** (or asks to bump dependencies):
 
 1. If Groovy `build.gradle` / `settings.gradle` remain → convert to Kotlin DSL **first** (same contract as `setup-old-project` Step 2 / `gradle-update` Step 0). Keep versions during conversion; bump after.
-2. Bump to **AGP 9+**. Remove `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions` / `android.builtInKotlin=false` (`gradle-update` Step 0.5). Built-in Kotlin — do not re-add the Kotlin Android plugin.
+2. Bump to **AGP 9.3+** (latest stable 9.x). Remove `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions` / `android.builtInKotlin=false` (`gradle-update` Step 0.5). Built-in Kotlin — do not re-add the Kotlin Android plugin. Then migrate legacy minify/ProGuard to `optimization { enable = true }` + `src/main/keepRules/*.keep` (Step 0.6).
 3. Inventory **both** `libs.versions.toml` `[versions]` **and** every hardcoded `"group:artifact:version"` in module Gradle scripts
 4. Resolve latest stable for **each** (do not skip Glide / ads / Firebase / etc. because they were hardcoded)
 5. If `gradle/libs.versions.toml` is missing → **create** it (`[versions]` / `[plugins]` / `[libraries]` + section comments per this doc / `gradle-organize`)
@@ -313,9 +311,11 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 ## SDK defaults (adjust only on project-wide request)
 
 - minSdk = 24
-- targetSdk / compileSdk = **37** (bump when a newer platform ships)
-- Java 17 compatibility (`compileOptions`)
-- **AGP 9+** with built-in Kotlin (no `kotlin-android` plugin)
+- **compileSdk 37.1** via `compileSdk { version = release(37) { minorApiLevel = 1 } }`
+- **targetSdk = 37**
+- First store build: `versionCode = 1`, `versionName = "1.0.1"` (new projects only — never rewrite an existing app’s versions)
+- Java 21 (`compileOptions` `VERSION_21`). No `kotlinOptions` / `kotlin { }` / `jvmToolchain`
+- **AGP 9.3+** (latest stable 9.x) with built-in Kotlin (no `kotlin-android` plugin). Pair the Gradle wrapper with that AGP (Android Studio new projects: AGP 9.3.2 + Gradle 9.7.1 — look up the current pair)
 - Kotlin official code style
 
 ## Dependency scope
@@ -334,30 +334,63 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 - Feature modules must not depend on each other directly
 - xml UI modules: View Binding on — never Data Binding
 - compose `:feature-*` / `:core-design`: `buildFeatures { compose = true }` + Compose Compiler plugin (`kotlin-compose`) — never `kotlin-android`, never Data Binding, skip View Binding
-- App release: minify + shrink; library modules: minify off
+- App release: R8 on (`optimization { enable = true }` — code **and** resource shrinking). Library modules: do **not** enable optimization
 
 ## Build types
 
-- Debug (`:app`): `applicationIdSuffix = ".testing"`, no minify
-- Release (`:app`): `signingConfig = signingConfigs.getByName("release")`, minify + shrink + ProGuard/R8
-- Library modules: minify off for both debug and release
+- Debug (`:app`): `applicationIdSuffix = ".testing"`. No `optimization` block (R8 off)
+- Release (`:app`): `signingConfig = signingConfigs.getByName("release")` + `optimization { enable = true }`
+- Library modules: omit `buildTypes` unless flavors already exist. Never `optimization.enable` / `isMinifyEnabled` / `proguardFiles`
 - Prefer no product flavors unless product requires them
 - Signing: always declare `signingConfigs` on `:app` (see above); passwords empty unless already present in the project — prefer CI / `local.properties` over committing secrets
 
-## ProGuard
+## R8 (AGP 9.3+ — recommended)
 
-- Keep rules in **app** module only unless module-specific needs arise
-- Preserve (adjust package to app id):
-    - `domain.entity.**`
-    - `presentation.**.state.**` / `intent.**` / `effect.**` / `model.**`
-    - `feature.**.state.**` / `intent.**` / `effect.**` / `model.**` (compose)
-    - ads entity packages when ads module exists
-- Keep Parcelable/Serializable names; keep SourceFile/LineNumberTable for Crashlytics
-- `android.enableR8.fullMode=true` when project uses it
-- Library modules: `isMinifyEnabled = false` typically
+Do **not** use the legacy DSL on AGP 9.3+: no `isMinifyEnabled`, `isShrinkResources`, `proguardFiles()`, `consumerProguardFiles()`, or `proguard-rules.pro`.
+
+`optimization { enable = true }` on `:app` **release** is the replacement for `isMinifyEnabled = true` + `isShrinkResources = true`. It turns on R8 code shrinking **and** optimized resource shrinking together. Default Android platform keep rules (equivalent to `proguard-android-optimize.txt`) are included automatically. Set `optimization.keepRules.includeDefault = false` only if you must manage every rule yourself.
+
+### Keep rules files (`*.keep`)
+
+Put rules in `src/main/keepRules/` with a `.keep` suffix (e.g. `src/main/keepRules/rules.keep`). AGP combines every `.keep` file in that source set. **Do not** declare the files in Gradle.
+
+Place rules **next to the code they protect**:
+
+| Module | File | Typical keeps |
+|--------|------|----------------|
+| `:app` | `app/src/main/keepRules/rules.keep` | SourceFile/LineNumberTable (Crashlytics), Parcelable `CREATOR` |
+| `:domain` | `…/src/main/keepRules/rules.keep` | `domain.entity.**` |
+| `:presentation` (xml) | `…/src/main/keepRules/rules.keep` | `presentation.**.state.**` / `intent.**` / `effect.**` / `model.**` |
+| `:feature-*` (compose) | `…/src/main/keepRules/rules.keep` | `feature.**.state.**` / `intent.**` / `effect.**` / `model.**` |
+| `:gmaAds` (when present) | `…/src/main/keepRules/rules.keep` | ads entity packages |
+| `:data` | only if Room minify breaks entities | Room `@Entity` types |
+
+Library `.keep` files are **consumer rules** — packaged into the AAR and applied when the app runs R8. That replaces `consumerProguardFiles("consumer-rules.pro")`.
+
+```
+# app/src/main/keepRules/rules.keep
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+-keep class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
+```
+
+Do **not** disable obfuscation to “fix” crashes — add a targeted keep instead.
+
+### Migrating old ProGuard files
+
+When `proguard-rules.pro` / `consumer-rules.pro` / `proguardFiles` / `isMinifyEnabled` still exist (`gradle-update` Step 0.6 / `setup-old-project`):
+
+1. Copy rule bodies into `src/main/keepRules/rules.keep` on the **same module** (create the folder). Update class names if packages moved.
+2. Delete the `.pro` files.
+3. `:app` release: replace minify/shrink/`proguardFiles` with `optimization { enable = true }`. Drop those lines from debug.
+4. Libraries: remove `buildTypes` minify/`proguardFiles` and `consumerProguardFiles`. Keep rules stay in `src/main/keepRules/*.keep` only.
+
+Do **not** leave a mix of legacy minify DSL and `optimization { }` on the same build type.
 
 ## Other
 
 - **Always** set `bundle.language.enableSplit = false` on `:app` (all locales in one APK/AAB)
 - Enable core library desugaring when using `java.time` below API 26
-- Do **not** add `kotlin { }` / `jvmToolchain` / `android.kotlinOptions` on Android modules — AGP 9+ built-in Kotlin follows `compileOptions`
+- Do **not** add `kotlin { }` / `jvmToolchain` / `android.kotlinOptions` on Android modules — AGP 9+ built-in Kotlin follows `compileOptions` (`VERSION_21`)

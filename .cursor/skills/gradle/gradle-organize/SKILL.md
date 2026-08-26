@@ -42,7 +42,7 @@ When you change section headers or catalog layout here, also update `gradle-upda
 ```toml
 [versions]
 # -------------- Plugins -------------- #
-agp = "…"   # latest stable 9.x — never 8.x after gradle-update
+agp = "…"   # latest stable 9.x (9.3+) — never 8.x after gradle-update
 # kotlin version key: only if Compose Compiler plugin is applied. Never for kotlin-android.
 
 # -------------- Dependencies -------------- #
@@ -135,7 +135,13 @@ Reorder existing content into this order. **Add** missing `signingConfigs` and `
 7. `compileOptions`
 8. **`bundle`** (always)
 
-Do **not** add `kotlin { }` / `jvm` / `jvmToolchain` / `android.kotlinOptions` — AGP 9+ built-in Kotlin uses `compileOptions` only.
+Do **not** add `kotlin { }` / `jvm` / `jvmToolchain` / `android.kotlinOptions` — AGP 9+ built-in Kotlin uses `compileOptions` (`VERSION_21`) only.
+
+`:app` `compileSdk` must be the 37.1 block (`release(37) { minorApiLevel = 1 }`). `targetSdk = 37`. New apps: `versionName = "1.0.1"` (do not rewrite existing versions while organizing).
+
+`:app` `buildTypes`:
+- `debug` — `applicationIdSuffix = ".testing"` only (no R8)
+- `release` — `signingConfig` + `optimization { enable = true }` (code **and** resource shrinking). No `isMinifyEnabled` / `isShrinkResources` / `proguardFiles`
 
 Then:
 
@@ -168,12 +174,12 @@ Keep the same **relative** order. **Do not add** what does not belong:
 | Section                    | Include?                                                  |
 |----------------------------|-----------------------------------------------------------|
 | `plugins`                  | Yes (`android.library` / `android.application` + extras the module already needs). **Never** `kotlin-android` |
-| `namespace` / `compileSdk` | Yes                                                       |
+| `namespace` / `compileSdk` | Yes — same `release(37) { minorApiLevel = 1 }` block      |
 | `defaultConfig`            | `minSdk` only — no `applicationId` / versions             |
 | `signingConfigs`           | **No**                                                    |
-| `buildTypes`               | Yes — minify **off** for debug + release                  |
+| `buildTypes`               | **Omit** unless flavors already exist. Never `optimization.enable` / `isMinifyEnabled` / `proguardFiles` |
 | `buildFeatures`            | Only if UI / needed (`viewBinding`, `compose = true`, `buildConfig`)        |
-| `compileOptions`           | Yes                                                       |
+| `compileOptions`           | Yes — `VERSION_21`                                        |
 | `kotlin` / `jvm` / `kotlinOptions` | **No** — built-in Kotlin                           |
 | `bundle`                   | **No**                                                    |
 | `base`                     | **No**                                                    |
@@ -269,14 +275,15 @@ dependencies {
 
 - [ ] Catalog has Plugins + Dependencies section banners under `[versions]`
 - [ ] `[libraries]` section comments align with module dependency headers
-- [ ] `:app`: `android` sections in order; `signingConfigs` present; `bundle.language.enableSplit = false`; `base.archivesName` set
+- [ ] `:app`: `android` sections in order; `signingConfigs` present; `bundle.language.enableSplit = false`; `base.archivesName` set; release `optimization { enable = true }`; no `proguardFiles` / `isMinifyEnabled`
 - [ ] `.jks` search done (root → `app/`); empty strings if none
 - [ ] Library modules: no `signingConfigs` / `bundle` / `base`
 - [ ] Every module: project deps first, then sectioned libs
 - [ ] No hardcoded Maven coordinates in `*.gradle.kts`
 - [ ] Aliases kebab-case; version keys camelCase
 - [ ] Sync/build still works (`assembleDebug` if practical)
-- [ ] AGP 9+; no `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions` on modules or in the catalog
+- [ ] AGP 9.3+; no `kotlin-android` / `kotlin-kapt` / `android.kotlinOptions` on modules or in the catalog
+- [ ] `compileOptions` `VERSION_21`; `compileSdk` 37.1 block; keep rules in `src/main/keepRules/*.keep` (not `proguard-rules.pro`)
 - [ ] Module boundaries unchanged (UI modules still must not depend on `:data`)
 
 ## Report to user
@@ -301,3 +308,5 @@ dependencies {
 - Invent keystore passwords or commit secrets into docs
 - Add `kotlin-android`, `kotlin-kapt`, `android.kotlinOptions`, `jvmToolchain`, or `android.builtInKotlin=false`
 - Add `kotlin`/`jvm` blocks to Android modules
+- Add `isMinifyEnabled` / `isShrinkResources` / `proguardFiles` / `consumerProguardFiles` / `proguard-rules.pro` — use `optimization { enable = true }` on `:app` release and `src/main/keepRules/*.keep`
+- Set `optimization.enable` on library modules

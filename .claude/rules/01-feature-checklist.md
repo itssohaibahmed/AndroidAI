@@ -16,7 +16,7 @@ description: New feature / screen scaffolding checklist — use when adding a fe
 - [ ] Logs use `Constants.TAG*` format; prefer Repository; ViewModel sparse (`handleError` for failures)
 - [ ] Permissions via Intent → Effect → base permission helper when needed
 - [ ] Analytics event via shared EventsProvider when screen should be tracked
-- [ ] ProGuard packages covered if new `state`/`intent`/`effect`/`model` types
+- [ ] R8 keep rules in `src/main/keepRules/*.keep` cover new `state`/`intent`/`effect`/`model` types
 - [ ] Unit tests for UseCase / ViewModel
 - [ ] Verify no `:presentation` → `:data` dependency
 - [ ] Large-list path: xml `ListAdapter` + DiffUtil / compose `LazyColumn`/`LazyVerticalGrid` + stable keys; `layoutManager` in XML unless dynamic (xml only)

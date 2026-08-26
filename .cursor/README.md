@@ -55,8 +55,8 @@ test/test-unit                     Write+run JVM unit/Flow tests; consent before
 test/test-integration              Write+run multi-layer tests; consent before fix
 test/test-e2e                      Write+run E2E on device; consent before fix
 test/test-complete                 Full run + walkthrough; consent before fix
-gradle/gradle-organize             Catalog + android/base/dependencies section order (signingConfigs, bundle)
-gradle/gradle-update               Groovy→KTS if needed; bump all deps (catalog + hardcodes); migrate to libs.versions.toml + sections
+gradle/gradle-organize             Catalog + android/base/dependencies section order (signingConfigs, bundle, R8 optimization/keepRules)
+gradle/gradle-update               Groovy→KTS if needed; AGP 9.3+; R8 optimization + keepRules; bump all deps (catalog + hardcodes)
 build/build-debug-apk              Debug APK → device install + launch
 build/build-release-apk           Release signing + APK → device install + launch
 build/build-release-bundle        Release signing + AAB (no device)
@@ -93,7 +93,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 | `01-feature-checklist` | Feature scaffolding checklist (not always-on)                                                                                           |
 | `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)                                                                                          |
 | `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)                                                                                  |
-| `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`), resources/XML, manifest (`09` → `reference/`)     |
+| `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`, R8 `optimization` / `keepRules`), resources/XML, manifest (`09` → `reference/`)     |
 | `11`–`13`              | Testing, naming, libraries                                                                                                              |
 | `14`–`16`              | Security (always), compatibility, logging (always)                                                                                      |
 | `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions                                                                                 |

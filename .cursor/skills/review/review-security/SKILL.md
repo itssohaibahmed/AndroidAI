@@ -1,6 +1,6 @@
 ---
 name: review-security
-description: Review Android code for secrets, exported components, permissions, logging leaks, and ProGuard. Use when security review, release prep, or auditing sensitive data handling. Prefer review-complete for a full multi-check pass.
+description: Review Android code for secrets, exported components, permissions, logging leaks, and R8 keep rules. Use when security review, release prep, or auditing sensitive data handling. Prefer review-complete for a full multi-check pass.
 ---
 
 # Security Review
@@ -29,9 +29,9 @@ Follow `.cursor/rules/14-security-secrets.mdc`, `10-manifest.mdc`, `21-ads-billi
 - [ ] No world-readable files
 
 ## Build
-- [ ] Release minify/R8 enabled on app
+- [ ] Release R8 enabled on `:app` (`optimization { enable = true }` — code **and** resource shrinking)
 - [ ] Signing credentials not hardcoded in `build.gradle.kts`
-- [ ] ProGuard keeps only what’s needed
+- [ ] Keep rules in `src/main/keepRules/*.keep` only what’s needed (no `proguard-rules.pro`)
 
 ## Report
 

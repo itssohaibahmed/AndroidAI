@@ -56,9 +56,9 @@ val dataModule = lazyModule {
 - `ItemRepository` interface + UseCases in `:domain` (`useCaseModule`)
 - Never put interfaces/UseCases in `:data`
 
-## ProGuard
+## R8
 
-- Add keep rules for entities if release minify breaks Room
+- Add keep rules in `src/main/keepRules/*.keep` for entities if release minify breaks Room
 
 ## Forbidden
 

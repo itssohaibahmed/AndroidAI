@@ -27,5 +27,5 @@ Full step-by-step patterns (preserved from former data skills):
 - SharedPreferences: sync `SharedPrefManager` in data; suspend API on domain `SharedPrefRepository`
 - Features read Remote Config **cache via prefs** — not live RC SDK in Fragments (`22-platform-firebase`)
 - Do not invent a second networking stack if the project already has OkHttp/Retrofit — extend it
-- Schema changes need a migration strategy; ProGuard keep rules for Room entities when minify breaks them
+- Schema changes need a migration strategy; R8 keep rules (`src/main/keepRules/*.keep`) for Room entities when minify breaks them
 - Large cached lists: `ListAdapter` + DiffUtil — not `notifyDataSetChanged`
