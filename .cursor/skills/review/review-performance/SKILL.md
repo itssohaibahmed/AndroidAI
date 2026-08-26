@@ -12,16 +12,17 @@ Follow `.cursor/rules/06-coroutines-flow.mdc`, `03-android-architecture.mdc`, `0
 ### Critical checks
 - [ ] No `runBlocking`, sync disk, or network on Main
 - [ ] Large `map`/`filter`/`sort` on `Default` or `IO`
-- [ ] Repository/UseCase does heavy mapping — not Fragment/Adapter
-- [ ] `submitList` only after off-Main list prep
-- [ ] No `notifyDataSetChanged` on large RecyclerViews
+- [ ] Repository/UseCase does heavy mapping — not Fragment/Adapter/`*ScreenContent`
+- [ ] **xml:** `submitList` only after off-Main list prep
+- [ ] **xml:** No `notifyDataSetChanged` on large RecyclerViews
 
-### RecyclerView
-- [ ] `ListAdapter` + `DiffUtil`
-- [ ] `app:layoutManager` / `android:orientation` / `app:spanCount` in XML — Kotlin only if dynamic
-- [ ] Stable IDs when beneficial
-- [ ] Avoid nested RecyclerViews with heavy child rebind
-- [ ] Images via `loadImage` (Glide); cancelled/cleared on rebind — no `setImageBitmap` for remote/list art
+### RecyclerView (xml) / Lazy lists (compose)
+- [ ] **xml:** `ListAdapter` + `DiffUtil`
+- [ ] **xml:** `app:layoutManager` / `android:orientation` / `app:spanCount` in XML — Kotlin only if dynamic
+- [ ] Stable IDs / Compose `key()` when beneficial
+- [ ] Avoid nested lists with heavy child rebind
+- [ ] **xml:** Images via `loadImage` (Glide); cancelled/cleared on rebind — no `setImageBitmap` for remote/list art
+- [ ] **compose:** Coil `AsyncImage`; no Glide in feature modules
 
 ### State / memory
 - [ ] State does not hold full raw megabyte datasets unnecessarily

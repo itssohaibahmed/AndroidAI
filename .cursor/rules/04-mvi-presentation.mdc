@@ -1,6 +1,6 @@
 ---
 description: MVI pattern for feature screens — Intent, State, Effect, ViewModel. Does not apply to ads / :gmaAds.
-globs: ["**/presentation/**/*.kt"]
+globs: ["**/presentation/**/*.kt", "**/feature*/**/*.kt"]
 alwaysApply: false
 ---
 
@@ -18,6 +18,7 @@ alwaysApply: false
 - ViewModel: single `handleIntent` launch + `exceptionHandler`; handlers are `suspend onX()`; **`handleError` last**; no nested `launch` per intent
 - Logging: prefer Repository; ViewModel sparse; always log failures in `handleError`
 - Fragment: collect state/effects via `viewLifecycleOwner` helpers; `navigateTo` / `popFrom`; render only; adapters bind `*UiItem`
+- Compose (`uiFramework` compose): `*Screen` collects with `collectAsStateWithLifecycle` + `LaunchedEffect` for effects; private `*ScreenContent` renders; no `NavController` in the feature (`28-compose-ui`)
 - Member order per `19-base-ui`: `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect`
 - Heavy mapping in Repo/UseCase; `toUi()` in VM with dispatcher if heavy — never in Fragment/Adapter
 - Large lists: `ListAdapter` + DiffUtil; DiffUtil one-liners; portrait + landscape

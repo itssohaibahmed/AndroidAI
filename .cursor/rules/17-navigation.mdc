@@ -6,16 +6,20 @@ alwaysApply: false
 
 ## Architecture
 
-- Prefer single-Activity + Navigation Component + Safe Args
-- ViewModels emit navigation **Effects**; Fragments/Activities perform `NavController` calls
+- Prefer single-Activity + Navigation
+- **xml:** Navigation Component + Safe Args + `res/navigation/nav_*.xml`
+- **compose:** Navigation Compose + `:app` `navigation/NavGraph.kt` (AnimeHub). Route constants on `*Screen.kt`. Features never take `NavController` — `onNavigate*` lambdas. Nested tab `NavHost` + content slots (`28-compose-ui`)
+- ViewModels emit navigation **Effects**; UI performs `NavController` calls
 - Never navigate from ViewModel (no NavController / FragmentManager there)
 
-## Resources
+## Resources (xml)
 
 - Graphs: `res/navigation/nav_*.xml` (e.g. primary `nav_graph.xml`, then `nav_dashboard.xml`, `nav_auth.xml`)
 - Include nested graphs for feature boundaries when useful
 - Action / destination IDs: snake_case matching feature (`action_home_to_detail`)
 - Transition anims live in **`:core-ui`** `res/anim/` (+ `res/anim-ldrtl/` for RTL)
+
+Compose uses `slideInHorizontally` / `slideOutHorizontally` on the root `NavHost` (`28-compose-ui`) — skip XML anim files when `uiFramework` is `compose` unless splash XML theme still needs them.
 
 ## Default action animations (mandatory)
 

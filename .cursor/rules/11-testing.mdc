@@ -13,7 +13,7 @@ alwaysApply: false
 | Mappers | Medium |
 | Flow (with fakes) | Medium — emission order / failures under `test-unit` |
 | Repositories (real layers) | Medium — Room in-memory / MockWebServer under `test-integration` |
-| E2E (Espresso) | Critical user-visible flows only |
+| E2E | Critical user-visible flows only — Espresso when xml; Compose UI test (`compose.ui.test`) when compose |
 
 ## Approach
 
@@ -77,7 +77,7 @@ When any `test-*` skill runs, the agent’s **first** user-visible sentence must
 ## E2E / instrumentation
 
 - Cover critical user-visible flows only (login, paywall, primary feature path)
-- No new Espresso / UI-test libraries without approval — use project’s existing stack
+- No new Espresso / Compose-test libraries without approval when `uiFramework` is `xml`. When `compose`, use the Compose UI test artifacts already on the feature module (`28-compose-ui`)
 - Keep tests independent — no shared mutable state between tests
 - Emulator or physical device required
 

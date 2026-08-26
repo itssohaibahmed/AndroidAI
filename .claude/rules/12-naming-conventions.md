@@ -4,6 +4,7 @@ paths:
   - "**/domain/**/*.kt"
   - "**/data/**/*.kt"
   - "**/presentation/**/*.kt"
+  - "**/feature*/**/*.kt"
   - "**/core*/**/*.kt"
   - "**/res/**/*.xml"
   - "**/*.gradle.kts"
@@ -12,18 +13,18 @@ paths:
 
 ## Kotlin
 
-| Kind            | Rule                                                                    | Example                                           |
-|-----------------|-------------------------------------------------------------------------|---------------------------------------------------|
-| Classes         | PascalCase + role suffix                                                | `HomeFragment`, `UserRepositoryImpl`              |
-| Interfaces      | No `I` prefix                                                           | `UserRepository`                                  |
-| Implementations | `Impl` suffix                                                           | `UserRepositoryImpl`                              |
-| ViewModels      | `*ViewModel`                                                            | `HomeViewModel`                                   |
-| UseCases        | `*UseCase`                                                              | `GetUserUseCase`                                  |
-| MVI types       | `*Intent` / `*State` / `*Effect` for **feature screens** only — not ads | `HomeIntent`                                      |
-| DI modules      | `*Module` val                                                           | `homePresentationModule`                          |
-| Functions       | camelCase, verb-first                                                   | `handleIntent`, `savePreferences`                 |
-| Backing flows   | `_state`, `_effect` (private)                                           | `_state.update { }`                               |
-| Safe Args       | Property always `navArgs`                                               | `private val navArgs: XFragmentArgs by navArgs()` |
+| Kind | Rule | Example |
+|------|------|---------|
+| Classes | PascalCase + role suffix | `HomeFragment` (xml), `HomeScreen` (compose), `UserRepositoryImpl` |
+| Interfaces | No `I` prefix | `UserRepository` |
+| Implementations | `Impl` suffix | `UserRepositoryImpl` |
+| ViewModels | `*ViewModel` | `HomeViewModel` |
+| UseCases | `*UseCase` | `GetUserUseCase` |
+| MVI types | `*Intent` / `*State` / `*Effect` for **feature screens** only — not ads | `HomeIntent` |
+| DI modules | `*Module` val | `homePresentationModule` |
+| Functions | camelCase, verb-first | `handleIntent`, `savePreferences` |
+| Backing flows | `_state`, `_effect` (private) | `_state.update { }` |
+| Safe Args | Property always `navArgs` | `private val navArgs: XFragmentArgs by navArgs()` |
 
 ### Kotlin formatting (keep short expressions on one line)
 
@@ -41,7 +42,7 @@ paths:
 <applicationId>.<layer>.<feature>.<subpackage>
 ```
 
-Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
+Feature folders: camelCase (`userProfile`, `onBoarding`). Compose Gradle modules: kebab-case `:feature-user-profile`.
 
 ## Resources
 
@@ -68,14 +69,14 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 
 ## Data / domain types
 
-| Layer                | Naming                                                                             |
-|----------------------|------------------------------------------------------------------------------------|
-| Repository interface | `UserRepository` — **`:domain` only**                                              |
-| Repository impl      | `UserRepositoryImpl` — **`:data` only**                                            |
-| UseCase              | `GetUserUseCase` — **`:domain` only** (never `:data`)                              |
-| DataSource           | `SharedPrefManager` (sync, Context only), `UserRemoteDataSource` — **`:data`**     |
-| Entity (domain)      | `User`, `GeoLocation`                                                              |
-| UI model             | `UserUiItem`                                                                       |
-| Mapper               | `UserUiMapper.toUi(...)` — call from ViewModel; heavy data mapping in Repo/UseCase |
-| Base UI              | `ParentFragment`, `BaseFragment`, `ParentActivity`, `ParentDialog`, `ParentSheet`  |
-| DI modules           | `dataModule` / `useCaseModule` / `*PresentationModule` — always `lazyModule { }`   |
+| Layer | Naming |
+|-------|--------|
+| Repository interface | `UserRepository` — **`:domain` only** |
+| Repository impl | `UserRepositoryImpl` — **`:data` only** |
+| UseCase | `GetUserUseCase` — **`:domain` only** (never `:data`) |
+| DataSource | `SharedPrefManager` (sync, Context only), `UserRemoteDataSource` — **`:data`** |
+| Entity (domain) | `User`, `GeoLocation` |
+| UI model | `UserUiItem` |
+| Mapper | `UserUiMapper.toUi(...)` — call from ViewModel; heavy data mapping in Repo/UseCase |
+| Base UI | xml: `ParentFragment`, `BaseFragment`, `ParentActivity`, `ParentDialog`, `ParentSheet`. compose: `*Screen` / `*ScreenContent` / `AppTheme` |
+| DI modules | `dataModule` / `useCaseModule` / `*PresentationModule` (xml) / `*FeatureModule` (compose) — always `lazyModule { }` |

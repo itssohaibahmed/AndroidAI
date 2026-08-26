@@ -15,7 +15,7 @@ If no device is attached: say so after the banner, still write tests where usefu
 
 Follow `.cursor/rules/11-testing.mdc`.
 
-Obey `.cursor/project-settings.json` (`orientation`, `writeTestsWithFeatures`).
+Obey `.cursor/project-settings.json` (`orientation`, `writeTestsWithFeatures`, `uiFramework`).
 
 ## Workflow (mandatory)
 
@@ -35,7 +35,7 @@ Obey `.cursor/project-settings.json` (`orientation`, `writeTestsWithFeatures`).
 ## Scope
 
 - Critical user-visible flows only (entrance → primary feature, paywall, permission deny/grant UX)
-- Prefer existing project `androidTest` stack — **do not** add Espresso/Compose/UI libs without approval
+- Prefer existing project `androidTest` stack — **do not** add Espresso/Compose/UI libs without approval. When `uiFramework` is `compose`, use Compose UI test artifacts already on the feature module (`11-testing`, `28-compose-ui`)
 
 ## Rules
 

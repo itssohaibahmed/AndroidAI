@@ -4,9 +4,9 @@ description: New feature / screen scaffolding checklist — use when adding a fe
 
 ## New feature checklist
 
-- [ ] Feature package: `{di,intent,state,effect,viewModel,ui}` (+ adapter/mapper as needed)
-- [ ] Extend `Parent*` / `Base*` UI bases; layouts work in **portrait and landscape**
-- [ ] Fragment member order per `19-base-ui`: `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown (if any)
+- [ ] Feature package: `{di,intent,state,effect,viewModel,ui}` (+ adapter/mapper as needed) — **compose:** `:feature-<kebab>` with `*Screen.kt` at feature root instead of `ui/` Fragment
+- [ ] Extend `Parent*` / `Base*` UI bases (xml) **or** `*Screen` / `*ScreenContent` (`28-compose-ui`) when `uiFramework` is compose; layouts / composables work in **portrait and landscape**
+- [ ] Fragment member order per `19-base-ui` when xml: `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown (if any). Compose: `*Screen` collects state/effects → private `*ScreenContent` renders
 - [ ] Icon actions use `ButtonStyle.IconButton` (`mb` + `app:icon`) — not clickable `siv`
 - [ ] Domain UseCase(s) + repository **interface** in `:domain` (never under `:data`)
 - [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main)
@@ -19,8 +19,8 @@ description: New feature / screen scaffolding checklist — use when adding a fe
 - [ ] ProGuard packages covered if new `state`/`intent`/`effect`/`model` types
 - [ ] Unit tests for UseCase / ViewModel
 - [ ] Verify no `:presentation` → `:data` dependency
-- [ ] Large-list path: `ListAdapter` + DiffUtil / background mapping considered; `layoutManager` / orientation / spanCount in XML unless dynamic
-- [ ] Images: `ShapeableImageView` + Glide `loadImage` for programmatic binds (not `setImageResource` in adapters)
+- [ ] Large-list path: xml `ListAdapter` + DiffUtil / compose `LazyColumn`/`LazyVerticalGrid` + stable keys; `layoutManager` in XML unless dynamic (xml only)
+- [ ] Images: xml `ShapeableImageView` + Glide `loadImage`; compose Coil `AsyncImage` / `painterResource`
 - [ ] If ads/premium: gate on entitlement + RC; use existing ads managers / ad ViewModels — not raw SDK in Fragments. **Do not** wrap ads in MVI unless the user explicitly asks (`21-ads-billing`)
-- [ ] Obey `.claude/project-settings.json` (tests / orientation / theme modes)
+- [ ] Obey `.claude/project-settings.json` (tests / orientation / theme modes / **`uiFramework`**)
 - [ ] Presentation-only scaffold via `create-mvi` (feature screens only — not ads); new domain/data via `create-clean-architecture`

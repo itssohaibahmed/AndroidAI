@@ -84,12 +84,13 @@ Every `lazyModule` body must use **clear section headers** so bindings stay read
 |----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dataModule` / data area modules | `//// DataSources` â†’ `//// Repositories` (optional `//// Managers` / SDK wrappers **before** DataSources if needed)                          |
 | `useCaseModule`                  | Group by domain area: `//// Entrance`, `//// Location`, `//// Prayer`, â€¦ â€” never dump all factories in one unsorted list when areas differ |
-| `*PresentationModule`            | `//// ViewModels` (optional `//// Helpers` if feature-scoped singles)                                                                          |
-| `corePlatformModule`             | `//// Dispatchers` â†’ `//// Managers` â†’ `//// Other`                                                                                        |
+| `*PresentationModule`            | `//// ViewModels` (optional `//// Helpers` if feature-scoped singles) — **xml** |
+| `*FeatureModule`                 | `//// ViewModels` — **compose** (`homeFeatureModule`, AnimeHub)                                                                          |
+| `corePlatformModule`             | `//// Dispatchers` → `//// Managers` → `//// Other`                                                                                        |
 | `coreModule` / UI core           | `//// Observers` / `//// Providers` / concern-named sections                                                                                   |
 | `appModule`                      | `//// App` (info providers, app-scoped singles)                                                                                                |
-| Ads feature modules              | `//// DataSources` â†’ `//// Repositories` â†’ `//// UseCases` â†’ `//// ViewModels` â†’ `//// Managers` / `//// Config`                       |
-| `KoinModules` list               | Group returned modules: `//// Core` â†’ `//// Data` â†’ `//// Domain` â†’ `//// Presentation` â†’ `//// Ads`                                   |
+| Ads feature modules              | `//// DataSources` → `//// Repositories` → `//// UseCases` → `//// ViewModels` → `//// Managers` / `//// Config`                       |
+| `KoinModules` list               | Group returned modules: `//// Core` → `//// Data` → `//// Domain` → `//// Presentation` or `//// Feature` → `//// Ads` |
 
 Do **not** invent cryptic headers (`//// stuff`, `//// temp`). Name the concern.
 
@@ -100,7 +101,8 @@ Do **not** invent cryptic headers (`//// stuff`, `//// temp`). Name the concern.
 | `app/di/`                    | App-level singles, **module aggregation** (`KoinModules`) only â€” not UseCases / repo interfaces    |
 | `domain/di/`                 | UseCase **factories** (`useCaseModule` / `domainModule`)                                             |
 | `data/di/`                   | DataSource + Repository **impl** bindings (`dataModule`)                                             |
-| `presentation/<feature>/di/` | Feature ViewModels                                                                                   |
+| `presentation/<feature>/di/` | Feature ViewModels (**xml**)                                                                              |
+| `feature-*/…/di/`            | `*FeatureModule` ViewModels (**compose**)                                                                 |
 | `core-*/di/`                 | Platform and UI dependencies                                                                         |
 | ads module `di/`             | Existing ad managers / ad ViewModels (named qualifiers per placement) — not MVI unless the user asks |
 

@@ -1,17 +1,21 @@
 ---
 name: create-custom-view
-description: Create Android custom View or ViewGroup with XML layout and View Binding. Use when building custom UI controls, compound views, or reusable widgets beyond standard Material components.
+description: Create a reusable UI control. XML custom View + View Binding when uiFramework is xml; reusable @Composable when compose. Use when building custom controls, compound views, or widgets beyond standard Material components.
 ---
 
 # Create Custom View
 
-Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md), `19-base-ui.md` + [reference/base-ui.md](../../rules/reference/base-ui.md).
+Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md), `19-base-ui.md` + [reference/base-ui.md](../../rules/reference/base-ui.md) when xml; `28-compose-ui.md` when compose.
+
+Obey `.claude/project-settings.json` (`uiFramework`).
+
+**compose:** skip the XML View class. Add a reusable `@Composable fun FeatureWidget(...)` in `:core-ui` (shared) or the feature `components/` folder. Stateless; no ViewModel inside. Strings from `:core-ui`. Coil for images. Then stop.
 
 ## When to use
 
 - Reusable control used in multiple screens (chart, compass dial, custom slider)
 - Compound view simpler than nested includes everywhere
-- **Not** for one-off screen layout — use `ui/figma-to-xml`
+- **Not** for one-off screen layout — use `figma-to-xml` (xml) or `figma-to-compose` (compose)
 
 ## Structure
 

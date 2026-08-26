@@ -103,7 +103,7 @@ After bumps/migrations:
 - Leave Groovy `build.gradle` / `settings.gradle` after an update run when conversion is possible
 - Leave any `"group:artifact:version"` in module scripts after an update run
 - Skip bumping a dep because it was hardcoded instead of in the catalog
-- Add Compose / Hilt / new stacks the project never used (`13-libraries-stack`) without approval
+- Add Compose / Hilt / new stacks the project never used (`13-libraries-stack`) without approval. **Exception:** when `uiFramework` is `compose`, bumping the existing Compose BOM / Navigation Compose / Coil is in scope
 - Change `api` vs `implementation` casually
 - Force incompatible AGP/Kotlin pairs
 - Commit secrets from `local.properties`

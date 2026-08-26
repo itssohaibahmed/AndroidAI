@@ -9,13 +9,13 @@ alwaysApply: false
 | Category | Libraries |
 |----------|-----------|
 | AndroidX | core-ktx, appcompat, activity, fragment-ktx |
-| UI | Material 3, ConstraintLayout, View Binding |
-| Navigation | navigation-fragment/ui + Safe Args |
+| UI | **xml:** Material 3, ConstraintLayout, View Binding. **compose:** Compose BOM, Material3, Navigation Compose, Coil 3 |
+| Navigation | **xml:** navigation-fragment/ui + Safe Args. **compose:** navigation-compose |
 | Lifecycle | viewmodel-ktx, runtime-ktx |
 | DI | Koin (default) |
 | Coroutines | kotlinx-coroutines-core, play-services integration |
 | Firebase (new projects) | BOM + analytics/crashlytics/`firebase-messaging` on `:core-platform`; `firebase-config` + `kotlinx-coroutines-play-services` on `:data` — via `setup-new-project` (FCM: dependency only, no service) |
-| Images | Glide — **always** load via `ImageView.loadImage(...)` (`ImageViewExtensions`; works on `ShapeableImageView`) |
+| Images | **xml:** Glide via `ImageView.loadImage(...)`. **compose:** Coil 3 `AsyncImage` |
 | Splash | core-splashscreen |
 | Desugaring | desugar_jdk_libs (for java.time on older APIs) |
 
@@ -25,8 +25,8 @@ Lottie, CameraX, Play Services Location/Maps, other Firebase libs (Analytics, RC
 
 ## Forbidden (unless project already uses or explicitly approved)
 
-- Jetpack Compose (UI is XML-only)
-- Data Binding (View Binding only)
+- Jetpack Compose — **forbidden when `uiFramework` is `xml`**. Required when `uiFramework` is `compose` (Compose BOM + Navigation Compose + Coil; see `28-compose-ui`)
+- Data Binding (View Binding only on xml; neither on compose screens)
 - Hilt / Dagger (when Koin is project standard)
 - RxJava (use coroutines/Flow)
 - Alternative navigation libs replacing Navigation Component
@@ -37,7 +37,7 @@ Lottie, CameraX, Play Services Location/Maps, other Firebase libs (Analytics, RC
 
 | Do not use | Use instead |
 |------------|-------------|
-| Compose UI | XML + View Binding + Material3 |
+| Compose UI | XML + View Binding + Material3 when `uiFramework` is `xml`; Compose + Material3 + Coil when `compose` |
 | Data Binding / findViewById | View Binding |
 | Plain `TextView` / `Button` (when Material exists) | `MaterialTextView` / `MaterialButton` |
 | `ImageView` / `AppCompatImageView` | `ShapeableImageView` (`siv`) for display-only images |

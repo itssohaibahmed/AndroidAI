@@ -1,15 +1,19 @@
 ---
 name: create-dialog
-description: Create Android dialog XML (dialog_*.xml) from a Figma link or name. XML only — orchestrates figma-to-xml. Use when the user asks for a dialog layout or shares a Figma dialog node.
+description: Create a dialog UI from a Figma link or name. XML dialog_*.xml when uiFramework is xml; Compose *Dialog when compose. Use when the user asks for a dialog layout or shares a Figma dialog node.
 ---
 
-# Create Dialog Layout (XML only)
+# Create Dialog Layout
 
-Follow `.cursor/rules/09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md), `12-naming-conventions.mdc`.
+Follow `.cursor/rules/09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md) when xml; `28-compose-ui.mdc` + [reference/compose-ui.md](../../../rules/reference/compose-ui.md) when compose. `12-naming-conventions.mdc`.
 
-Obey `.cursor/project-settings.json` when present.
+Obey `.cursor/project-settings.json` when present (`uiFramework`).
 
 ## Orchestration
+
+**compose:** run **`figma-to-compose`**. Output `<Name>Dialog` (`AlertDialog` / project dialog pattern) in the feature module. No `dialog_*.xml`. Then stop (skip XML steps).
+
+**xml:**
 
 1. If user provided a **Figma URL**, run the **`figma-to-xml`** workflow (including mandatory `figma-design-to-code` before `get_design_context`)
 2. Force output type **Dialog** → `dialog_<name>.xml` in `:presentation` `res/layout/`
@@ -43,4 +47,4 @@ Obey **all** XML invariants in `09-resources-xml.mdc` + [reference/resources-xml
 
 ## After layout
 
-Tell user to wire via `create-mvi` or existing Fragment if Kotlin not requested.
+Tell user to wire via `create-mvi` or existing Fragment / `*Screen` if Kotlin not requested.

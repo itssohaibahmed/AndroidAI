@@ -1,11 +1,11 @@
 ---
 name: setup-new-project
-description: Bootstrap a new Android multi-module app (domain, data, presentation, core-*) with MainActivity, nav_graph, EntranceFragment, Parent* bases, PlatformFirebase object, Remote Config → SharedPreferences cache, and mandatory firebase-messaging on core-platform. Use when starting a greenfield project. Do not use on an existing production app — use setup-old-project. Confirms and persists project settings first.
+description: Bootstrap a new Android multi-module app (domain, data, core-*, xml `:presentation` or compose `:feature-*`) with MainActivity, Entrance start destination, Parent* or Compose NavGraph, PlatformFirebase, Remote Config → SharedPreferences cache, and mandatory firebase-messaging on core-platform. Use when starting a greenfield project. Do not use on an existing production app — use setup-old-project. Confirms and persists project settings first including uiFramework.
 ---
 
 # Setup New Project
 
-Follow `.cursor/rules/` — especially `00-global`, `02-project-structure`, `07-dependency-injection`, `08-gradle`, `09-resources-xml`, `17-navigation`, `19-base-ui`, `22-platform-firebase`, `23-app-startup`, `26-data-persistence`.
+Follow `.cursor/rules/` — especially `00-global`, `02-project-structure`, `07-dependency-injection`, `08-gradle`, `09-resources-xml`, `17-navigation`, `19-base-ui`, `22-platform-firebase`, `23-app-startup`, `26-data-persistence`, `28-compose-ui` (when compose).
 
 ## Preconditions (ask if missing — then persist)
 
@@ -18,6 +18,7 @@ Confirm with the user before scaffolding. Write answers to **`.cursor/project-se
   "themeModes": "both",
   "applicationId": "com.company.app",
   "appName": "App Display Name",
+  "uiFramework": "xml",
   "figmaDesignSystemUrl": ""
 }
 ```
@@ -30,9 +31,11 @@ Confirm with the user before scaffolding. Write answers to **`.cursor/project-se
 | `orientation`                  | `portrait` / `landscape` / `both` | Layout orientation support (default `both`)                    |
 | `themeModes`                   | `day` / `night` / `both`          | Theme resource folders (default `both`)                        |
 | `figmaDesignSystemUrl`         | Figma `/design/` URL or `""`      | Optional; set when user picks design-system option **a**       |
+| `uiFramework`                  | `xml` / `compose`                 | **Ask first.** xml = View Binding + `:presentation`. compose = Jetpack Compose + `:feature-*` (AnimeHub) |
 
 Also ask:
 
+0. **`uiFramework`** — `xml` or `compose`. Show both options. Default is `xml`. Compose follows AnimeHub (`:feature-*`, `:core-design`, `:app` `NavGraph.kt`) — see `28-compose-ui` + [templates/compose/](templates/compose/).
 1. Optional: **ads** — do not add ad SDKs without approval. If adding later, copy the existing ads architecture from the reference app — do **not** convert ads to MVI unless the user **explicitly** asks
 2. **Firebase Cloud Messaging** is **mandatory** for every new project: add `firebase-messaging` to the catalog + `implementation` on `:core-platform` only (dependency — no `FirebaseMessagingService` or push UI). See **`implement-firebase-messaging`**.
 3. **Design system (Figma)** — ask the user to pick:
@@ -51,7 +54,9 @@ All later skills **must read** `.cursor/project-settings.json` and obey it.
 | `:app`           | Must     | `App`, manifest, DI aggregation only — **no `res/values/`**                                                   |
 | `:domain`        | Must     | Entities, repository interfaces, use cases                                                                    |
 | `:data`          | Must     | Repository impls, DataSources, SharedPref + RC cache                                                          |
-| `:presentation`  | Must     | Screens, MVI, nav graphs, MainActivity host UI                                                                |
+| `:presentation`  | xml only | Screens, MVI, nav graphs, MainActivity host UI. **Omit when compose**                                                                 |
+| `:core-design`   | compose only | `Color.kt` / `Type.kt` / `AppTheme`                                                                 |
+| `:feature-entrance` | compose only | Entrance start destination (`ENTRANCE_ROUTE`) |
 | `:core-common`   | Required | `Constants` (TAGs), `EventsProvider`                                                                          |
 | `:core-ui`       | Required | **All** themes/strings/colors/splash, Parent*, extensions                                                     |
 | `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI, **Firebase BOM + analytics / crashlytics / messaging** |
@@ -60,10 +65,11 @@ All later skills **must read** `.cursor/project-settings.json` and obey it.
 app (Composition Root) — no values resources
  |
  ↓
-presentation → domain ← data
+xml: presentation → domain ← data
+compose: feature-* → domain ← data   (:core-design under cores)
  |
  ↓
-core-common / core-ui / core-platform
+core-common / core-ui / core-platform  (+ :core-design when compose)
 ```
 
 ## Step 1 — Gradle
@@ -73,8 +79,8 @@ Follow `08-gradle.mdc` + [reference/gradle.md](../../../rules/reference/gradle.m
 1. `settings.gradle.kts` — `include` all modules above
 2. Root plugins `apply false` via catalog; **latest stable** versions
 3. Catalog sections/naming per `08-gradle.mdc` / `gradle-organize`
-4. Dependency graph: `presentation` **never** → `:data`; `domain` → coroutines only
-5. View Binding on UI modules; Safe Args on `:presentation`
+4. Dependency graph: UI modules (`:presentation` or `:feature-*`) **never** → `:data`; `domain` → coroutines only
+5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. **compose:** `kotlin.compose` plugin + `buildFeatures { compose = true }` on `:app`, `:core-design`, `:feature-*`; Compose BOM + Navigation Compose + Coil 3 + `koin-androidx-compose` in catalog (latest stable). No View Binding on feature modules.
 6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
 7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
 8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
@@ -95,7 +101,7 @@ Copy the `:app` and library shapes from [reference/gradle.md](../../../rules/ref
 | `bundle`                | Always `language { enableSplit = false }`                                                                                |
 | `base.archivesName`     | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known              |
 
-**Library modules** (`:presentation`, `:data`, `:domain`, `:core-*`): same relative order; **omit** `signingConfigs`, `bundle`, `base`, and app-only `defaultConfig` fields. UI modules get View Binding; `:domain` / `:core-common` may omit `buildFeatures`.
+**Library modules** (`:presentation` xml, `:feature-*` compose, `:data`, `:domain`, `:core-*`): same relative order; **omit** `signingConfigs`, `bundle`, `base`, and app-only `defaultConfig` fields. xml UI modules get View Binding; compose UI modules get `compose = true`; `:domain` / `:core-common` may omit `buildFeatures`.
 
 ## Step 2 — Application + DI
 
@@ -113,34 +119,30 @@ class App : Application() {
 }
 ```
 
-- Aggregate with **`lazyModule` only** (convert any `module` → `lazyModule`, `modules` → `lazyModules`): `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule`, …
+- Aggregate with **`lazyModule` only** (convert any `module` → `lazyModule`, `modules` → `lazyModules`): `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule` (xml) or `entranceFeatureModule` (compose), …
 - Theme: apply **after** `startKoin` in Application; Activity DynamicColors needs no GlobalContext gate (`07-dependency-injection`, `23-app-startup`)
 - Manifest: `android:name=".App"`, `android:theme="@style/Theme.App.Starting"`, `supportsRtl="true"`
 - Orientation: follow `project-settings.json` — default portrait **and** landscape; do not lock unless `orientation` is single-mode and product requires lock
 - Theme modes: create `values` / `values-night` per `themeModes`
 - UseCases + repo interfaces → `:domain`; DataSources + repo impls → `:data` (`dataModule` with `//// DataSources` / `//// Repositories`)
 
-## Step 3 — MainActivity + host
+## Step 3 — MainActivity + host (xml)
 
 - `MainActivity` extends `ParentActivity` in `:presentation`
 - `activity_main.xml` with `fcvContainerMain` + `NavHostFragment` + `@navigation/nav_graph`
 - Call `installSplashTheme()` in `onPreCreated()` when using splash
 
+**compose:** skip this step. Copy [templates/compose/MainActivity.kt](templates/compose/MainActivity.kt) into `:app` `ui/`. `ComponentActivity` + `setContent { AppTheme { NavGraph() } }`. **Never** `GlobalContext.get()`.
+
 ## Step 4 — Navigation (mandatory Entrance)
 
-`nav_graph.xml` **must** use:
+**xml:** `nav_graph.xml` **must** use `app:startDestination="@id/entranceFragment"`. Class: `EntranceFragment` under `presentation/entrance/ui/`. Layout: `fragment_entrance.xml`. No Home/Splash/Main as start destination. Copy anims from [templates/anim/](templates/anim/) + [templates/anim-ldrtl/](templates/anim-ldrtl/) into `:core-ui`. Every forward `<action>` must include the four slide anim attrs (`17-navigation`).
 
-```xml
-app:startDestination="@id/entranceFragment"
-```
+**compose:** copy [templates/compose/NavGraph.kt](templates/compose/NavGraph.kt) to `:app` `navigation/NavGraph.kt`. `startDestination = ENTRANCE_ROUTE`. Slide `enterTransition` / `exitTransition` on the `NavHost`. No XML `nav_*.xml`. Feature screens do not receive `NavController`.
 
-- Class: `EntranceFragment` under `presentation/entrance/ui/`
-- Layout: `fragment_entrance.xml`
-- No Home/Splash/Main as start destination
+### Nav transition anims (xml — mandatory)
 
-### Nav transition anims (reference — mandatory)
-
-Create in **`:core-ui`** (copy from [templates/anim/](templates/anim/) + [templates/anim-ldrtl/](templates/anim-ldrtl/)):
+Create in **`:core-ui`** (copy from [templates/anim/](templates/anim/) + [templates/anim-ldrtl/](templates/anim-ldrtl/)). Skip this block when `uiFramework` is `compose`.
 
 ```
 res/anim/slide_in_right.xml | slide_out_left.xml | slide_in_left.xml | slide_out_right.xml
@@ -157,16 +159,18 @@ See `17-navigation.mdc`.
 
 ## Step 5 — Entrance MVI
 
-Scaffold `presentation/entrance/{di,intent,state,effect,viewModel,ui}` via **`create-mvi`** patterns (presentation only). Domain/data for RC/prefs already from Steps 7–8.
+**xml:** scaffold `presentation/entrance/{di,intent,state,effect,viewModel,ui}` via **`create-mvi`**. `EntranceFragment` extends `ParentFragment`. Register `entrancePresentationModule`.
 
-- `EntranceFragment` extends `ParentFragment` (then `BaseFragment` when that layer exists)
-- Register `entrancePresentationModule` in `KoinModules`
+**compose:** module `:feature-entrance`. Copy [templates/compose/EntranceScreen.kt](templates/compose/EntranceScreen.kt) + [templates/compose/feature-module.gradle.kts](templates/compose/feature-module.gradle.kts). Then **`create-mvi`** Compose path (Intent/State/Effect/ViewModel/`entranceFeatureModule`). Wire `navigateToNext` in `NavGraph` when the first real destination exists.
+
 - Strings only in `:core-ui`
 - Tests: only if `writeTestsWithFeatures` is `true`
 
-## Step 6 — `:core-ui` Parent* bases (required)
+## Step 6 — `:core-ui` Parent* bases (xml) / `:core-design` (compose)
 
-Mirror reference hierarchy; improve Dialog/Sheet slightly for safety.
+**compose:** skip ParentFragment / View Binding templates. Copy [templates/compose/Color.kt](templates/compose/Color.kt), [Type.kt](templates/compose/Type.kt), [Theme.kt](templates/compose/Theme.kt) into `:core-design`. Keep `:core-ui` for `strings.xml` / `colors.xml` / splash XML theme / drawables (`09`). Add Compose BOM deps on `:core-design`. If design-system **a**, run **`setup-design-system`** (writes XML tokens **and** maps them into `AppTheme`). Then continue Step 7.
+
+**xml:** mirror reference hierarchy below.
 
 ```
 core/ui/base/
@@ -388,20 +392,22 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 ## Step 9 — Verify
 
-- [ ] `.cursor/project-settings.json` written and valid (incl. `figmaDesignSystemUrl` if option **a**)
+- [ ] `.cursor/project-settings.json` written and valid (incl. `uiFramework` + `figmaDesignSystemUrl` if option **a`)
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
-- [ ] Modules: app, domain, data, presentation, core-common, core-ui, core-platform
+- [ ] **xml** modules: app, domain, data, presentation, core-common, core-ui, core-platform
+- [ ] **compose** modules: app, domain, data, core-design, feature-entrance, core-common, core-ui, core-platform — **no** `:presentation`
 - [ ] `:app` `android` section order: defaultConfig → signingConfigs → buildTypes → buildFeatures → compileOptions → bundle
 - [ ] `:app` has `signingConfigs` (`.jks` path if found, else empty strings) + `bundle.language.enableSplit = false` + `base.archivesName`
 - [ ] Library modules omit `signingConfigs` / `bundle` / `base`
 - [ ] UseCases + repo interfaces only in `:domain`; `dataModule` has `//// DataSources` then `//// Repositories`
 - [ ] All DI uses `lazyModule` / `lazyModules` only; theme applied after `startKoin` (no `GlobalContext` probes)
-- [ ] `nav_graph` startDestination = `entranceFragment`
-- [ ] `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs
-- [ ] ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
-- [ ] `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
-- [ ] Glide on `:core-ui` (+ presentation if needed); all programmatic image binds use `loadImage`
+- [ ] **xml:** `nav_graph` startDestination = `entranceFragment`; **compose:** `NavGraph.kt` `startDestination = ENTRANCE_ROUTE`
+- [ ] **xml:** `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs. **compose:** slide `enterTransition` / `exitTransition` on `NavHost`
+- [ ] **xml:** ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
+- [ ] **xml:** `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
+- [ ] **xml:** Glide on `:core-ui` (+ presentation if needed); all programmatic image binds use `loadImage`. **compose:** Coil 3; no Glide in feature modules
+- [ ] **compose:** `:core-design` `AppTheme`; `:app` `MainActivity` uses `koinInject()` — never `GlobalContext.get()`
 - [ ] Firebase BOM + analytics/crashlytics/messaging on `:core-platform`; `firebase-config` on `:data` (no MessagingService)
 - [ ] `kotlinx-coroutines-play-services` on `:core-platform` and `:data`
 - [ ] `PlatformFirebase` is `object` without a Context field; poster uses `Param.ITEM_NAME` + `Firebase.analytics`
@@ -409,14 +415,16 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC DataSource: Mutex, lazy instance, `await()`, `addConfigUpdateListener`, getters with defaults
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager` only when activate succeeds
-- [ ] `presentation` ↛ `:data`
+- [ ] UI modules (`:presentation` or `:feature-*`) ↛ `:data`
 - [ ] `assembleDebug` succeeds; orientation / theme modes match `project-settings.json`
 - [ ] Design system: option **a** ran `setup-design-system` (theme `windowBackground`, no default layout `colorSurface`); or **b** left default Material3 theme
 
 ## Do not
 
 - Use on an existing production app — use `setup-old-project`
-- Compose / Data Binding / Hilt
+- Data Binding / Hilt / Compose when `uiFramework` is `xml`
+- XML Fragments / View Binding feature UI when `uiFramework` is `compose`
+- `GlobalContext.get()` in Compose `MainActivity`
 - App-level `values` resources
 - Named dispatcher qualifiers
 - `PlatformFirebase` holding Context (ads revenue may take `Context` as a parameter only)
@@ -429,4 +437,4 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 ## After setup
 
-Next: if design system was skipped, optional `/setup-design-system`; then language / onboarding / home via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; wire Entrance Effects in `nav_graph.xml`. Existing apps missing RC or Analytics: `implement-firebase-remote-config`, `implement-firebase-events`; later screens: `add-firebase-events`; extra RC keys: `add-firebase-remote-config`.
+Next: if design system was skipped, optional `/setup-design-system`; then language / onboarding / home via **`figma-to-xml`** (xml) or **`figma-to-compose`** (compose) → `create-mvi`; new domain/data via `create-clean-architecture`; wire Entrance Effects in `nav_graph.xml` (xml) or `NavGraph.kt` (compose). Existing apps missing RC or Analytics: `implement-firebase-remote-config`, `implement-firebase-events`; later screens: `add-firebase-events`; extra RC keys: `add-firebase-remote-config`.

@@ -1,15 +1,19 @@
 ---
 name: create-bottom-sheet
-description: Create Android bottom sheet XML (bottom_sheet_*.xml) from a Figma link or name. XML only — orchestrates figma-to-xml. Use when the user asks for bottom sheet layout without Kotlin BottomSheetDialogFragment wiring.
+description: Create a bottom sheet UI from a Figma link or name. XML bottom_sheet_*.xml when uiFramework is xml; Compose *BottomSheet (ModalBottomSheet) when compose. Use when the user asks for a bottom sheet without Kotlin BottomSheetDialogFragment wiring.
 ---
 
-# Create Bottom Sheet Layout (XML only)
+# Create Bottom Sheet Layout
 
-Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md).
+Follow `.claude/rules/09-resources-xml.md` + [reference/resources-xml.md](../../rules/reference/resources-xml.md) when xml; `28-compose-ui.md` + [reference/compose-ui.md](../../rules/reference/compose-ui.md) when compose.
 
-Obey `.claude/project-settings.json` when present.
+Obey `.claude/project-settings.json` when present (`uiFramework`).
 
 ## Orchestration
+
+**compose:** run **`figma-to-compose`**. Output `<Name>BottomSheet` (`ModalBottomSheet`) in the feature module. No `bottom_sheet_*.xml`. Then stop (skip XML steps).
+
+**xml:**
 
 1. If user provided a **Figma URL**, run the **`figma-to-xml`** workflow (including mandatory `figma-design-to-code` before `get_design_context`)
 2. Force output type **Bottom sheet** → `bottom_sheet_<feature>_<purpose>.xml` in `:presentation` `res/layout/`

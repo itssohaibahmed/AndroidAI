@@ -129,7 +129,7 @@ Do not change fetch/activate, mutex, or listener registration.
 - [ ] RC `saveValues()` (or existing helper) writes the new key
 - [ ] Domain SharedPref API / fakes updated **only** when this app already exposes RC there
 - [ ] No new modules, catalog libs, or `remote_config_defaults.xml`
-- [ ] Runtime reads stay on prefs cache — not RC SDK in Fragments
+- [ ] Runtime reads stay on prefs cache — not RC SDK in Fragments / Screens
 
 ## Do not
 

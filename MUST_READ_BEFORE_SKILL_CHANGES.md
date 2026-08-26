@@ -2,7 +2,7 @@
 
 **Read this file before changing anything under `.cursor/`.**
 
-This repo is the **company Cursor template** for Clean Architecture Android apps (XML + View Binding, MVI, Koin `lazyModule`). Apps copy `.cursor/` into their project. Keep this repo the **single source of truth**.
+This repo is the **company Cursor template** for Clean Architecture Android apps (XML + View Binding **or** Jetpack Compose via `uiFramework`, MVI, Koin `lazyModule`). Apps copy `.cursor/` into their project. Keep this repo the **single source of truth**.
 
 Full map of existing rules/skills: [`.cursor/README.md`](.cursor/README.md)
 
@@ -15,8 +15,8 @@ Full map of existing rules/skills: [`.cursor/README.md`](.cursor/README.md)
 | **Rules**               | `.cursor/rules/*.mdc`                                 | Standing law (architecture, naming, invariants)         |
 | **Long detail**         | `.cursor/rules/reference/*.md`                        | Full examples / tables (linked from short `.mdc` stubs) |
 | **Skills**              | `.cursor/skills/**/SKILL.md`                          | Multi-step playbooks (`/skill-name` or agent auto-pick) |
-| **Project settings**    | `.cursor/project-settings.json`                       | Per-app knobs (tests, orientation, theme, app id)       |
-| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML                         |
+| **Project settings**    | `.cursor/project-settings.json`                       | Per-app knobs (tests, orientation, theme, **uiFramework**, app id) |
+| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML + **compose/** when compose |
 
 **Rules** = “always do it this way.”  
 **Skills** = “when I ask, follow these steps.”
@@ -28,7 +28,7 @@ Do **not** grow a large `.cursor/commands/` tree — prefer skills with `/` invo
 ## Hard rules when editing this template
 
 1. **Do not delete rule meaning.** Prefer move / merge / link. If text must leave a `.mdc`, put the **full body** in `rules/reference/` and leave a short stub + link.
-2. **Do not invent a second stack** (Compose, Hilt, Data Binding, RxJava) unless the user explicitly asks.
+2. **Do not invent a second stack** (Hilt, Data Binding, RxJava; Compose when `uiFramework` is `xml`; XML Fragment screens when `uiFramework` is `compose`) unless the user explicitly asks. UI stack is **`uiFramework`**: `xml` | `compose`.
 3. **Obey existing patterns** in `.cursor/rules/` — especially `00-global.mdc`.
 4. **Unique skill `name:`** — never two skills with the same `name`.
 5. **Update** [`.cursor/README.md`](.cursor/README.md) skill map / rules index when you add or rename something.
@@ -58,7 +58,8 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 | **`gradle/gradle-organize`**            | `gradle-update`, `setup-new-project` / `setup-old-project` Gradle steps, `08` + `reference/gradle.md`                                                                             |
 | **Groovy → Kotlin DSL guidance**        | Lives in / must stay aligned with **`gradle-update`** (convert before bump) **and** `setup-old-project` Step 2 / `migration.md`; do not teach Groovy conversion in only one place |
 | **`setup-design-system`**               | Skill `reference.md`, color/theme notes in `09` / `reference/resources-xml.md` if invariants change, `.claude` twin                                                               |
-| **`create-mvi` / MVI law**              | `04-mvi-presentation` + `reference/mvi-presentation.md`, `01-feature-checklist`, `review-architecture` if gates change                                                            |
+| **`create-mvi` / MVI law**              | `04-mvi-presentation` + `reference/mvi-presentation.md`, `01-feature-checklist`, `28-compose-ui` + `reference/compose-ui.md` when compose, `review-architecture` if gates change |
+| **UI / Figma (`figma-to-xml` / `figma-to-compose`)** | Sibling UI skills (`create-dialog`, `create-bottom-sheet`, `create-custom-view`), `09` / `28`, `setup-new-project` / `setup-old-project`, `.claude` twins |
 | **Any `test-*` skill**                  | Sibling `test-*` banners/consent rules, `test-complete`, `11-testing.mdc`                                                                                                         |
 | **Any `review-*` skill**                | Sibling `review-*`, `review-complete`                                                                                                                                             |
 | **Firebase / billing / platform skill** | Sibling skills in that area + matching numbered rule if one exists                                                                                                                |
@@ -80,7 +81,7 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 | `14-security-secrets.mdc`  | Yes        | Secrets / exported / PII             |
 | `16-logging.mdc`           | Yes        | `Constants.TAG*` format              |
 | `01-feature-checklist.mdc` | **No**     | Checklist when scaffolding a feature |
-| Other `02`–`26`            | **No**     | Glob or description when relevant    |
+| Other `02`–`28`            | **No**     | Glob or description when relevant (`28-compose-ui` when compose) |
 
 **Prefer fewer always-on rules.** New “must always” items → add to `00-global` only if truly every chat needs them; otherwise use globs or a skill.
 
@@ -109,13 +110,13 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 
 ### Naming
 
-- Numbered rules: `00`–`26` style (`26-data-persistence.mdc`).
+- Numbered rules: `00`–`28` style (`26-data-persistence.mdc`, `28-compose-ui.mdc`).
 - Next free number if adding a new top-level topic.
 - Reference files: kebab-case (`mvi-presentation.md`).
 
 ### Globs
 
-- Prefer **narrow** paths (`**/presentation/**/*.kt`, `**/data/**/*.kt`) over `**/*.kt`.
+- Prefer **narrow** paths (`**/presentation/**/*.kt`, `**/feature*/**/*.kt`, `**/data/**/*.kt`) over `**/*.kt`.
 - Keep a strong `description` so Agent can still load the rule when relevant.
 
 ---
@@ -153,9 +154,10 @@ Obey `.cursor/project-settings.json` when present.
 
 | You want to…                                        | Prefer                                                                                                                                                   |
 |-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Scaffold a screen (Intent/State/Effect/VM/Fragment) | `feature/create-mvi` (extend or new skill under `feature/`)                                                                                              |
+| Scaffold a screen (Intent/State/Effect/VM + Fragment or `*Screen`) | `feature/create-mvi` (extend or new skill under `feature/`)                                                                                              |
 | Add domain/data/repo                                | `feature/create-clean-architecture`                                                                                                                      |
-| XML / Figma layout only                             | `ui/figma-to-xml` (or dialog / bottom-sheet)                                                                                                             |
+| XML / Figma layout only                             | `ui/figma-to-xml` (or dialog / bottom-sheet) — when `uiFramework` is `xml`                                                                               |
+| Compose / Figma screen only                         | `ui/figma-to-compose` (or dialog / bottom-sheet) — when `uiFramework` is `compose`                                                                        |
 | Review PR / architecture / perf / security          | `review/review-*` (+ wire into `review-complete` if full gate)                                                                                           |
 | Unit / integration / E2E tests                      | `test/test-*` (+ `test-complete` if full suite)                                                                                                          |
 | Gradle catalog / organize                           | `gradle/`                                                                                                                                                |
@@ -168,7 +170,7 @@ Obey `.cursor/project-settings.json` when present.
 
 - Repeated **constraint** → **rule** (and `reference/` if long).
 - Repeated **workflow** (“do steps 1–7”) → **skill**.
-- Do **not** copy full XML/Material rules into every UI skill — **link** `09` + `reference/resources-xml.md`.
+- Do **not** copy full XML/Material rules into every UI skill — **link** `09` + `reference/resources-xml.md`. Compose UI skills **link** `28` + `reference/compose-ui.md`.
 
 ### After adding a skill
 
@@ -293,4 +295,5 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 | XML detail          | `.cursor/rules/reference/resources-xml.md`        |
 | MVI detail          | `.cursor/rules/reference/mvi-presentation.md`     |
 | DI detail           | `.cursor/rules/reference/dependency-injection.md` |
-| App settings schema | `.cursor/project-settings.json`                   |
+| Compose detail      | `.cursor/rules/reference/compose-ui.md`           |
+| App settings schema | `.cursor/project-settings.json` (`uiFramework`)   |

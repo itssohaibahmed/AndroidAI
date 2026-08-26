@@ -2,6 +2,8 @@
 
 Full detail for `19-base-ui.mdc`. Do not delete lines from this file — edit here and keep the rule stub in sync.
 
+When `uiFramework` is `compose`, do not scaffold `ParentFragment` / View Binding bases — use [compose-ui.md](compose-ui.md) (`*Screen` / `AppTheme` / `:app` `MainActivity`). This file stays the XML `Parent*` contract.
+
 ## Base hierarchy
 
 ```

@@ -31,9 +31,9 @@ Match the **app’s existing** call sites if events already exist.
 
 If greenfield (Qibla / Photo Collage):
 
-- **Screen** — Fragment `onViewCreated` → private `postEvent()`
-- **Button** — Fragment click / `handleEffect` (user-visible taps)
-- **Not** `ParentFragment` auto-log
+- **Screen** — xml: Fragment `onViewCreated` → private `postEvent()`. compose: `LaunchedEffect(Unit)` on `*Screen` → `postEvent()`
+- **Button** — xml: Fragment click / `handleEffect`. compose: click lambda / effect handler (user-visible taps)
+- **Not** `ParentFragment` auto-log / not a root `NavGraph` auto-log
 - **Not** ViewModel unless the app already posts from `onScreenStarted`
 
 ## Poster

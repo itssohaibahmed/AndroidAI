@@ -12,13 +12,13 @@ Companion to [SKILL.md](SKILL.md). Target architecture: [setup-new-project](../s
 | Some modules already exist                               | Fill gaps only; do not rename a working module without need.                                                             |
 | MVC / logic in Activity or Fragment                      | Extract data to DataSource/Repository/UseCase; UI to MVI Fragment. Keep XML.                                             |
 | MVVM (ViewModel, no Intent/State/Effect)                 | Wrap existing VM work in `handleIntent` / State / Effect. Do not rewrite use cases.                                      |
-| Already MVI (Intent/State/Effect)                        | Move packages to `presentation/<feature>/…`; fix DI to `lazyModule`.                                                     |
-| Activity-per-screen                                      | One `MainActivity` + `nav_graph`; one Fragment per old Activity; preserve back stack.                                    |
-| Navigation Component already                             | Keep graphs; set start to `entranceFragment`; Entrance routes to the old start destination.                              |
+| Already MVI (Intent/State/Effect)                        | **xml:** move packages to `presentation/<feature>/…`. **compose:** move to `:feature-<kebab>`. Fix DI to `lazyModule`. |
+| Activity-per-screen                                      | **xml:** one `MainActivity` + `nav_graph`; one Fragment per old Activity. **compose:** one `:feature-*` + `NavGraph.kt` destination. Preserve back stack. |
+| Navigation Component already                             | **xml:** keep graphs; set start to `entranceFragment`. **compose:** root `NavGraph.kt` with `ENTRANCE_ROUTE`. Entrance routes to the old start destination. |
 | Hilt / Dagger / `module { }`                             | Same graph as **Koin `lazyModule` / `lazyModules`**.                                                                     |
 | No DI                                                    | Introduce Koin `lazyModule` while extracting.                                                                            |
-| Data Binding / `findViewById`                            | View Binding; same view ids and layout behavior.                                                                         |
-| Jetpack Compose                                          | **Stop and ask.** Do not convert to XML unless the user explicitly approves.                                             |
+| Data Binding / `findViewById`                            | **xml:** View Binding; same view ids and layout behavior. **compose:** leave Compose UI; do not convert to XML.          |
+| Jetpack Compose                                          | Set `uiFramework` `compose`. Extract into `:feature-*` + `:core-design` + `:app` `NavGraph.kt`. Do **not** convert to XML unless asked. |
 | Java sources                                             | Convert to Kotlin when touching a file / moving into a new layer; keep control flow.                                     |
 | API in Activity/Presenter                                | DataSource (network) + Repository impl (`:data`) + interface/UseCase (`:domain`). Same URL, method, headers, parse.      |
 | OkHttp / Volley / Retrofit already                       | Keep the client. Place in `:data`. Add Retrofit only with approval (`00-global`).                                        |

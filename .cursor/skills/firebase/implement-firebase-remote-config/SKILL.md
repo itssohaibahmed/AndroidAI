@@ -1,6 +1,6 @@
 ---
 name: implement-firebase-remote-config
-description: First-time Firebase Remote Config with SharedPreferences cache, FetchRemoteConfigUseCase, and EntranceFragment fetch. Use when adding the RC stack for the first time, fetchAndActivate, or /implement-firebase-remote-config — not for extra keys on an existing cache (use add-firebase-remote-config) and not for analytics events.
+description: First-time Firebase Remote Config with SharedPreferences cache, FetchRemoteConfigUseCase, and EntranceFragment / EntranceScreen fetch. Use when adding the RC stack for the first time, fetchAndActivate, or /implement-firebase-remote-config — not for extra keys on an existing cache (use add-firebase-remote-config) and not for analytics events.
 ---
 
 # Implement Firebase Remote Config (first time)
@@ -18,8 +18,8 @@ Complete RC stack (Speak-Translate DataSource + cache-to-prefs):
 
 1. Fetch/activate (`minimumFetchIntervalInSeconds(0)`)
 2. Cache every needed key into `SharedPrefManager`
-3. Runtime reads from **prefs cache**, never RC SDK in Fragments
-4. Invoke from **EntranceFragment** (non-blocking)
+3. Runtime reads from **prefs cache**, never RC SDK in Fragments / Screens
+4. Invoke from **EntranceFragment** (xml) or **EntranceScreen** (compose) (non-blocking)
 
 ## Entry
 
@@ -133,7 +133,7 @@ Register in composition root. No `module { }`. Presentation must not depend on `
 
 ---
 
-## Step 5 — EntranceFragment
+## Step 5 — EntranceFragment / EntranceScreen
 
 After Koin is ready (same place as billing init if present):
 
@@ -149,7 +149,7 @@ is EntranceIntent.FetchRemoteConfig -> fetchRemoteConfigUseCase()
 
 No `FetchRemoteConfig` start/success ViewModel logs (repository already logs).
 
-If there is no `EntranceFragment`: **AskQuestion** for the host (prefer `nav_graph` `startDestination`). Do not fetch only from `Application` unless the user says so.
+If there is no `EntranceFragment` / `EntranceScreen`: **AskQuestion** for the host (prefer `nav_graph` / `NavGraph` startDestination). Do not fetch only from `Application` unless the user says so.
 
 ---
 
@@ -170,7 +170,7 @@ If there is no `EntranceFragment`: **AskQuestion** for the host (prefer `nav_gra
 ## Do not
 
 - `addLiveUpdateListener` (use `addConfigUpdateListener`)
-- Read Remote Config from Fragments
+- Read Remote Config from Fragments / Screens
 - `PlatformFirebase` with `Context`
 - `remote_config_defaults.xml` unless the user asks
 - Rewrite a working legacy RC helper without approval

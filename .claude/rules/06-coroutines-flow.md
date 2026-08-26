@@ -7,6 +7,7 @@ paths:
   - "**/domain/**/*.kt"
   - "**/dataSource/**/*.kt"
   - "**/presentation/**/*.kt"
+  - "**/feature*/**/*.kt"
 ---
 
 ## Scopes
@@ -45,7 +46,8 @@ Rules:
 - Do not put full thousand-item payloads in State when only a page/window is shown — prefer pagination / paging / windowed loads when the feature needs it
 - Avoid copying large collections on Main (`toList()`, deep `map` chains) without a background dispatcher
 - Prefer streaming (`Flow`) over loading entire datasets into memory when sources support it
-- RecyclerView: `ListAdapter` + DiffUtil; declare `app:layoutManager` / orientation / `spanCount` in XML unless dynamic; avoid nested RecyclerViews that rebind huge children
+- RecyclerView (xml): `ListAdapter` + DiffUtil; declare `app:layoutManager` / orientation / `spanCount` in XML unless dynamic; avoid nested RecyclerViews that rebind huge children
+- Lazy lists (compose): `LazyColumn` / `LazyVerticalGrid` with stable `key`; no heavy map/filter/sort in composition (`28-compose-ui`)
 - Image/list binding: cancel/reuse (e.g. Glide) — no unbounded bitmap work on Main
 
 ## Flow

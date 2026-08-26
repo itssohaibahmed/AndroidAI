@@ -1,11 +1,11 @@
 ---
 name: setup-old-project
-description: Migrates an existing production Android app to the setup-new-project architecture (multi-module Clean Architecture, MVI, Koin lazyModule, XML View Binding) while preserving product behavior. Detects MVC, MVVM, Activity-based, single-module, Gradle Groovy, and older SDK setups, then extracts existing code into the target layers. Use when the user says setup-old-project, migrate an old/live app, or convert a shipping project to the template. Do not use for greenfield apps — use setup-new-project.
+description: Migrates an existing production Android app to the setup-new-project architecture (multi-module Clean Architecture, MVI, Koin lazyModule, XML View Binding or Compose feature modules per uiFramework) while preserving product behavior. Detects MVC, MVVM, Activity-based, single-module, Gradle Groovy, Compose, and older SDK setups, then extracts existing code into the target layers. Use when the user says setup-old-project, migrate an old/live app, or convert a shipping project to the template. Do not use for greenfield apps — use setup-new-project.
 ---
 
 # Setup Old Project
 
-Follow `.claude/rules/` — especially `00-global`, `02-project-structure`, `07-dependency-injection`, `08-gradle`, `09-resources-xml`, `17-navigation`, `19-base-ui`, `21-ads-billing`, `22-platform-firebase`, `23-app-startup`, `26-data-persistence`.
+Follow `.claude/rules/` — especially `00-global`, `02-project-structure`, `07-dependency-injection`, `08-gradle`, `09-resources-xml`, `17-navigation`, `19-base-ui`, `21-ads-billing`, `22-platform-firebase`, `23-app-startup`, `26-data-persistence`, `28-compose-ui` (when compose).
 
 **Target architecture:** [setup-new-project](../setup-new-project/SKILL.md). Read that skill and treat it as the destination. Reuse its templates (`../setup-new-project/templates/`). Do not invent a parallel stack.
 
@@ -75,6 +75,7 @@ Write answers to **`.claude/project-settings.json`**:
   "orientation": "both",
   "themeModes": "both",
   "applicationId": "com.company.app",
+  "uiFramework": "xml",
   "appName": "App Display Name"
 }
 ```
@@ -91,7 +92,8 @@ Ask, in this order (use AskQuestion when available):
     - Tell the user whether `values-night` (or equivalent) exists today.
     - Ask explicitly whether they want **night mode**, **day only**, or **both**.
 5. **`writeTestsWithFeatures`** — `true` / `false`. Propose `true`.
-6. **Ads** — if ads already exist, **keep them** (do not add SDKs, do not convert to MVI). If none exist, do not add without approval.
+6. **`uiFramework`** — `xml` / `compose`. Detect from the inventory (Compose screens vs XML Fragments). Propose the current stack. **Do not** convert XML ↔ Compose unless the user explicitly asks.
+7. **Ads** — if ads already exist, **keep them** (do not add SDKs, do not convert to MVI). If none exist, do not add without approval.
 
 All later skills **must read** `.claude/project-settings.json` and obey it. Orientation / night resources are added or skipped **only** from this confirmation — do not add landscape or `values-night` unless the user chose `both` (or that single mode).
 
@@ -110,7 +112,7 @@ Scan the repo and record (do not change files yet):
 - Locales: all `values-*` string folders
 - Signing: existing `.jks` / `signingConfigs` / `keystore.properties`
 
-If the UI is **Jetpack Compose**, **stop and ask** — converting Compose → XML is a product rewrite, not this skill’s default. Proceed only with explicit user approval.
+If the UI is **Jetpack Compose**, set `uiFramework` to `compose` and migrate toward AnimeHub **feature modules** (`28-compose-ui`) — do **not** convert Compose → XML unless the user explicitly asks. If the UI is XML, set `xml` and keep View Binding — do **not** convert XML → Compose unless asked.
 
 Then migrate using [migration.md](migration.md). Prefer the detect → action table there.
 
@@ -119,9 +121,9 @@ Then migrate using [migration.md](migration.md). Prefer the detect → action ta
 Follow `08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md) and **`gradle-organize`**.
 
 1. Groovy → Kotlin DSL if needed (`settings.gradle.kts`, module scripts, catalog). **Same conversion contract as `gradle-update` Step 0** — keep both docs aligned when this changes (`MUST_READ_BEFORE_SKILL_CHANGES.md`).
-2. `include` the mandatory module set from `setup-new-project` (`:app`, `:domain`, `:data`, `:presentation`, `:core-common`, `:core-ui`, `:core-platform`; keep `:gmaAds` / extra modules if they already exist).
+2. `include` the mandatory module set from `setup-new-project` (`:app`, `:domain`, `:data`, `:core-common`, `:core-ui`, `:core-platform`; **xml:** also `:presentation`; **compose:** also `:core-design` + `:feature-*` — keep `:gmaAds` / extra modules if they already exist).
 3. Move existing dependencies into `libs.versions.toml` **at the same versions**. Do not run a full `gradle-update` bump. Bump a library only if the new architecture cannot compile without it; tell the user what changed.
-4. View Binding on UI modules; Safe Args on `:presentation`. Remove Data Binding when replacing it with View Binding (keep layouts working).
+4. **xml:** View Binding on UI modules; Safe Args on `:presentation`. Remove Data Binding when replacing it with View Binding (keep layouts working). **compose:** `kotlin.compose` + `compose = true` on `:app` / `:core-design` / `:feature-*`; Coil 3; no View Binding on feature modules.
 5. Preserve `signingConfigs`, `versionCode` / `versionName`, `applicationId`, existing `.jks` paths, `google-services.json`, ProGuard keep rules. Do not invent passwords.
 6. `:app` script shape from `setup-new-project` Step 1 (`android` section order, `bundle.language.enableSplit = false`, `base.archivesName`).
 7. Every module `.gitignore` (`/build`; `:app` also `/release`).
@@ -135,7 +137,8 @@ Create missing modules. **Move** existing code into them — do not leave duplic
 app (Composition Root) — no values resources
  |
  ↓
-presentation → domain ← data
+xml: presentation → domain ← data
+compose: feature-* → domain ← data   (+ :core-design)
  |
  ↓
 core-common / core-ui / core-platform
@@ -145,7 +148,7 @@ core-common / core-ui / core-platform
 - Convert Hilt/Dagger/`module { }` → **`lazyModule` / `lazyModules` only** (same graph, new container)
 - Theme after `startKoin` (`23-app-startup`); no `GlobalContext.getOrNull()` gates
 - UseCases + repo **interfaces** → `:domain`; DataSources + repo **impls** → `:data`
-- `presentation` **never** depends on `:data`
+- UI modules (`:presentation` or `:feature-*`) **never** depend on `:data`
 
 Copy Parent*/anim/extensions/Glide/`PlatformFirebase` from [setup-new-project templates](../setup-new-project/templates/) **only when missing**. See `setup-new-project` Steps 2, 6, 7.
 
@@ -165,16 +168,29 @@ Heavy mapping stays in Repository / UseCase — not in Fragments.
 
 ## Step 5 — Presentation + navigation
 
-Preserve layouts, click behavior, copy, and back-stack meaning.
+Preserve layouts / composables, click behavior, copy, and back-stack meaning.
+
+**xml:**
 
 1. `MainActivity` in `:presentation` extends `ParentActivity`; host `fcvContainerMain` + `NavHostFragment` + `@navigation/nav_graph`.
 2. Map each feature Activity (or MVC screen) to a Fragment + MVI via **`create-mvi`** patterns: move existing UI logic into Intent / State / Effect / ViewModel **without changing what the user sees**. Reuse the same XML (View Binding). See [migration.md](migration.md).
 3. Activity-per-screen → single-activity `nav_graph`. Same destinations and back behavior.
 4. **`app:startDestination="@id/entranceFragment"`** is mandatory. Implement `EntranceFragment` so it routes to whatever was the previous first screen (splash / language / onboarding / home). Do not insert a new user-facing splash unless the app already had one.
 5. Copy `anim/` + `anim-ldrtl/` slide_* into `:core-ui` if missing; every forward `<action>` gets the four anim attrs (`17-navigation`).
-6. Strings: **all** locales move to `:core-ui` — do not drop a translation file.
-7. Images: programmatic binds use `loadImage` (Glide / `ImageViewExtensions`).
-8. Tests for new UseCases/ViewModels only if `writeTestsWithFeatures` is `true`. Fix existing tests’ packages/modules when they break; do not weaken assertions.
+6. Images: programmatic binds use `loadImage` (Glide / `ImageViewExtensions`).
+
+**compose:**
+
+1. `MainActivity` in `:app` `setContent { AppTheme { NavGraph() } }` — **never** `GlobalContext.get()`.
+2. One `:feature-<kebab>` per screen (`create-mvi` Compose path). Keep existing composables; wrap in `*Screen` / `*ScreenContent`.
+3. Root `NavGraph.kt` in `:app`; `startDestination = ENTRANCE_ROUTE`. Entrance routes to the previous first screen.
+4. Slide transitions on the `NavHost`. Features never take `NavController`.
+5. Images: Coil `AsyncImage`.
+
+**both:**
+
+- Strings: **all** locales move to `:core-ui` — do not drop a translation file.
+- Tests for new UseCases/ViewModels only if `writeTestsWithFeatures` is `true`. Fix existing tests’ packages/modules when they break; do not weaken assertions.
 
 ## Step 6 — Firebase / platform
 
@@ -194,13 +210,13 @@ Dispatchers: register **without** `named("io")` / `named("default")`.
 
 `setup-new-project` Step 9 checklist **plus**:
 
-- [ ] User confirmed `project-settings.json` (orientation, themeModes, tests, applicationId, appName)
+- [ ] User confirmed `project-settings.json` (orientation, themeModes, tests, applicationId, appName, **uiFramework**)
 - [ ] Landscape / `values-night` match the confirmed settings — not added silently
 - [ ] No product behavior rewrite: same APIs, prefs keys, DB schema, analytics event names, ad unit IDs, locales
 - [ ] Ads architecture unchanged (not MVI unless explicitly requested)
 - [ ] Existing FCM service / billing / third-party flows still present
 - [ ] Previous start screen still reachable from Entrance
-- [ ] `presentation` ↛ `:data`; `lazyModule` only
+- [ ] UI modules (`:presentation` or `:feature-*`) ↛ `:data`; `lazyModule` only
 - [ ] `assembleDebug` succeeds
 
 ## Do not
@@ -210,8 +226,8 @@ Dispatchers: register **without** `named("io")` / `named("default")`.
 - Convert ads (`:gmaAds`, AdMob managers, ad ViewModels) to MVI unless the user **explicitly** asks
 - Drop translations, change analytics event names, or rotate signing keys
 - Full dependency bump (`gradle-update`) unless required to compile
-- Add Compose / Data Binding / Hilt
-- Convert Compose → XML without explicit approval
+- Add Data Binding / Hilt. Do not add Compose when `uiFramework` is `xml`. Do not add XML Fragment screens when `uiFramework` is `compose`
+- Convert Compose ↔ XML without explicit approval
 - Add landscape or night resources unless `project-settings.json` says so
 - Skip writing / confirming `project-settings.json`
 - Delete an existing `FirebaseMessagingService` or push UI
@@ -220,4 +236,4 @@ Dispatchers: register **without** `named("io")` / `named("default")`.
 
 ## After setup
 
-Same as `setup-new-project`: optional later `/setup-design-system`; screens via `figma-to-xml` → `create-mvi`; new domain/data via `create-clean-architecture`; `review-complete` before PR. Missing RC / Analytics coverage: `implement-firebase-remote-config`, `implement-firebase-events`, then `add-firebase-*` for later screens.
+Same as `setup-new-project`: optional later `/setup-design-system`; screens via `figma-to-xml` **or** `figma-to-compose` → `create-mvi`; new domain/data via `create-clean-architecture`; `review-complete` before PR. Missing RC / Analytics coverage: `implement-firebase-remote-config`, `implement-firebase-events`, then `add-firebase-*` for later screens.

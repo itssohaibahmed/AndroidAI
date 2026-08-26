@@ -7,7 +7,9 @@ description: Create Android XML layouts and drawables from a Figma URL or freefo
 
 Follow `.cursor/rules/09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md), `12-naming-conventions.mdc`, `24-figma-assets.mdc`.
 
-Obey `.cursor/project-settings.json` when present (`orientation`, `themeModes`).
+Obey `.cursor/project-settings.json` when present (`uiFramework`, `orientation`, `themeModes`).
+
+**If `uiFramework` is `compose`:** stop. Use `figma-to-compose` instead (unless the user explicitly asked to convert this app to XML).
 
 **Never** create Kotlin Fragment/ViewModel/DI here — point user to `create-mvi` / `create-clean-architecture` afterward.
 

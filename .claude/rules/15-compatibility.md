@@ -29,8 +29,9 @@ paths:
 |--------|------|
 | AndroidX libraries | Legacy support libraries |
 | SplashScreen API | Legacy splash-only themes |
-| View Binding | findViewById / Kotlin synthetics / Data Binding |
-| Navigation Component | Manual FragmentTransactions for primary flow |
+| View Binding | findViewById / Kotlin synthetics / Data Binding (xml apps) |
+| Jetpack Compose (when `uiFramework` is compose) | XML Fragment screens / View Binding for feature UI |
+| Navigation Component / Navigation Compose | Manual FragmentTransactions for primary flow |
 | FusedLocationProvider + coroutines | Blocking location loops |
 
 ## Backward compatibility

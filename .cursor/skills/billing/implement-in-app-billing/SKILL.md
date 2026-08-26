@@ -13,7 +13,7 @@ Obey `.cursor/project-settings.json` when present (`orientation`, `writeTestsWit
 
 **Requires human approval** before adding `inappbilling` if not already in the catalog.
 
-Cross-skills: `create-clean-architecture` (domain/data), `create-mvi` + `figma-to-xml` (paywall UI).
+Cross-skills: `create-clean-architecture` (domain/data), `create-mvi` + `figma-to-xml` **or** `figma-to-compose` (paywall UI, per `uiFramework`).
 
 ---
 

@@ -2,6 +2,7 @@
 description: Runtime permissions via MVI Effects and base helpers
 paths:
   - "**/presentation/**/*.kt"
+  - "**/feature*/**/*.kt"
   - "**/AndroidManifest.xml"
 ---
 
@@ -11,11 +12,12 @@ paths:
 User action / need
   → Intent
   → ViewModel emits Effect (RequestLocationPermission, …)
-  → BasePermissionFragment / helper runs system prompt
+  → BasePermissionFragment / helper runs system prompt (xml)
+  → `rememberLauncherForActivityResult` in `*Screen` (compose)
   → Result Intent back to ViewModel
 ```
 
-Never scatter `ActivityResultLauncher` + business branching across random Fragments when a base helper exists.
+Never scatter `ActivityResultLauncher` + business branching across random Fragments when a base helper exists (xml). Compose: one launcher in `*Screen`, result dispatched as Intent — no permission logic in `*ScreenContent`.
 
 ## Rules
 

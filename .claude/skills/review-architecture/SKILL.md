@@ -13,7 +13,7 @@ Obey `.claude/project-settings.json` when judging orientation / tests.
 
 ### Module boundaries
 
-- [ ] `presentation` does not import `:data`
+- [ ] `presentation` / `:feature-*` does not import `:data`
 - [ ] `domain` has no Android UI / presentation imports
 - [ ] UseCases + repository **interfaces** only in `:domain` — never in `:data`
 - [ ] No circular module dependencies
@@ -22,7 +22,7 @@ Obey `.claude/project-settings.json` when judging orientation / tests.
 - [ ] Each `lazyModule` has readable `//// Section` headers (SoC: DataSources / Repositories / ViewModels / area UseCases, etc.)
 - [ ] `dataModule` ordered: `//// DataSources` then `//// Repositories`
 - [ ] UseCase factories in domain `useCaseModule` (grouped by area)
-- [ ] New `lazyModule` registered in composition root (list also sectioned: Core / Data / Domain / Presentation / Ads)
+- [ ] New `lazyModule` registered in composition root (list also sectioned: Core / Data / Domain / Presentation or Feature / Ads)
 
 ### MVI
 
@@ -30,14 +30,15 @@ Obey `.claude/project-settings.json` when judging orientation / tests.
 - [ ] `handleIntent` single launch + `suspend` `onX` handlers; `handleError` at end of ViewModel
 - [ ] Navigation via Effects — not NavController in ViewModel
 - [ ] No mutable state exposed publicly
-- [ ] Fragments render + dispatch intents only
-- [ ] Fragment member order (`19-base-ui`): `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown
-- [ ] Collectors use `viewLifecycleOwner` (`FragmentExtensions`); nav via `navigateTo` / `popFrom`
+- [ ] Fragments (xml) or `*Screen` (compose) render + dispatch intents only
+- [ ] **xml:** Fragment member order (`19-base-ui`): `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown
+- [ ] **xml:** Collectors use `viewLifecycleOwner` (`FragmentExtensions`); nav via `navigateTo` / `popFrom`
+- [ ] **compose:** `*Screen` + private `*ScreenContent`; `collectAsStateWithLifecycle` + `LaunchedEffect` for effects; no `NavController` in the feature (`28-compose-ui`)
 - [ ] ViewModel logs sparse — repo primary; failures via `handleError`
 
 ### Mapping
 
-- [ ] Heavy mapping in Repo / UseCase — not Fragment/Adapter
+- [ ] Heavy mapping in Repo / UseCase — not Fragment/Adapter/`*ScreenContent`
 - [ ] `toUi()` in ViewModel only when needed, with dispatcher for large lists
 - [ ] Adapters bind `*UiItem` only
 
@@ -45,19 +46,20 @@ Obey `.claude/project-settings.json` when judging orientation / tests.
 
 - [ ] No disk/network/heavy map on Main
 - [ ] Injected dispatchers where project uses them
-- [ ] Large lists: ListAdapter + DiffUtil
+- [ ] Large lists: ListAdapter + DiffUtil (xml) or Lazy list + keys (compose)
 
-### UI (`09-resources-xml`, `19-base-ui`)
+### UI (`09-resources-xml`, `19-base-ui`, `28-compose-ui`)
 
-- [ ] View Binding only — no findViewById / Data Binding
+- [ ] **xml:** View Binding only — no findViewById / Data Binding / Compose feature screens
+- [ ] **compose:** `*Screen` / `*ScreenContent`; no `fragment_*` layouts; no `GlobalContext.get()` in MainActivity
 - [ ] Material widgets; portrait + landscape (per project settings)
 - [ ] Clickable icons → `ButtonStyle.IconButton` (`mb`, `app:icon`) — not clickable `siv`
 - [ ] `MaterialButton` solid+stroke → tint/stroke/`cornerRadius` — not `bg_shape_*` + `background` override
 - [ ] Filled/text `MaterialButton` → `wrap_content` height — no fixed height + inset 0dp hacks
 - [ ] Clickable language/chip selectors → `MaterialButton` + Material bg + end `app:icon` — not MTV + `bg_shape_*` / `drawableEnd`
-- [ ] Programmatic images via Glide `siv.loadImage(...)` — not `setImageResource` / raw Glide in adapters
+- [ ] **xml:** Programmatic images via Glide `siv.loadImage(...)` — not `setImageResource` / raw Glide in adapters. **compose:** Coil `AsyncImage`
 - [ ] Strings in single `:core-ui` file
-- [ ] Static `layoutManager` / orientations / `spanCount` in XML — not Kotlin unless dynamic
+- [ ] **xml:** Static `layoutManager` / orientations / `spanCount` in XML — not Kotlin unless dynamic. **compose:** `LazyColumn` / `LazyRow` / `LazyVerticalGrid` with keys
 
 ### Security / logging (`14-security-secrets`, `16-logging`)
 

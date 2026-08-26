@@ -76,15 +76,17 @@ Multi-module greenfield:
 
 Single-module / existing helper: add constants + `postFirebaseEvent` **there**.
 
-Discover every user-visible Fragment / dialog / sheet. Add constants for the kinds chosen in 0.1 (do not add button constants if the user picked screens only).
+Discover every user-visible Fragment / Compose Screen / dialog / sheet. Add constants for the kinds chosen in 0.1 (do not add button constants if the user picked screens only).
 
 ---
 
 ## Step 3 — Wire every screen
 
-For each Fragment (Qibla / Photo Collage):
+For each Fragment (xml) or `*Screen` (compose):
 
 **Screen** (if chosen):
+
+**xml:**
 
 ```kotlin
 override fun onViewCreated() {
@@ -96,6 +98,8 @@ private fun postEvent() {
     EventsProvider.HOME_SCREEN.postFirebaseEvent()
 }
 ```
+
+**compose:** `LaunchedEffect(Unit) { EventsProvider.HOME_SCREEN.postFirebaseEvent() }` on `*Screen` (once per entry).
 
 **Button** (if chosen): post on the actual click / continue / cross handler, not on every bind.
 

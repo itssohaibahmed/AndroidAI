@@ -1,12 +1,14 @@
 ---
 description: Base UI classes, ViewBinding lifecycle, and Flow collection
-globs: ["**/ui/**/*.kt", "**/base/**/*.kt", "**/presentation/**/*.kt", "**/core/ui/**/*.kt"]
+globs: ["**/ui/**/*.kt", "**/base/**/*.kt", "**/presentation/**/*.kt", "**/feature*/**/*.kt", "**/core/ui/**/*.kt"]
 alwaysApply: false
 ---
 
 # Base UI (invariants)
 
 **Full detail (Parent*/Base* API, Fragment member order template):** [reference/base-ui.md](reference/base-ui.md)
+
+Applies to XML `Parent*` / `Base*` when `uiFramework` is `xml`. Compose screens follow `28-compose-ui` instead of Fragment member order.
 
 ## Must follow
 

@@ -2,7 +2,7 @@
 
 Full detail for `04-mvi-presentation.mdc`. Do not delete lines from this file — edit here and keep the rule stub in sync.
 
-**Out of scope: ads.** This pattern is for **feature screens** in `:presentation`. Do not convert `:gmaAds` / AdMob managers / existing ad ViewModels to Intent / State / Effect unless the user **explicitly** asks. Keep the project’s existing ads architecture (`21-ads-billing`).
+**Out of scope: ads.** This pattern is for **feature screens** in `:presentation` (xml) or `:feature-*` (compose). Do not convert `:gmaAds` / AdMob managers / existing ad ViewModels to Intent / State / Effect unless the user **explicitly** asks. Keep the project’s existing ads architecture (`21-ads-billing`).
 
 ## Intent (user/system actions)
 
@@ -14,7 +14,7 @@ sealed class FeatureIntent {
 ```
 
 - UI dispatches intents via `viewModel.handleIntent(...)` only
-- No business branching in Fragments beyond rendering
+- No business branching in Fragments / `*ScreenContent` beyond rendering
 
 ## State (continuous UI data)
 
@@ -109,29 +109,40 @@ class FeatureViewModel(
 - `Log.w` for empty/guard paths when useful (e.g. confirm with no selection)
 - If the screen has **no** repo/use-case path (UI-only logic), a short ViewModel log is OK
 
-## Fragment / Activity / Adapter rules
+## Fragment / Activity / Adapter rules (xml)
 
 - Collect state with lifecycle-aware collectors (`collectWhenStarted` on **`viewLifecycleOwner`** via `FragmentExtensions`)
 - Collect effects separately from state (`collectWhenCreated`)
-- Navigate with `navigateTo` / `popFrom` â€” not raw `findNavController()` when helpers exist
-- Toasts: `context?.showToast(R.string.x)` / `context?.showToast("â€¦")` via `ContextExtensions` â€” prefer `@StringRes`
+- Navigate with `navigateTo` / `popFrom` — not raw `findNavController()` when helpers exist
+- Toasts: `context?.showToast(R.string.x)` / `context?.showToast("…")` via `ContextExtensions` — prefer `@StringRes`
 - Extend project `Parent*` / `Base*` Fragment classes when available
-- View Binding only â€” never `findViewById` / Data Binding
-- **Render only** â€” no DTO/domain mapping, filtering, or sorting in Fragment / Activity / Adapter
+- View Binding only — never `findViewById` / Data Binding
+- **Render only** — no DTO/domain mapping, filtering, or sorting in Fragment / Activity / Adapter
 - Adapters bind pre-mapped UI models (`*UiItem`) only
 - Log screen analytics via shared `EventsProvider` (or equivalent) when the project uses Firebase events
-- **Fragment member order** (see `19-base-ui`): `onViewCreated` (`screenStarted` + **inline** clicks â€” no `setupClicks()`) â†’ `onStart`/`onResume` (if any) â†’ helper implementations â†’ `initObservers` â†’ `renderState` â†’ `handleEffect` â†’ `onPause`/`onStop`/`onDestroyView` (if any)
+- **Fragment member order** (see `19-base-ui`): `onViewCreated` (`screenStarted` + **inline** clicks — no `setupClicks()`) → `onStart`/`onResume` (if any) → helper implementations → `initObservers` → `renderState` → `handleEffect` → `onPause`/`onStop`/`onDestroyView` (if any)
+
+## Compose screen rules (`uiFramework` compose)
+
+Full packaging: [compose-ui.md](compose-ui.md).
+
+- `*Screen`: `koinViewModel()`, `collectAsStateWithLifecycle()`, `LaunchedEffect(viewModel) { effect.collect }`
+- Private `*ScreenContent`: state + `(Intent) -> Unit` / specific lambdas — no ViewModel, no `NavController`
+- Navigation via Effects → lambdas passed from `:app` `NavGraph`
+- Lists: `LazyColumn` / `LazyVerticalGrid` with stable keys (Paging: `collectAsLazyPagingItems`)
+- Images: Coil `AsyncImage`
+- Never map inside `*Screen` / `*ScreenContent`
 
 ## Mapping (`toUi`)
 
 - Prefer heavy mapping in **Repository** or **UseCase** (wherever the concern belongs)
 - Domain â†’ UI (`FeatureUiMapper.toUi(...)`) may run in **ViewModel** when needed
 - If mapping looks heavy (large lists), use a dispatcher (`withContext(defaultDispatcher)`) before updating State
-- Never map inside Fragment, Activity, Adapter, or XML
+- Never map inside Fragment, Activity, Adapter, XML, or `*ScreenContent`
 
 ## Lists and large data in UI
 
-- Assume lists may be thousands of items â€” use `ListAdapter` + `DiffUtil`
+- Assume lists may be thousands of items — xml: `ListAdapter` + `DiffUtil`; compose: `LazyColumn` / `LazyVerticalGrid` with stable keys
 - Map/filter/sort large collections in Repo / UseCase / ViewModel (off Main) before State / `submitList`
 - Keep State lean; do not dump entire raw datasets into UI state when unnecessary
 - Prefer pagination / windowed loading when the feature loads open-ended data

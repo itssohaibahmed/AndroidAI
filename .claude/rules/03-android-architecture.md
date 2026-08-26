@@ -4,6 +4,7 @@ paths:
   - "**/domain/**/*.kt"
   - "**/data/**/*.kt"
   - "**/presentation/**/*.kt"
+  - "**/feature*/**/*.kt"
   - "**/core*/**/*.kt"
   - "**/app/**/*.kt"
 ---
@@ -18,14 +19,12 @@ Presentation  →  Domain  →  Data
 Dependencies always point inward.
 
 ### Presentation
-
 - UI logic and state rendering only
 - ViewModels manage state — no direct DB/API calls
 - Navigate via Effects, not direct Fragment transactions from ViewModel
-- Fragments / Activities / Adapters bind and render only — no heavy mapping
+- Fragments / Activities / Adapters / `*ScreenContent` bind and render only — no heavy mapping
 
 ### Domain
-
 - Business logic and use cases
 - Repository **interfaces** only — never implementations
 - UseCase classes live **only** here (`domain.usecase.*`) — never under `:data`
@@ -33,7 +32,6 @@ Dependencies always point inward.
 - Heavy domain transforms / aggregation / filtering belong in UseCases when relevant
 
 ### Data
-
 - Repository **implementations** (`*RepositoryImpl`) only — never repository interfaces, never UseCases
 - Local/remote DataSources — **sync or thin SDK wrappers; no dispatcher injection**
 - DTO ↔ entity mapping (heavy parsing / list shaping belongs here when data-bound)
@@ -42,19 +40,19 @@ Dependencies always point inward.
 
 ## Mapping ownership
 
-| Mapping                                    | Where                                                 |
-|--------------------------------------------|-------------------------------------------------------|
-| DTO / JSON / DB entity → domain            | Repository (data)                                     |
-| Domain transforms, filter, sort, aggregate | UseCase and/or Repository                             |
-| Domain → UI model (`toUi()`)               | ViewModel (or dedicated mapper called from ViewModel) |
-| Never                                      | Fragment, Activity, Adapter, XML                      |
+| Mapping | Where |
+|---------|--------|
+| DTO / JSON / DB entity → domain | Repository (data) |
+| Domain transforms, filter, sort, aggregate | UseCase and/or Repository |
+| Domain → UI model (`toUi()`) | ViewModel (or dedicated mapper called from ViewModel) |
+| Never | Fragment, Activity, Adapter, XML, `*ScreenContent` |
 
 - If `toUi()` / list mapping may be heavy (large lists), run it with an appropriate dispatcher (`Default` / `IO`) inside the ViewModel (or lower layer before emitting)
 - Adapters receive already-mapped UI models — bind views only
 
 ## ViewModel
 
-- This MVI ViewModel contract applies to **feature screens** in `:presentation` only
+- This MVI ViewModel contract applies to **feature screens** in `:presentation` (xml) or `:feature-*` (compose) only
 - Ads (`:gmaAds` / AdMob) keep existing managers / ad ViewModels — **not** Intent / State / Effect — unless the user **explicitly** asks (`21-ads-billing`)
 - Extend `androidx.lifecycle.ViewModel`
 - Expose `StateFlow<*State>` and `SharedFlow<*Effect>`
@@ -63,7 +61,7 @@ Dependencies always point inward.
 - `handleError(throwable)` at end of class; `CoroutineExceptionHandler` delegates to it
 - Use `viewModelScope` + `CoroutineExceptionHandler` (see `04-mvi-presentation`)
 - No View/Fragment/Context references
-- No layout inflation or View Binding inside ViewModel
+- No layout inflation, View Binding, or Compose `NavController` inside ViewModel
 - Logging: prefer Repo; ViewModel logs sparingly (failures in `handleError`) — see `16-logging`
 
 ## UseCase
@@ -110,7 +108,7 @@ Moved from former `ANDROID_PROJECT_RULES.md` — keep here so nothing is lost.
 ### Liskov Substitution (L)
 
 - Any `*RepositoryImpl` must honor the domain interface contract (nullability, suspend semantics).
-- Fragments substituting `BaseFragment` must preserve ViewBinding lifecycle rules.
+- Fragments substituting `BaseFragment` must preserve ViewBinding lifecycle rules. Compose `*Screen` must keep navigation in callbacks / Effects, not in the ViewModel.
 
 ### Interface Segregation (I)
 

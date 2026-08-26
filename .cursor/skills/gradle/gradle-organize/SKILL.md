@@ -171,13 +171,13 @@ Keep the same **relative** order. **Do not add** what does not belong:
 | `defaultConfig`            | `minSdk` only — no `applicationId` / versions             |
 | `signingConfigs`           | **No**                                                    |
 | `buildTypes`               | Yes — minify **off** for debug + release                  |
-| `buildFeatures`            | Only if UI / needed (`viewBinding`, `buildConfig`)        |
+| `buildFeatures`            | Only if UI / needed (`viewBinding`, `compose = true`, `buildConfig`)        |
 | `compileOptions`           | Yes                                                       |
 | `kotlin` / `jvm`           | Only if already present                                   |
 | `bundle`                   | **No**                                                    |
 | `base`                     | **No**                                                    |
 
-`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. Use the library template in [reference/gradle.md](../../../rules/reference/gradle.md).
+`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. **compose:** `:app`, `:core-design`, `:feature-*` get `compose = true` + `kotlin.compose`. Use the library template in [reference/gradle.md](../../../rules/reference/gradle.md).
 
 ---
 
@@ -245,8 +245,10 @@ dependencies {
 
 | Module           | Typical sections                                                                                                                             |
 |------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `:app`           | projects → Android Core → Firebase → Koin → Testing → Desugaring                                                                             |
-| `:presentation`  | projects → Android Core → Lifecycle → Fragment → Navigation → Google → Play Services → Firebase → Koin → Camera/Lottie/Glide/Dots/Shimmer    |
+| `:app`           | projects → Android Core → Firebase → Koin → Testing → Desugaring (**compose:** also Compose BOM / Navigation Compose) |
+| `:presentation`  | **xml only** — projects → Android Core → Lifecycle → Fragment → Navigation → Google → Play Services → Firebase → Koin → Camera/Lottie/Glide/Dots/Shimmer    |
+| `:feature-*`     | **compose** — projects → Compose BOM → Lifecycle → Navigation Compose → Koin Compose → Coil → Testing |
+| `:core-design`   | **compose** — Compose BOM → Material3 |
 | `:data`          | projects → Android Core → Google → Firebase (`firebase-config` + BOM) → Koin → Kotlin Coroutines (`play-services` for `await()`)             |
 | `:core-ui`       | projects → Android Core → Splash → Lifecycle → Navigation → Google → Firebase → Koin → Glide                                                 |
 | `:core-platform` | projects → Android Core → Firebase (BOM + analytics/crashlytics/`firebase-messaging` mandatory) → Koin → Kotlin Coroutines (`play-services`) |
@@ -273,7 +275,7 @@ dependencies {
 - [ ] No hardcoded Maven coordinates in `*.gradle.kts`
 - [ ] Aliases kebab-case; version keys camelCase
 - [ ] Sync/build still works (`assembleDebug` if practical)
-- [ ] Module boundaries unchanged (`presentation` still must not depend on `:data`)
+- [ ] Module boundaries unchanged (UI modules still must not depend on `:data`)
 
 ## Report to user
 

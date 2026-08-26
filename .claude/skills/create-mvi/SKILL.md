@@ -1,23 +1,25 @@
 ---
 name: create-mvi
-description: Scaffold presentation-layer MVI only (Intent/State/Effect/ViewModel/Fragment/DI/nav). No domain or data. Use when adding a new screen with ViewModel under presentation. For new UseCases/repositories use create-clean-architecture. Do not use for ads / :gmaAds.
+description: Scaffold presentation-layer MVI only (Intent/State/Effect/ViewModel). XML: Fragment/DI/nav_graph. Compose: `:feature-*` *Screen + NavGraph. No domain or data. Use when adding a new screen with ViewModel. For new UseCases/repositories use create-clean-architecture. Do not use for ads / :gmaAds.
 ---
 
 # Create MVI Feature (presentation only)
 
-Follow `.claude/rules/` (especially `00-global`, `01-feature-checklist`, `03-android-architecture`, `04-mvi-presentation`, `06-coroutines-flow`, `07-dependency-injection`, `17-navigation`, `18-errors-result`, `19-base-ui`).
+Follow `.claude/rules/` (especially `00-global`, `01-feature-checklist`, `03-android-architecture`, `04-mvi-presentation`, `06-coroutines-flow`, `07-dependency-injection`, `17-navigation`, `18-errors-result`, `19-base-ui`, `28-compose-ui` when `uiFramework` is compose).
 
-Obey `.claude/project-settings.json` when present (`writeTestsWithFeatures`, `orientation`, `themeModes`).
+Obey `.claude/project-settings.json` when present (`writeTestsWithFeatures`, `orientation`, `themeModes`, `uiFramework`).
 
 ## Preconditions
 
 - Confirm feature name (camelCase folder, e.g. `userProfile`)
-- Confirm layouts exist (or run `figma-to-xml` / `create-dialog` / `create-bottom-sheet` first)
+- Confirm layouts exist (xml: `figma-to-xml` / dialog / bottom-sheet) or composables exist (compose: `figma-to-compose`)
 - Read existing similar feature for patterns (base Fragment, DI module naming, nav)
 - If **new** domain capability is needed (new UseCase / repository / DataSource): run **`create-clean-architecture`** first (or after) — **do not** invent domain/data files inside this skill’s required path
 - **Do not** use this skill for ads / `:gmaAds` / AdMob. Ads keep the project’s existing managers / ad ViewModels (`21-ads-billing`) unless the user **explicitly** asks to convert ads to MVI
 
-## Package layout (`:presentation` only)
+## Package layout
+
+**xml** (`uiFramework` `xml`) — `:presentation` only:
 
 ```
 presentation/<featureName>/
@@ -31,6 +33,18 @@ presentation/<featureName>/
   mapper/      # if domain → UI mapping
 ```
 
+**compose** (`uiFramework` `compose`) — new Gradle module `:feature-<kebab>` (AnimeHub):
+
+```
+feature-<kebab>/src/main/java/…/feature/<name>/
+  <Feature>Screen.kt
+  di/<Feature>FeatureModule.kt
+  intent/ state/ effect/ viewModel/
+  components/   # optional
+```
+
+Copy [templates/compose/feature-module.gradle.kts](../setup-new-project/templates/compose/feature-module.gradle.kts). `include` in settings. `:app` depends on the module. Register `*FeatureModule` in `KoinModules` `featureList`. Add a `composable` in `:app` `NavGraph.kt`. See `28-compose-ui`.
+
 ## Kotlin checklist
 
 1. **Intent** — sealed class; UI dispatches only via `handleIntent`
@@ -42,10 +56,11 @@ presentation/<featureName>/
     - `exceptionHandler` → `handleError`; **`handleError` last** in the class
     - sparse logs (repo primary; ViewModel failures/`Log.w` guards only)
     - Inject **existing** UseCases / domain repos only — do not create new ones here
-5. **Fragment** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (`screenStarted` + **inline** `setOnClickListener` — no `setupClicks()`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown lifecycle (if any); `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`** (`FragmentExtensions`); navigate with `navigateTo` / `popFrom`
+5. **UI (xml)** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (`screenStarted` + **inline** `setOnClickListener` — no `setupClicks()`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown; `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`**; navigate with `navigateTo` / `popFrom`
+5b. **UI (compose)** — `*Screen` + private `*ScreenContent` (`28-compose-ui`): `koinViewModel()`, `collectAsStateWithLifecycle`, `LaunchedEffect(viewModel) { effect.collect }`; `onNavigate*` lambdas; Coil `AsyncImage`; no `NavController` in the feature
 6. **Mapping** — heavy work in Repo/UseCase; `toUi()` in ViewModel with dispatcher if large lists
 7. **Logs** — `Constants.TAG*` format; prefer Repository; ViewModel not every method
-8. **Images** — adapters/Fragments bind with `siv.loadImage(...)` (Glide / `ImageViewExtensions`); never `setImageResource` for dynamic list/remote assets
+8. **Images** — xml: `siv.loadImage(...)` (Glide). compose: Coil `AsyncImage` / `painterResource`
 9. **Orientation / themes** — layouts match `project-settings.json`
 
 ## Domain + data
@@ -58,7 +73,9 @@ If the feature needs new UseCases, repository interfaces, DataSources, Retrofit/
 
 Existing UseCases may be injected into the new ViewModel.
 
-## DI (presentation module only)
+## DI
+
+**xml** (`*PresentationModule` in `:presentation`):
 
 ```kotlin
 val featurePresentationModule = lazyModule {
@@ -68,19 +85,23 @@ val featurePresentationModule = lazyModule {
 }
 ```
 
-Register in app composition root (`KoinModules`). Always `lazyModule` — never `module { }`. Use `//// Section` headers (`07-dependency-injection`).
+**compose** (`*FeatureModule` in `:feature-*`, AnimeHub):
+
+```kotlin
+val homeFeatureModule = lazyModule {
+    viewModel { HomeViewModel(get(), get()) }
+}
+```
+
+Register in app composition root (`KoinModules` — `featureList` when compose). Always `lazyModule` — never `module { }`. Use `//// Section` headers (`07-dependency-injection`).
 
 Do **not** add `useCaseModule` / `dataModule` entries here — that belongs to `create-clean-architecture`.
 
 ## Navigation
 
-- Add destination to `nav_*.xml`; Safe Args if needed — property name **`navArgs`** (`by navArgs()`), not `args`
-- ViewModel emits navigation **Effect**; Fragment calls `NavController`
-- Every `<action>` must use reference slide anims (`17-navigation`):
+**xml:** destination in `nav_*.xml`; Safe Args property **`navArgs`**. ViewModel emits Effect; Fragment calls `NavController`. Every `<action>` uses reference slide anims (`17-navigation`).
 
-```xml
-app:enterAnim="@anim/slide_in_right"app:exitAnim="@anim/slide_out_left"app:popEnterAnim="@anim/slide_in_left"app:popExitAnim="@anim/slide_out_right"
-```
+**compose:** `FEATURE_ROUTE` on `*Screen.kt`; register `composable` in `:app` `NavGraph.kt` with the same slide enter/exit as the host `NavHost`. ViewModel emits Effect; `*Screen` calls the `onNavigate*` lambda. Nested tabs: content slots, not feature→feature deps (`28-compose-ui`).
 
 ## Strings
 
@@ -94,13 +115,13 @@ app:enterAnim="@anim/slide_in_right"app:exitAnim="@anim/slide_out_left"app:popEn
 
 ## Verify
 
-- [ ] No `:presentation` → `:data` dependency
+- [ ] No `:presentation` → `:data` and no `:feature-*` → `:data`
 - [ ] No new domain/data files created by this skill
 - [ ] Portrait + landscape (or per `project-settings.json`)
-- [ ] ProGuard keeps `state`/`intent`/`effect`/`model` packages
-- [ ] No business logic in Fragment beyond render + intent dispatch
-- [ ] Fragment collectors use `viewLifecycleOwner`; nav via `navigateTo` / `popFrom`
-- [ ] Fragment member order per `19-base-ui` (`onViewCreated` with inline clicks — no `setupClicks()` → helpers → `initObservers` → `renderState` → `handleEffect`)
+- [ ] ProGuard keeps `state`/`intent`/`effect`/`model` packages (presentation **or** feature)
+- [ ] No business logic in Fragment / `*ScreenContent` beyond render + intent dispatch
+- [ ] xml: Fragment collectors use `viewLifecycleOwner`; nav via `navigateTo` / `popFrom`; member order per `19-base-ui`
+- [ ] compose: `*Screen` / `*ScreenContent` split; route const; NavGraph entry; `koinViewModel`; no `NavController` in feature
 - [ ] ViewModel: single `handleIntent` launch, `suspend` handlers, `handleError` last
 - [ ] Icon buttons use `ButtonStyle.IconButton` when applicable
 - [ ] `DiffUtil.ItemCallback`: simple `areItemsTheSame` / `areContentsTheSame` as one-liners (see `04-mvi-presentation`)

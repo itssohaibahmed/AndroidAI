@@ -95,7 +95,7 @@ Same section order as `:app`, but **do not add** app-only pieces:
 | `defaultConfig`         | `minSdk` only (no `applicationId` / `versionCode` / `versionName`) |
 | `signingConfigs`        | **Never**                                                          |
 | `buildTypes`            | Yes — `isMinifyEnabled = false` for debug + release                |
-| `buildFeatures`         | Only when needed (View Binding / `buildConfig` on UI modules)      |
+| `buildFeatures`         | xml UI: View Binding / `buildConfig`. compose `:feature-*` / `:core-design`: `compose = true` (no View Binding) |
 | `compileOptions`        | Yes (Java 17)                                                      |
 | `kotlin` / `jvm`        | Only if already present in that project                            |
 | `bundle`                | **Never** (app only)                                               |
@@ -332,7 +332,8 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 
 - Keep modules independent â€” no circular deps
 - Feature modules must not depend on each other directly
-- Enable View Binding on UI modules â€” never enable Data Binding
+- xml UI modules: View Binding on — never Data Binding
+- compose `:feature-*` / `:core-design`: `buildFeatures { compose = true }` + `kotlin.compose` plugin — never Data Binding, skip View Binding
 - App release: minify + shrink; library modules: minify off
 
 ## Build types
@@ -349,6 +350,7 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 - Preserve (adjust package to app id):
     - `domain.entity.**`
     - `presentation.**.state.**` / `intent.**` / `effect.**` / `model.**`
+    - `feature.**.state.**` / `intent.**` / `effect.**` / `model.**` (compose)
     - ads entity packages when ads module exists
 - Keep Parcelable/Serializable names; keep SourceFile/LineNumberTable for Crashlytics
 - `android.enableR8.fullMode=true` when project uses it

@@ -1,6 +1,6 @@
 ---
 name: add-firebase-events
-description: Add Firebase Analytics events for one or more existing screens (asks which screens and screen vs button vs both). Use when extending EventsProvider, adding events to selected Fragments, or /add-firebase-events — not for first-time full-app wiring (use implement-firebase-events).
+description: Add Firebase Analytics events for one or more existing screens (asks which screens and screen vs button vs both). Use when extending EventsProvider, adding events to selected Fragments or Compose Screens, or /add-firebase-events — not for first-time full-app wiring (use implement-firebase-events).
 ---
 
 # Add Firebase Events (selected screens)
@@ -25,7 +25,7 @@ For first-time full-app events → `implement-firebase-events`.
 
 ### 0.1 Which screens (mandatory)
 
-List user-visible Fragments / dialogs / sheets that **lack** the events being added.
+List user-visible Fragments / Compose Screens / dialogs / sheets that **lack** the events being added.
 
 **AskQuestion** (`allow_multiple`): the user picks one or more screens. Wait. Do not instrument screens they did not pick.
 
@@ -55,7 +55,7 @@ Do not create a second events file.
 
 ## Step 2 — Call sites
 
-Same as [events.md](../events.md): Fragment `postEvent()` for screens; click / `handleEffect` for buttons. Follow this app’s existing posts if they already fire from ViewModel.
+Same as [events.md](../events.md): xml Fragment `postEvent()` or compose `LaunchedEffect` on `*Screen`; click / `handleEffect` for buttons. Follow this app’s existing posts if they already fire from ViewModel.
 
 ```kotlin
 EventsProvider.SETTING_SCREEN.postFirebaseEvent()

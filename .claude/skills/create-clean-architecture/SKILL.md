@@ -1,6 +1,6 @@
 ---
 name: create-clean-architecture
-description: Add domain, data, and core pieces for a feature (UseCases, repository interfaces/impls, DataSources, DI). No Fragment/XML. Use when a screen needs new business/data capability, or after create-mvi when domain is missing. Follows Retrofit/Room/SharedPreferences rules references.
+description: Add domain, data, and core pieces for a feature (UseCases, repository interfaces/impls, DataSources, DI). No UI (no Fragment/XML/Compose Screen). Use when a screen needs new business/data capability, or after create-mvi when domain is missing. Follows Retrofit/Room/SharedPreferences rules references.
 ---
 
 # Create Clean Architecture Layers
@@ -13,7 +13,7 @@ Follow `.claude/rules/` — especially `02-project-structure`, `03-android-archi
 
 Obey `.claude/project-settings.json` when present (`writeTestsWithFeatures`).
 
-**Does not** create Fragment / layout XML / Intent-State-Effect — use `figma-to-xml` + `create-mvi` for those.
+**Does not** create UI or Intent-State-Effect — use `figma-to-xml` or `figma-to-compose` + `create-mvi` for those. Presentation / `:feature-*` must **not** depend on `:data`.
 
 ## Preconditions
 
@@ -43,7 +43,7 @@ core-* (only if required)
 ```
 
 - **Never** create UseCase or repository interface under `:data`
-- Presentation must **not** depend on `:data`
+- Presentation / `:feature-*` must **not** depend on `:data`
 - DataSources: **no** dispatcher parameter; Repository wraps with `withContext(ioDispatcher)`
 
 ## Pattern selection
@@ -92,7 +92,7 @@ Register **all** new modules/vals in app composition root (`KoinModules`). Never
 - [ ] Interfaces + UseCases only in `:domain`
 - [ ] Impls + DataSources only in `:data`
 - [ ] `dataModule`: `//// DataSources` then `//// Repositories`
-- [ ] No presentation → data dependency introduced
+- [ ] No presentation / `:feature-*` → data dependency introduced
 - [ ] Dispatchers only in repository impls
 - [ ] New libraries approved + in version catalog
 - [ ] Tell user to wire presentation via `create-mvi` if UI not done yet

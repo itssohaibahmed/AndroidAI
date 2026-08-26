@@ -2,6 +2,8 @@
 
 Full detail for `19-base-ui.md`. Do not delete lines from this file — edit here and keep the rule stub in sync.
 
+When `uiFramework` is `compose`, do not scaffold `ParentFragment` / View Binding bases — use [compose-ui.md](compose-ui.md) (`*Screen` / `AppTheme` / `:app` `MainActivity`). This file stays the XML `Parent*` contract.
+
 ## Base hierarchy
 
 ```
@@ -16,7 +18,7 @@ Full detail for `19-base-ui.md`. Do not delete lines from this file — edit her
 ```
 
 **Templates (copy + replace `YOUR.PACKAGE`):**  
-`.claude/skills/setup-new-project/templates/base/`  
+`.claude/skills/project/setup-new-project/templates/base/`  
 See that folderâ€™s `README.md`. Same shape as the company template; `ParentSheet` is null-safe (not `!!`).
 
 ### ParentFragment

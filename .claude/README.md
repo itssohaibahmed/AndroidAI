@@ -1,6 +1,6 @@
 # AndroidAI Claude Code template (v1)
 
-Company-grade **rules** + **skills** for Clean Architecture Android apps (XML + View Binding, MVI, Koin `lazyModule`).
+Company-grade **rules** + **skills** for Clean Architecture Android apps (XML + View Binding **or** Jetpack Compose via `uiFramework`, MVI, Koin `lazyModule`).
 
 This is the Claude Code package (Cursor users copy [`.cursor/`](../.cursor/) instead). Share with Claude Code teammates by copying `.claude/` into a project (or later syncing from a tagged template repo). New rules and skills should be added to **both** `.cursor/` and `.claude/`.
 
@@ -32,6 +32,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 | `applicationId`          | string                            | Root package / applicationId                                |
 | `appName`                | string                            | Display name                                                |
 | `figmaDesignSystemUrl`   | Figma `/design/` URL or omit/`""` | Optional; Figma file for `setup-design-system`              |
+| `uiFramework`            | `xml` / `compose`                 | App UI stack. **xml** = View Binding + `:presentation`. **compose** = Jetpack Compose + `:feature-*` (AnimeHub). Default `xml` if missing |
 
 ## Skill map
 
@@ -40,13 +41,14 @@ All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `
 ```
 setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
-setup-design-system        Figma design-system file → :core-ui tokens/themes (creates :core-ui if missing; theme-first windowBackground)
-create-mvi                 Presentation MVI only (no domain/data)
+setup-design-system        Figma design-system file → :core-ui tokens/themes (+ :core-design AppTheme when compose)
+create-mvi                 Presentation MVI only (no domain/data) — Fragment if xml, `*Screen` in `:feature-*` if compose
 create-clean-architecture  Domain + data + core pieces as needed
-figma-to-xml               XML layouts (+ Figma design-to-code); absorbs freeform screen XML
-create-dialog               Dialog XML (orchestrates figma-to-xml)
-create-bottom-sheet         Bottom sheet XML (orchestrates figma-to-xml)
-create-custom-view          Custom View / ViewGroup
+figma-to-xml               XML layouts (+ Figma design-to-code); `uiFramework` xml only
+figma-to-compose            Compose screens (AnimeHub `*Screen` / `*ScreenContent`); `uiFramework` compose
+create-dialog               Dialog UI — XML if xml, Compose `*Dialog` if compose
+create-bottom-sheet         Bottom sheet UI — XML if xml, Compose `*BottomSheet` if compose
+create-custom-view          Custom View (xml) or reusable composable (compose)
 review-architecture         Architecture / MVI / boundaries
 review-performance           ANR / lists / dispatchers
 review-security              Secrets / manifest / PII
@@ -75,15 +77,15 @@ add-inapp-packages            Add one-time in-app products to existing billing
 
 ### Typical feature flow
 
-1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app)
-2. `setup-design-system` — Figma tokens/themes in `:core-ui` (skip if user chose ignore-for-now)
-3. `figma-to-xml` (or dialog / bottom-sheet) — XML only
-4. `create-mvi` — presentation Intent/State/Effect/VM/Fragment
+1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app) — persist **`uiFramework`**
+2. `setup-design-system` — Figma tokens/themes in `:core-ui` (and `:core-design` when compose)
+3. `figma-to-xml` if `uiFramework` is `xml`; `figma-to-compose` if `compose` (or dialog / bottom-sheet)
+4. `create-mvi` — Intent/State/Effect/VM + Fragment **or** `*Screen` in `:feature-*`
 5. `create-clean-architecture` — when new domain/data is required
 
 Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/rules/reference/`](rules/reference/) — not separate skills.
 
-## Rules index (`00`–`27`)
+## Rules index (`00`–`28`)
 
 | File                   | Role                                                                                                                                    |
 |------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
@@ -98,6 +100,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 | `21`–`25`              | Ads/billing (**ads are not MVI** — keep existing ads architecture unless the user asks), Firebase, startup, Figma assets, in-app update |
 | `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                                                                                            |
 | `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)                                                                                     |
+| `28-compose-ui`        | Compose feature modules / Screen-Content / NavGraph (`uiFramework` compose) — [reference/compose-ui.md](rules/reference/compose-ui.md)   |
 
 ### `rules/reference/` (full detail)
 
@@ -108,6 +111,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 | `gradle.md`                                         | `08-gradle`               |
 | `mvi-presentation.md`                               | `04-mvi-presentation`     |
 | `base-ui.md`                                        | `19-base-ui`              |
+| `compose-ui.md`                                     | `28-compose-ui`           |
 | `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence`     |
 | `premium-billing.md`                                | `21-ads-billing`          |
 
@@ -119,6 +123,6 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 
 1. Copy `.claude/` into the project root (this folder includes [`CLAUDE.md`](CLAUDE.md)).
 2. Open Android Studio, terminal at the repo root, run `claude`.
-3. Type `/` and pick a skill (e.g. `/figma-to-xml`, `/create-mvi`).
+3. Type `/` and pick a skill (e.g. `/figma-to-xml`, `/figma-to-compose`, `/create-mvi`).
 4. Path-scoped rules load when matching files are touched; `00-global`, `14-security-secrets`, and `16-logging` always apply.
 5. Before PRs: `/review-complete` or individual `review-*` skills.

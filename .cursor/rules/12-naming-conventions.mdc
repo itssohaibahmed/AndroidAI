@@ -1,6 +1,6 @@
 ---
 description: Cross-cutting naming conventions reference — Kotlin, Gradle, packages, resources, logging, analytics, domain
-globs: ["**/domain/**/*.kt", "**/data/**/*.kt", "**/presentation/**/*.kt", "**/core*/**/*.kt", "**/res/**/*.xml", "**/*.gradle.kts", "**/libs.versions.toml"]
+globs: ["**/domain/**/*.kt", "**/data/**/*.kt", "**/presentation/**/*.kt", "**/feature*/**/*.kt", "**/core*/**/*.kt", "**/res/**/*.xml", "**/*.gradle.kts", "**/libs.versions.toml"]
 alwaysApply: false
 ---
 
@@ -8,7 +8,7 @@ alwaysApply: false
 
 | Kind | Rule | Example |
 |------|------|---------|
-| Classes | PascalCase + role suffix | `HomeFragment`, `UserRepositoryImpl` |
+| Classes | PascalCase + role suffix | `HomeFragment` (xml), `HomeScreen` (compose), `UserRepositoryImpl` |
 | Interfaces | No `I` prefix | `UserRepository` |
 | Implementations | `Impl` suffix | `UserRepositoryImpl` |
 | ViewModels | `*ViewModel` | `HomeViewModel` |
@@ -35,7 +35,7 @@ alwaysApply: false
 <applicationId>.<layer>.<feature>.<subpackage>
 ```
 
-Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
+Feature folders: camelCase (`userProfile`, `onBoarding`). Compose Gradle modules: kebab-case `:feature-user-profile`.
 
 ## Resources
 
@@ -71,5 +71,5 @@ Feature folders in presentation: camelCase (`userProfile`, `onBoarding`).
 | Entity (domain) | `User`, `GeoLocation` |
 | UI model | `UserUiItem` |
 | Mapper | `UserUiMapper.toUi(...)` — call from ViewModel; heavy data mapping in Repo/UseCase |
-| Base UI | `ParentFragment`, `BaseFragment`, `ParentActivity`, `ParentDialog`, `ParentSheet` |
-| DI modules | `dataModule` / `useCaseModule` / `*PresentationModule` — always `lazyModule { }` |
+| Base UI | xml: `ParentFragment`, `BaseFragment`, `ParentActivity`, `ParentDialog`, `ParentSheet`. compose: `*Screen` / `*ScreenContent` / `AppTheme` |
+| DI modules | `dataModule` / `useCaseModule` / `*PresentationModule` (xml) / `*FeatureModule` (compose) — always `lazyModule { }` |
