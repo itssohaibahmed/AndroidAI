@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import YOUR.PACKAGE.core.design.AppTheme
+import YOUR.PACKAGE.core.ui.theme.AppTheme
 
 const val ENTRANCE_ROUTE = "entrance"
 

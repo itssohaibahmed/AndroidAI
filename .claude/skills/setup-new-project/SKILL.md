@@ -35,7 +35,7 @@ Confirm with the user before scaffolding. Write answers to **`.claude/project-se
 
 Also ask:
 
-0. **`uiFramework`** — `xml` or `compose`. Show both options. Default is `xml`. Compose follows AnimeHub (`:feature-*`, `:core-design`, `:app` `NavGraph.kt`) — see `28-compose-ui` + [templates/compose/](templates/compose/).
+0. **`uiFramework`** — `xml` or `compose`. Show both options. Default is `xml`. Compose follows AnimeHub (`:feature-*`, `:app` `NavGraph.kt`) — see `28-compose-ui` + [templates/compose/](templates/compose/).
 1. Optional: **ads** — do not add ad SDKs without approval. If adding later, copy the existing ads architecture from the reference app — do **not** convert ads to MVI unless the user **explicitly** asks
 2. **Firebase Cloud Messaging** is **mandatory** for every new project: add `firebase-messaging` to the catalog + `implementation` on `:core-platform` only (dependency — no `FirebaseMessagingService` or push UI). See **`implement-firebase-messaging`**.
 3. **Design system (Figma)** — ask the user to pick:
@@ -55,7 +55,6 @@ All later skills **must read** `.claude/project-settings.json` and obey it.
 | `:domain`        | Must     | Entities, repository interfaces, use cases                                                                    |
 | `:data`          | Must     | Repository impls, DataSources, SharedPref + RC cache                                                          |
 | `:presentation`  | xml only | Screens, MVI, nav graphs, MainActivity host UI. **Omit when compose**                                                                 |
-| `:core-design`   | compose only | `Color.kt` / `Type.kt` / `AppTheme`                                                                 |
 | `:feature-entrance` | compose only | Entrance start destination (`ENTRANCE_ROUTE`) |
 | `:core-common`   | Required | `Constants` (TAGs), `EventsProvider`                                                                          |
 | `:core-ui`       | Required | **All** themes/strings/colors/splash, Parent*, extensions                                                     |
@@ -66,10 +65,10 @@ app (Composition Root) — no values resources
  |
  ↓
 xml: presentation → domain ← data
-compose: feature-* → domain ← data   (:core-design under cores)
+compose: feature-* → domain ← data
  |
  ↓
-core-common / core-ui / core-platform  (+ :core-design when compose)
+core-common / core-ui / core-platform
 ```
 
 ## Step 1 — Gradle
@@ -80,7 +79,7 @@ Follow `08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md) (
 2. Root plugins `apply false` via catalog; **latest stable AGP 9.3+**. Do **not** apply `org.jetbrains.kotlin.android` — AGP has built-in Kotlin. `compileSdk { version = release(37) { minorApiLevel = 1 } }`; `targetSdk = 37`; `compileOptions` `VERSION_21`; first build `versionName = "1.0.1"`.
 3. Catalog sections/naming per `08-gradle.md` / `gradle-organize`
 4. Dependency graph: UI modules (`:presentation` or `:feature-*`) **never** → `:data`; `domain` → coroutines only
-5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. **compose:** Compose Compiler plugin (`kotlin-compose`) + `buildFeatures { compose = true }` on `:app`, `:core-design`, `:feature-*` — **not** `kotlin-android`; Compose BOM + Navigation Compose + Coil 3 + `koin-androidx-compose` in catalog (latest stable). No View Binding on feature modules.
+5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. **compose:** Compose Compiler plugin (`kotlin-compose`) + `buildFeatures { compose = true }` on `:app`, `:core-ui`, `:feature-*` — **not** `kotlin-android`; Compose BOM + Navigation Compose + Coil 3 + `koin-androidx-compose` in catalog (latest stable). No View Binding on feature modules.
 6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
 7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
 8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
@@ -168,9 +167,9 @@ See `17-navigation.md`.
 - Strings only in `:core-ui`
 - Tests: only if `writeTestsWithFeatures` is `true`
 
-## Step 6 — `:core-ui` Parent* bases (xml) / `:core-design` (compose)
+## Step 6 — `:core-ui` Parent* bases (xml) / Compose theme in `:core-ui` (compose)
 
-**compose:** skip ParentFragment / View Binding templates. Copy [templates/compose/Color.kt](templates/compose/Color.kt), [Type.kt](templates/compose/Type.kt), [Theme.kt](templates/compose/Theme.kt) into `:core-design`. Keep `:core-ui` for `strings.xml` / `colors.xml` / splash XML theme / drawables (`09`). Add Compose BOM deps on `:core-design`. If design-system **a**, run **`setup-design-system`** (writes XML tokens **and** maps them into `AppTheme`). Then continue Step 7.
+**compose:** skip ParentFragment / View Binding templates. Copy [templates/compose/core-ui.gradle.kts](templates/compose/core-ui.gradle.kts) shape onto `:core-ui` (add `kotlin-compose` + `compose = true` + Compose BOM). Copy [templates/compose/Color.kt](templates/compose/Color.kt), [Type.kt](templates/compose/Type.kt), [Theme.kt](templates/compose/Theme.kt) into `:core-ui` `…/core/ui/theme/`. Keep XML `strings.xml` / `colors.xml` / splash theme / drawables in `:core-ui` (`09`). If design-system **a**, run **`setup-design-system`** (writes full XML tokens **and** maps them into `AppTheme` in the same module). Then continue Step 7.
 
 **xml:** mirror reference hierarchy below.
 
@@ -398,7 +397,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
 - [ ] **xml** modules: app, domain, data, presentation, core-common, core-ui, core-platform
-- [ ] **compose** modules: app, domain, data, core-design, feature-entrance, core-common, core-ui, core-platform — **no** `:presentation`
+- [ ] **compose** modules: app, domain, data, feature-entrance, core-common, core-ui, core-platform — **no** `:presentation`, **no** `:core-design`
 - [ ] `:app` `android` section order: defaultConfig → signingConfigs → buildTypes → buildFeatures → compileOptions → bundle
 - [ ] `:app` has `signingConfigs` (`.jks` path if found, else empty strings) + `bundle.language.enableSplit = false` + `base.archivesName`
 - [ ] `:app` release `optimization { enable = true }`; `src/main/keepRules/rules.keep` on `:app` and on `:domain` / UI modules; no `proguard-rules.pro`
@@ -411,7 +410,7 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] **xml:** ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
 - [ ] **xml:** `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
 - [ ] **xml:** Glide on `:core-ui` (+ presentation if needed); all programmatic image binds use `loadImage`. **compose:** Coil 3; no Glide in feature modules
-- [ ] **compose:** `:core-design` `AppTheme`; `:app` `MainActivity` uses `koinInject()` — never `GlobalContext.get()`
+- [ ] **compose:** `:core-ui` `AppTheme` in `core/ui/theme/`; `:app` `MainActivity` uses `koinInject()` — never `GlobalContext.get()`
 - [ ] Firebase BOM + analytics/crashlytics/messaging on `:core-platform`; `firebase-config` on `:data` (no MessagingService)
 - [ ] `kotlinx-coroutines-play-services` on `:core-platform` and `:data`
 - [ ] `PlatformFirebase` is `object` without a Context field; poster uses `Param.ITEM_NAME` + `Firebase.analytics`

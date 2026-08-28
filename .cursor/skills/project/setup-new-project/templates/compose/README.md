@@ -6,7 +6,7 @@ Copied by `setup-new-project` when `uiFramework` is `compose`. Replace `YOUR.PAC
 |------|---------|
 | `MainActivity.kt` | `:app` `…/ui/MainActivity.kt` |
 | `NavGraph.kt` | `:app` `…/navigation/NavGraph.kt` |
-| `Color.kt` `Type.kt` `Theme.kt` | `:core-design` `…/core/design/` |
+| `Color.kt` `Type.kt` `Theme.kt` | `:core-ui` `…/core/ui/theme/` |
 | `EntranceScreen.kt` | `:feature-entrance` `…/feature/entrance/EntranceScreen.kt` |
 | `feature-module.gradle.kts` | each `:feature-*` `build.gradle.kts` (adjust namespace + project deps) |
 

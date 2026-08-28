@@ -2,7 +2,7 @@
 description: Jetpack Compose UI, feature modules, Screen/Content split, and Compose navigation. Applies when uiFramework is compose.
 paths:
   - "**/feature*/**/*.kt"
-  - "**/core/design/**/*.kt"
+  - "**/core/ui/theme/**/*.kt"
   - "**/navigation/**/*.kt"
 ---
 
@@ -12,7 +12,7 @@ paths:
 
 Applies when `.claude/project-settings.json` `uiFramework` is `"compose"`. If `uiFramework` is `"xml"`, ignore this rule and follow `09-resources-xml` / `19-base-ui`.
 
-Canonical structure: AnimeHub (`:feature-*`, `:core-design`, `:app` `NavGraph.kt`).
+Canonical structure: AnimeHub-style (`:feature-*`, `:core-ui` theme + resources, `:app` `NavGraph.kt`). **No `:core-design`** — Compose theme lives in `:core-ui`.
 
 ## Must follow
 
@@ -22,7 +22,7 @@ Canonical structure: AnimeHub (`:feature-*`, `:core-design`, `:app` `NavGraph.kt
 - Route constants on the Screen file (`HOME_ROUTE = "home"`); args via `"feature/{id}"` + `createRouteFeature(id)`
 - Root `NavHost` in `:app` `navigation/NavGraph.kt`; nested graphs for tabs (content slots, not feature→feature deps)
 - Features **never** take `NavController` — `onNavigate*` lambdas only; ViewModel emits Effects
-- Material3 + `AppTheme` from `:core-design`; strings in `:core-ui`; Coil `AsyncImage` for remote images
+- Material3 + `AppTheme` from `:core-ui` `core/ui/theme/`; strings in `:core-ui`; Coil `AsyncImage` for remote images
 - `buildFeatures { compose = true }` + Compose Compiler plugin (`org.jetbrains.kotlin.plugin.compose` / `kotlin-compose`) — **not** `kotlin-android`. Compose BOM via catalog
 - Feature modules depend on `:domain` + `:core-*` — **never** `:data` or other `:feature-*`
 - Previews wrap `AppTheme`; inline `dp`/`sp` multiples of 4; no `dimens.xml`

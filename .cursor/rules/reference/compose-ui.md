@@ -13,8 +13,7 @@ app                 Application, KoinModules, MainActivity, navigation/NavGraph.
 domain              Entities, repository interfaces, UseCases
 data                Repository impls, DataSources
 core-common         Constants, EventsProvider
-core-ui             strings.xml, drawables, splash XML theme
-core-design         Color.kt, Type.kt, Theme.kt (AppTheme)
+core-ui             strings.xml, colors/themes (XML), drawables, fonts, splash; compose: core/ui/theme/ Color.kt, Type.kt, AppTheme
 core-platform       Firebase, InternetManager, dispatchers
 feature-entrance    Start destination (template invariant — not Splash)
 feature-<name>      One screen cluster per module
@@ -54,7 +53,7 @@ DI val name: `homeFeatureModule` (feature + `FeatureModule`). Register in `:app`
 | Route | `FEATURE_ROUTE` snake string | `const val HOME_ROUTE = "home"` |
 | Route with args | pattern + factory | `ANIME_DETAILS_ROUTE = "anime_details/{animeId}"` + `createRouteAnimeDetails(id)` |
 | Nested tab routes | `parent/child` | `dashboard/home` |
-| Theme | `{App}Theme` in `:core-design` | `AppTheme` / `AnimeHubTheme` |
+| Theme | `{App}Theme` in `:core-ui` `core/ui/theme/` | `AppTheme` / `AnimeHubTheme` |
 
 ## Screen template
 
@@ -163,7 +162,7 @@ class MainActivity : ComponentActivity() {
 
 ## Gradle (Compose modules)
 
-`:app` and every `:feature-*` / `:core-design`:
+`:app`, `:core-ui` (when compose), and every `:feature-*`:
 
 ```kotlin
 plugins {
@@ -205,12 +204,16 @@ Do **not** enable View Binding on Compose-only feature modules. XML `:core-ui` m
 - Sheet: `ModalBottomSheet` named `*BottomSheet` — not `BottomSheetDialogFragment`
 - Hoist visibility in State (`showFilterSheet`) or pass `onDismiss` lambdas; ViewModel owns the flag via Intent
 
-## Theme (`:core-design`)
+## Theme (`:core-ui`)
 
-- `Color.kt` — light/dark scheme colors from design tokens (`setup-design-system`)
-- `Type.kt` — `Typography`
-- `Theme.kt` — `@Composable fun AppTheme(darkTheme, dynamicColor, content)` wrapping `MaterialTheme`
-- XML `themes.xml` in `:core-ui` still sets `android:windowBackground` / splash (`Theme.App.Starting`)
+**One module for the full design system** — same as xml. XML tokens in `res/values/`; Compose in Kotlin under `core/ui/theme/`:
+
+- `Color.kt` — primitive + semantic colors; light/dark `ColorScheme` mapping (`setup-design-system`)
+- `Type.kt` — `Typography` from Figma `TextStyle.*` ramp (Poppins / design family)
+- `Theme.kt` — `@Composable fun AppTheme(darkTheme, content)` wrapping `MaterialTheme` — **no dynamic color** when Figma tokens exist
+- `themes.xml` / `colors.xml` still set `android:windowBackground`, splash (`Theme.App.Starting`), and Material bridge attrs
+
+Package: `{applicationId}.core.ui.theme`. Features import `AppTheme` via `:core-ui` only — **no `:core-design` module**.
 
 ## Strings and resources
 

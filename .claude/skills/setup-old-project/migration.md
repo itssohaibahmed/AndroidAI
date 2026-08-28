@@ -20,7 +20,7 @@ Companion to [SKILL.md](SKILL.md). Target architecture: [setup-new-project](../s
 | Hilt / Dagger / `module { }`                             | Same graph as **Koin `lazyModule` / `lazyModules`**.                                                                     |
 | No DI                                                    | Introduce Koin `lazyModule` while extracting.                                                                            |
 | Data Binding / `findViewById`                            | **xml:** View Binding; same view ids and layout behavior. **compose:** leave Compose UI; do not convert to XML.          |
-| Jetpack Compose                                          | Set `uiFramework` `compose`. Extract into `:feature-*` + `:core-design` + `:app` `NavGraph.kt`. Do **not** convert to XML unless asked. |
+| Jetpack Compose                                          | Set `uiFramework` `compose`. Extract into `:feature-*` + `:core-ui` (theme + resources) + `:app` `NavGraph.kt`. Do **not** convert to XML unless asked. |
 | Java sources                                             | Convert to Kotlin when touching a file / moving into a new layer; keep control flow.                                     |
 | API in Activity/Presenter                                | DataSource (network) + Repository impl (`:data`) + interface/UseCase (`:domain`). Same URL, method, headers, parse.      |
 | OkHttp / Volley / Retrofit already                       | Keep the client. Place in `:data`. Add Retrofit only with approval (`00-global`).                                        |

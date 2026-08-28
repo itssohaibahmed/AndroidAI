@@ -11,7 +11,7 @@ When [`.claude/project-settings.json`](project-settings.json) exists, obey `uiFr
 ## Typical feature flow
 
 1. `/setup-new-project` (greenfield) or `/setup-old-project` (existing production app) — persist **`uiFramework`**
-2. `/setup-design-system` — Figma tokens/themes in `:core-ui` (and `:core-design` when compose)
+2. `/setup-design-system` — Figma tokens/themes in `:core-ui` (Compose `AppTheme` in `core/ui/theme/` when compose)
 3. `/figma-to-xml` if xml; `/figma-to-compose` if compose (or `/create-dialog` / `/create-bottom-sheet`)
 4. `/create-mvi` — Intent / State / Effect / ViewModel + Fragment **or** `*Screen` in `:feature-*`
 5. `/create-clean-architecture` — only when new domain / data is required

@@ -184,7 +184,7 @@ Keep the same **relative** order. **Do not add** what does not belong:
 | `bundle`                   | **No**                                                    |
 | `base`                     | **No**                                                    |
 
-`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. **compose:** `:app`, `:core-design`, `:feature-*` get `compose = true` + Compose Compiler plugin (`kotlin-compose`) — **not** `kotlin-android`. Use the library template in [reference/gradle.md](../../rules/reference/gradle.md).
+`:domain` / `:core-common` often omit `buildFeatures`. Preserve lean modules — do not add View Binding where unused. **compose:** `:app`, `:core-ui`, `:feature-*` get `compose = true` + Compose Compiler plugin (`kotlin-compose`) — **not** `kotlin-android`. Use the library template in [reference/gradle.md](../../rules/reference/gradle.md).
 
 ---
 
@@ -255,9 +255,8 @@ dependencies {
 | `:app`           | projects → Android Core → Firebase → Koin → Testing → Desugaring (**compose:** also Compose BOM / Navigation Compose) |
 | `:presentation`  | **xml only** — projects → Android Core → Lifecycle → Fragment → Navigation → Google → Play Services → Firebase → Koin → Camera/Lottie/Glide/Dots/Shimmer    |
 | `:feature-*`     | **compose** — projects → Compose BOM → Lifecycle → Navigation Compose → Koin Compose → Coil → Testing |
-| `:core-design`   | **compose** — Compose BOM → Material3 |
+| `:core-ui`       | **xml:** Android Core → Splash → Glide. **compose:** also Compose BOM → Material3 (AppTheme in `core/ui/theme/`) |
 | `:data`          | projects → Android Core → Google → Firebase (`firebase-config` + BOM) → Koin → Kotlin Coroutines (`play-services` for `await()`)             |
-| `:core-ui`       | projects → Android Core → Splash → Lifecycle → Navigation → Google → Firebase → Koin → Glide                                                 |
 | `:core-platform` | projects → Android Core → Firebase (BOM + analytics/crashlytics/`firebase-messaging` mandatory) → Koin → Kotlin Coroutines (`play-services`) |
 | `:gmaAds`        | projects → Android Core → Lifecycle → Google (`api` ads) → Koin                                                                              |
 | `:domain`        | Coroutines + Koin DSL for `useCaseModule` (+ optional pure `project(":feature-*")`)                                                          |

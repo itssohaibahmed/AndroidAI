@@ -81,7 +81,7 @@ private fun HomeScreenPreview() {
 - `Modifier` first optional param after receiver; default `Modifier`
 - All copy via `stringResource(R.string.*)` from `:core-ui`
 - Images: Coil `AsyncImage` (remote) or `painterResource` (local vectors) — not Glide / XML `ImageView`
-- Theme colors via `MaterialTheme.colorScheme` — not hardcoded hex (tokens live in `:core-design`)
+- Theme colors via `MaterialTheme.colorScheme` — not hardcoded hex (tokens live in `:core-ui` `core/ui/theme/`)
 
 ## Assets — prefer SVG
 
@@ -99,7 +99,7 @@ Obey **all** Compose invariants in `28-compose-ui.md` + [reference/compose-ui.md
 **Skill-specific:**
 
 - **Portrait + landscape** — `BoxWithConstraints` / adaptive `GridCells` / window size; `@Preview` + landscape preview when `orientation` is `both` or `landscape` — **unless** `project-settings.json` `orientation` is `portrait` or `landscape` only
-- Theme modes: Compose `AppTheme(darkTheme = …)` from `:core-design`; XML `values-night` still for splash/window when `themeModes` is `night` or `both`
+- Theme modes: Compose `AppTheme(darkTheme = …)` from `:core-ui`; XML `values-night` for splash/window when `themeModes` is `night` or `both`
 - **Theme-first background:** default screen color from `MaterialTheme.colorScheme.background` / `surface`
 - Material3 only (`Button`, `TextButton`, `IconButton`, `OutlinedCard`, `FilterChip`, …)
 - No `dimens.xml` — inline `dp` / `sp` as multiples of 4

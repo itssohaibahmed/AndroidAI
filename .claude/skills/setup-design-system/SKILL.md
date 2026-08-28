@@ -1,6 +1,6 @@
 ---
 name: setup-design-system
-description: Import a Figma design system into :core-ui (colors, type, ButtonStyle/TextStyle, Material theme, day/night). When uiFramework is compose, also write :core-design Color/Type/AppTheme from the same tokens. Creates :core-ui if missing. Theme-first — windowBackground, not layout colorSurface. Use when the user shares a Figma design-system URL or invokes /setup-design-system. Do not use for a single screen layout (figma-to-xml / figma-to-compose).
+description: Import a Figma design system into :core-ui (colors, type, ButtonStyle/TextStyle, Material theme, day/night). When uiFramework is compose, also write Color/Type/AppTheme Kotlin under :core-ui core/ui/theme/ from the same tokens. Creates :core-ui if missing. Theme-first — windowBackground, not layout colorSurface. Use when the user shares a Figma design-system URL or invokes /setup-design-system. Do not use for a single screen layout (figma-to-xml / figma-to-compose).
 ---
 
 # Setup Design System
@@ -26,7 +26,7 @@ Extraction file map + `:core-ui` scaffold: [reference.md](reference.md).
 4. Write `:core-ui` resources per [reference.md](reference.md): primitive hex → semantic `@color/primitive_*` aliases → `md_theme_*` → Material theme attrs. Keep Material theming (`Theme.Material3.DayNight`, `colorPrimary` / `colorSurface` / `windowBackground`). Fonts, `TextStyle.*`, `ButtonStyle.*`, `ShapeAppearance.App.*`.
 5. **Theme-first:** default screen color lives on the theme. Do **not** set `android:background="?attr/colorSurface"` (or equivalent) on default layout roots. Layout `android:background` only when that region is a **different** surface.
 6. Do not invent screens, `dimens.xml`, or port the full icon/component library (screens stay `figma-to-xml` or `figma-to-compose`).
-7. **compose:** also write `:core-design` `Color.kt` / `Type.kt` / `Theme.kt` (`AppTheme`) from the same tokens (`28-compose-ui`). Keep XML themes in `:core-ui` for splash / day-night if needed.
+7. **compose:** also write `:core-ui` `core/ui/theme/` `Color.kt` / `Type.kt` / `Theme.kt` (`AppTheme`) from the **same** tokens as the XML resources (`28-compose-ui`). Ensure `:core-ui` has `kotlin-compose` + `buildFeatures { compose = true }`. **No `:core-design` module.**
 8. `assembleDebug`. Report what landed (palette, type family, button styles) and that layouts inherit `windowBackground`.
 
 ## Do not

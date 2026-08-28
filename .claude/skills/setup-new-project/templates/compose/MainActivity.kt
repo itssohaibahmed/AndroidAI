@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import YOUR.PACKAGE.core.design.AppTheme
+import YOUR.PACKAGE.core.ui.theme.AppTheme
 import YOUR.PACKAGE.navigation.NavGraph
 
 class MainActivity : ComponentActivity() {

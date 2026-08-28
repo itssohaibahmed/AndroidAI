@@ -96,7 +96,7 @@ Same section order as `:app`, but **do not add** app-only pieces:
 | `defaultConfig`         | `minSdk` only (no `applicationId` / `versionCode` / `versionName`) |
 | `signingConfigs`        | **Never**                                                          |
 | `buildTypes`            | **Omit** unless flavors already exist. Never `optimization.enable`, `isMinifyEnabled`, or `proguardFiles` |
-| `buildFeatures`         | xml UI: View Binding / `buildConfig`. compose `:feature-*` / `:core-design`: `compose = true` (no View Binding) |
+| `buildFeatures`         | xml UI: View Binding / `buildConfig`. compose `:core-ui` + `:feature-*`: `compose = true` (no View Binding on features) |
 | `compileOptions`        | Yes (Java 21)                                                      |
 | `kotlin` / `jvm` / `kotlinOptions` | **Never** — AGP 9+ built-in Kotlin                        |
 | `bundle`                | **Never** (app only)                                               |
@@ -333,7 +333,7 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 - Keep modules independent â€” no circular deps
 - Feature modules must not depend on each other directly
 - xml UI modules: View Binding on — never Data Binding
-- compose `:feature-*` / `:core-design`: `buildFeatures { compose = true }` + Compose Compiler plugin (`kotlin-compose`) — never `kotlin-android`, never Data Binding, skip View Binding
+- compose `:core-ui` + `:feature-*`: `buildFeatures { compose = true }` + Compose Compiler plugin (`kotlin-compose`) — never `kotlin-android`, never Data Binding; skip View Binding on feature modules
 - App release: R8 on (`optimization { enable = true }` — code **and** resource shrinking). Library modules: do **not** enable optimization
 
 ## Build types

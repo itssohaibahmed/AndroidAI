@@ -39,7 +39,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 ```
 project/setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 project/setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
-project/setup-design-system        Figma design-system file → :core-ui tokens/themes (+ :core-design AppTheme when compose)
+project/setup-design-system        Figma design-system file → :core-ui tokens/themes (+ AppTheme in core/ui/theme/ when compose)
 feature/create-mvi                 Presentation MVI only (no domain/data) — Fragment if xml, `*Screen` in `:feature-*` if compose
 feature/create-clean-architecture  Domain + data + core pieces as needed
 ui/figma-to-xml                    XML layouts (+ Figma design-to-code); `uiFramework` xml only
@@ -78,7 +78,7 @@ release/pre-release                Ship checklist
 ### Typical feature flow
 
 1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app) — persist **`uiFramework`**
-2. `setup-design-system` — Figma tokens/themes in `:core-ui` (and `:core-design` when compose)
+2. `setup-design-system` — Figma tokens/themes in `:core-ui` (Compose `AppTheme` in `core/ui/theme/` when compose)
 3. `figma-to-xml` if `uiFramework` is `xml`; `figma-to-compose` if `compose` (or dialog / bottom-sheet)
 4. `create-mvi` — Intent/State/Effect/VM + Fragment **or** `*Screen` in `:feature-*`
 5. `create-clean-architecture` — when new domain/data is required

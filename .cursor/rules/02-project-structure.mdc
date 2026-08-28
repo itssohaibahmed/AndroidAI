@@ -15,8 +15,7 @@ alwaysApply: false
 | `:core-*` | Shared utilities — create as many core modules as needed |
 | `:core-common` | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI |
 | `:core-platform` | Network, location, Firebase helpers, platform services, **`firebase-messaging` dep** (new projects) |
-| `:core-ui` | Base UI (`Parent*` when xml), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions |
-| `:core-design` | Compose `Color` / `Type` / `AppTheme` — **compose only** |
+| `:core-ui` | Base UI (`Parent*` when xml), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions. **compose:** also `core/ui/theme/` (`Color.kt`, `Type.kt`, `AppTheme`) |
 | `:feature-*` | xml: optional self-contained feature libraries. **compose: required** — one module per screen cluster (`28-compose-ui`) |
 | `:gmaAds` (optional) | AdMob / mediation — only when product has ads. Keep the **existing** ads architecture (managers / ad ViewModels). **Not** MVI unless the user explicitly asks |
 
@@ -70,7 +69,7 @@ Feature folders: camelCase (`onBoarding`, `userProfile`). Ads (`:gmaAds`) do **n
 | From | To |
 |------|----|
 | `presentation` | `domain`, any `core-*`, optional `feature-*`, optional ads module |
-| `feature-*` (compose) | `domain`, `core-common`, `core-ui`, `core-design` — **never** `:data` or other `:feature-*` |
+| `feature-*` (compose) | `domain`, `core-common`, `core-ui` — **never** `:data` or other `:feature-*` |
 | `data` | `domain`, any `core-*` (prefer **not** depending on `:core-ui`) |
 | `domain` | coroutines-core, Koin DSL (`lazyModule` for UseCases), optional pure feature libs |
 | ads module | `data` and/or `core-*` when gating on premium/prefs (if project uses that pattern) |

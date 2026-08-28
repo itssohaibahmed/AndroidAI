@@ -126,3 +126,22 @@ Set `android:background` only for a **different** surface (card, overlay, tinted
 ## Out of scope
 
 Full icon library, every Figma component frame, product screens, `dimens.xml`, modules other than `:core-ui`.
+
+## Compose theme Kotlin (`:core-ui` — when `uiFramework` is `compose`)
+
+Write in the **same module** as XML tokens — package `{applicationId}.core.ui.theme`:
+
+| File | Contents |
+|------|----------|
+| `Color.kt` | Primitive `Color` vals (hex from `values/colors.xml` primitives only) |
+| `Type.kt` | `Typography` mapped from Figma `TextStyle.Heading.*` / `Title.*` / `Body.*` |
+| `Theme.kt` | `AppTheme` + `lightColorScheme` / `darkColorScheme` from semantic/md_theme mapping |
+
+Rules:
+
+- **Same tokens as XML** — do not invent a second palette for Compose
+- Map semantics to Material3 slots (`primary`, `background`, `surface`, `onSurface`, …)
+- **No dynamic color** when Figma tokens exist
+- Poppins (or Figma family): bundle in `:core-ui` `res/font/` and use `FontFamily(Font(R.font.poppins))` in `Type.kt`
+- Ensure `:core-ui` `build.gradle.kts` has `kotlin-compose` + `compose = true` + Compose BOM (see `templates/compose/core-ui.gradle.kts`)
+- **Forbidden:** a separate `:core-design` module

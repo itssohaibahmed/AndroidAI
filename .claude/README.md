@@ -41,7 +41,7 @@ All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `
 ```
 setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
-setup-design-system        Figma design-system file → :core-ui tokens/themes (+ :core-design AppTheme when compose)
+setup-design-system        Figma design-system file → :core-ui tokens/themes (+ AppTheme in core/ui/theme/ when compose)
 create-mvi                 Presentation MVI only (no domain/data) — Fragment if xml, `*Screen` in `:feature-*` if compose
 create-clean-architecture  Domain + data + core pieces as needed
 figma-to-xml               XML layouts (+ Figma design-to-code); `uiFramework` xml only
@@ -78,7 +78,7 @@ add-inapp-packages            Add one-time in-app products to existing billing
 ### Typical feature flow
 
 1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app) — persist **`uiFramework`**
-2. `setup-design-system` — Figma tokens/themes in `:core-ui` (and `:core-design` when compose)
+2. `setup-design-system` — Figma tokens/themes in `:core-ui` (Compose `AppTheme` in `core/ui/theme/` when compose)
 3. `figma-to-xml` if `uiFramework` is `xml`; `figma-to-compose` if `compose` (or dialog / bottom-sheet)
 4. `create-mvi` — Intent/State/Effect/VM + Fragment **or** `*Screen` in `:feature-*`
 5. `create-clean-architecture` — when new domain/data is required
