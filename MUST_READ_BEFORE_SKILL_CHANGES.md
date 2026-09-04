@@ -10,13 +10,13 @@ Full map of existing rules/skills: [`.cursor/README.md`](.cursor/README.md)
 
 ## What lives where
 
-| Thing                   | Path                                                  | Use for                                                 |
-|-------------------------|-------------------------------------------------------|---------------------------------------------------------|
-| **Rules**               | `.cursor/rules/*.mdc`                                 | Standing law (architecture, naming, invariants)         |
-| **Long detail**         | `.cursor/rules/reference/*.md`                        | Full examples / tables (linked from short `.mdc` stubs) |
-| **Skills**              | `.cursor/skills/**/SKILL.md`                          | Multi-step playbooks (`/skill-name` or agent auto-pick) |
+| Thing                   | Path                                                  | Use for                                                            |
+|-------------------------|-------------------------------------------------------|--------------------------------------------------------------------|
+| **Rules**               | `.cursor/rules/*.mdc`                                 | Standing law (architecture, naming, invariants)                    |
+| **Long detail**         | `.cursor/rules/reference/*.md`                        | Full examples / tables (linked from short `.mdc` stubs)            |
+| **Skills**              | `.cursor/skills/**/SKILL.md`                          | Multi-step playbooks (`/skill-name` or agent auto-pick)            |
 | **Project settings**    | `.cursor/project-settings.json`                       | Per-app knobs (tests, orientation, theme, **uiFramework**, app id) |
-| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML + **compose/** when compose |
+| **Bootstrap templates** | `.cursor/skills/project/setup-new-project/templates/` | Parent*/Base* Kotlin + anim XML + **compose/** when compose        |
 
 **Rules** = “always do it this way.”  
 **Skills** = “when I ask, follow these steps.”
@@ -52,17 +52,18 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 
 ### Example clusters (not exhaustive)
 
-| If you change…                          | Also update…                                                                                                                                                                      |
-|-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **`gradle/gradle-update`**              | `gradle/gradle-organize`, Groovy → Kotlin DSL + **AGP 9.3+ / built-in Kotlin / R8 `optimization` + `keepRules`** in `project/setup-old-project` (+ `migration.md`), `08-gradle.mdc`, `rules/reference/gradle.md`, `.claude` Gradle twins       |
-| **`gradle/gradle-organize`**            | `gradle-update`, `setup-new-project` / `setup-old-project` Gradle steps, `08` + `reference/gradle.md`                                                                             |
-| **Groovy → Kotlin DSL guidance**        | Lives in / must stay aligned with **`gradle-update`** (convert before bump) **and** `setup-old-project` Step 2 / `migration.md`; do not teach Groovy conversion in only one place |
-| **`setup-design-system`**               | Skill `reference.md`, color/theme notes in `09` / `reference/resources-xml.md` if invariants change, `.claude` twin                                                               |
-| **`create-mvi` / MVI law**              | `04-mvi-presentation` + `reference/mvi-presentation.md`, `01-feature-checklist`, `28-compose-ui` + `reference/compose-ui.md` when compose, `review-architecture` if gates change |
-| **UI / Figma (`figma-to-xml` / `figma-to-compose`)** | Sibling UI skills (`create-dialog`, `create-bottom-sheet`, `create-custom-view`), `09` / `28`, `setup-new-project` / `setup-old-project`, `.claude` twins |
-| **Any `test-*` skill**                  | Sibling `test-*` banners/consent rules, `test-complete`, `11-testing.mdc`                                                                                                         |
-| **Any `review-*` skill**                | Sibling `review-*`, `review-complete`                                                                                                                                             |
-| **Firebase / billing / platform skill** | Sibling skills in that area + matching numbered rule if one exists                                                                                                                |
+| If you change…                                       | Also update…                                                                                                                                                                                                                             |
+|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **`gradle/gradle-update`**                           | `gradle/gradle-organize`, Groovy → Kotlin DSL + **AGP 9.3+ / built-in Kotlin / R8 `optimization` + `keepRules`** in `project/setup-old-project` (+ `migration.md`), `08-gradle.mdc`, `rules/reference/gradle.md`, `.claude` Gradle twins |
+| **`gradle/gradle-organize`**                         | `gradle-update`, `setup-new-project` / `setup-old-project` Gradle steps, `08` + `reference/gradle.md`                                                                                                                                    |
+| **Groovy → Kotlin DSL guidance**                     | Lives in / must stay aligned with **`gradle-update`** (convert before bump) **and** `setup-old-project` Step 2 / `migration.md`; do not teach Groovy conversion in only one place                                                        |
+| **`setup-design-system`**                            | Skill `reference.md`, color/theme notes in `09` / `reference/resources-xml.md` if invariants change, `.claude` twin                                                                                                                      |
+| **`create-mvi` / MVI law**                           | `04-mvi-presentation` + `reference/mvi-presentation.md`, `01-feature-checklist`, `28-compose-ui` + `reference/compose-ui.md` when compose, `review-architecture` if gates change                                                         |
+| **UI / Figma (`figma-to-xml` / `figma-to-compose`)** | Sibling UI skills (`create-dialog`, `create-bottom-sheet`, `create-custom-view`), `09` / `28`, `setup-new-project` / `setup-old-project`, `.claude` twins                                                                                |
+| **Any `test-*` skill**                               | Sibling `test-*` banners/consent rules, `test-complete`, `11-testing.mdc`                                                                                                                                                                |
+| **Any `review-*` skill**                             | Sibling `review-*`, `review-complete`                                                                                                                                                                                                    |
+| **Firebase / billing / platform skill**              | Sibling skills in that area + matching numbered rule if one exists                                                                                                                                                                       |
+| **Any `admob/*` / ads skill**                        | Sibling `admob/*` skills, `21-ads-billing` + `reference/ads-gma.md`, `setup-new-project` / `setup-old-project` ads steps, `.claude` twins                                                                                                |
 
 ### Checklist before finishing a template edit
 
@@ -75,12 +76,12 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 
 ## Always-on vs not
 
-| File                       | Always-on? | Role                                 |
-|----------------------------|------------|--------------------------------------|
-| `00-global.mdc`            | Yes        | Stack + Always/Never                 |
-| `14-security-secrets.mdc`  | Yes        | Secrets / exported / PII             |
-| `16-logging.mdc`           | Yes        | `Constants.TAG*` format              |
-| `01-feature-checklist.mdc` | **No**     | Checklist when scaffolding a feature |
+| File                       | Always-on? | Role                                                             |
+|----------------------------|------------|------------------------------------------------------------------|
+| `00-global.mdc`            | Yes        | Stack + Always/Never                                             |
+| `14-security-secrets.mdc`  | Yes        | Secrets / exported / PII                                         |
+| `16-logging.mdc`           | Yes        | `Constants.TAG*` format                                          |
+| `01-feature-checklist.mdc` | **No**     | Checklist when scaffolding a feature                             |
 | Other `02`–`28`            | **No**     | Glob or description when relevant (`28-compose-ui` when compose) |
 
 **Prefer fewer always-on rules.** New “must always” items → add to `00-global` only if truly every chat needs them; otherwise use globs or a skill.
@@ -129,7 +130,7 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 .cursor/skills/<area>/<skill-folder>/SKILL.md
 ```
 
-Areas already used: `project`, `feature`, `ui`, `review`, `test`, `gradle`, `platform`, `premium`, `billing`, `firebase`, `build`, `release`.
+Areas already used: `project`, `feature`, `ui`, `review`, `test`, `gradle`, `platform`, `premium`, `billing`, `firebase`, `build`, `release`, `admob`.
 
 ### SKILL.md shape
 
@@ -152,19 +153,19 @@ Obey `.cursor/project-settings.json` when present.
 
 ### Pick the right area
 
-| You want to…                                        | Prefer                                                                                                                                                   |
-|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| You want to…                                                       | Prefer                                                                                                                                                   |
+|--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Scaffold a screen (Intent/State/Effect/VM + Fragment or `*Screen`) | `feature/create-mvi` (extend or new skill under `feature/`)                                                                                              |
-| Add domain/data/repo                                | `feature/create-clean-architecture`                                                                                                                      |
-| XML / Figma layout only                             | `ui/figma-to-xml` (or dialog / bottom-sheet) — when `uiFramework` is `xml`                                                                               |
-| Compose / Figma screen only                         | `ui/figma-to-compose` (or dialog / bottom-sheet) — when `uiFramework` is `compose`                                                                        |
-| Review PR / architecture / perf / security          | `review/review-*` (+ wire into `review-complete` if full gate)                                                                                           |
-| Unit / integration / E2E tests                      | `test/test-*` (+ `test-complete` if full suite)                                                                                                          |
-| Gradle catalog / organize                           | `gradle/`                                                                                                                                                |
-| Ship checklist                                      | `release/pre-release`                                                                                                                                    |
-| In-app billing / subscriptions / premium            | `premium/implement-in-app-billing`, `premium/add-subscription-packages`, `premium/add-inapp-packages`                                                    |
-| Firebase RC / Analytics events                      | `firebase/implement-firebase-remote-config`, `firebase/add-firebase-remote-config`, `firebase/implement-firebase-events`, `firebase/add-firebase-events` |
-| New multi-step product feature (ads, IAP, …)        | New skill under a clear area; add **rules** for invariants                                                                                               |
+| Add domain/data/repo                                               | `feature/create-clean-architecture`                                                                                                                      |
+| XML / Figma layout only                                            | `ui/figma-to-xml` (or dialog / bottom-sheet) — when `uiFramework` is `xml`                                                                               |
+| Compose / Figma screen only                                        | `ui/figma-to-compose` (or dialog / bottom-sheet) — when `uiFramework` is `compose`                                                                       |
+| Review PR / architecture / perf / security                         | `review/review-*` (+ wire into `review-complete` if full gate)                                                                                           |
+| Unit / integration / E2E tests                                     | `test/test-*` (+ `test-complete` if full suite)                                                                                                          |
+| Gradle catalog / organize                                          | `gradle/`                                                                                                                                                |
+| Ship checklist                                                     | `release/pre-release`                                                                                                                                    |
+| In-app billing / subscriptions / premium                           | `premium/implement-in-app-billing`, `premium/add-subscription-packages`, `premium/add-inapp-packages`                                                    |
+| Firebase RC / Analytics events                                     | `firebase/implement-firebase-remote-config`, `firebase/add-firebase-remote-config`, `firebase/implement-firebase-events`, `firebase/add-firebase-events` |
+| New multi-step product feature (ads, IAP, …)                       | New skill under a clear area (`admob/`, `billing/`, …); add **rules** for invariants                                                                     |
 
 ### Skill vs rule (quick)
 
@@ -273,7 +274,7 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 - Add always-on rules for niche topics.
 - Create duplicate skill names or a second skill tree (`screens/` vs `ui/`, etc.).
 - Put Retrofit/Room/prefs as new skills — use `26-data-persistence` + `reference/`.
-- Convert ads (`:gmaAds`) to MVI unless the user **explicitly** asks; keep the project’s existing ads architecture.
+- Convert ads (`:gmaAds`) to MVI unless the user **explicitly** asks; place from GitHub and use extensions (`21-ads-billing`, `reference/ads-gma.md`, `admob/*`).
 - Change Speak-Translate or other apps unless the user asks to sync.
 - Update only `gradle-update` (or only `setup-old-project`) when Groovy → Kotlin DSL / catalog / organize behavior changes — keep the whole Gradle cluster aligned.
 

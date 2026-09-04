@@ -1,0 +1,43 @@
+---
+name: add-admob-rewarded-interstitial
+description: Add an AdMob rewarded interstitial placement to an existing :gmaAds app (AdKey, AdConfig, ad_ids, RC, load/show with granted). Use when adding rewarded interstitial ads, or /add-admob-rewarded-interstitial. If ads were never wired, use implement-admob-ads first.
+---
+
+# Add AdMob Rewarded Interstitial
+
+Follow `.cursor/rules/21-ads-billing.mdc` and [reference/ads-gma.md](../../rules/reference/ads-gma.md) (Rewarded interstitial section).
+
+Obey `.cursor/project-settings.json` (`uiFramework`, `applicationId`).
+
+If `:gmaAds` is missing or screens were never wired → redirect to **`implement-admob-ads`**.
+
+Do **not** edit `RewardedInterstitialAds`, controller, or validator unless changing engine behavior.
+
+Same checklist as rewarded — different AdMob format and inventory (`RewardedInterstitialAdKey` / `RewardedInterstitialAdConfig`).
+
+---
+
+## Steps
+
+1. Ask: placement name, load screen, show trigger, fallback flags.
+2. Add `RewardedInterstitialAdKey` enum value.
+3. Add matching row in `RewardedInterstitialAdConfig.placements`.
+4. Add unit string in `ad_ids.xml`.
+5. Add RC in `:data`. `isEnabled = { it.rcFlag != 0 }`.
+6. Calls:
+
+```kotlin
+loadRewardedInterstitialAd(RewardedInterstitialAdKey.YOURS)
+showRewardedInterstitialAd(RewardedInterstitialAdKey.YOURS) { granted ->
+    if (granted) { /* grant reward */
+    }
+}
+```
+
+Always check `granted`.
+
+7. Compose: host Activity/Fragment extensions. No `AdsManager` injection.
+
+## Remove
+
+Delete load/show → config + key → `ad_ids` → RC → search leftovers.

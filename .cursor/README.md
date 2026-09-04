@@ -24,14 +24,14 @@ After `setup-new-project` / `setup-old-project` (or when joining an app), settin
 
 All feature/UI/test skills **must read and obey** this file when present:
 
-| Key                      | Values                            | Meaning                                                     |
-|--------------------------|-----------------------------------|-------------------------------------------------------------|
-| `writeTestsWithFeatures` | `true` / `false`                  | Write unit/integration/E2E tests while scaffolding features |
-| `orientation`            | `portrait` / `landscape` / `both` | Which orientations layouts must support                     |
-| `themeModes`             | `day` / `night` / `both`          | Day / night / both theme resources                          |
-| `applicationId`          | string                            | Root package / applicationId                                |
-| `appName`                | string                            | Display name                                                |
-| `figmaDesignSystemUrl`   | Figma `/design/` URL or omit/`""` | Optional; Figma file for `setup-design-system`              |
+| Key                      | Values                            | Meaning                                                                                                                                   |
+|--------------------------|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `writeTestsWithFeatures` | `true` / `false`                  | Write unit/integration/E2E tests while scaffolding features                                                                               |
+| `orientation`            | `portrait` / `landscape` / `both` | Which orientations layouts must support                                                                                                   |
+| `themeModes`             | `day` / `night` / `both`          | Day / night / both theme resources                                                                                                        |
+| `applicationId`          | string                            | Root package / applicationId                                                                                                              |
+| `appName`                | string                            | Display name                                                                                                                              |
+| `figmaDesignSystemUrl`   | Figma `/design/` URL or omit/`""` | Optional; Figma file for `setup-design-system`                                                                                            |
 | `uiFramework`            | `xml` / `compose`                 | App UI stack. **xml** = View Binding + `:presentation`. **compose** = Jetpack Compose + `:feature-*` (AnimeHub). Default `xml` if missing |
 
 ## Skill map
@@ -72,6 +72,14 @@ premium/implement-in-app-billing   Greenfield Play billing (subs + in-app, v4 st
 billing/update-in-app-billing      Migrate hypersoft inappbilling v3 → v4.0.0
 premium/add-subscription-packages  Add subscription tiers to existing billing
 premium/add-inapp-packages         Add one-time in-app products to existing billing
+admob/implement-admob-ads          First-time AdMob screen wiring (:gmaAds from GitHub)
+admob/add-admob-banner             Add banner placement to existing :gmaAds
+admob/add-admob-interstitial       Add interstitial placement
+admob/add-admob-native             Add native placement
+admob/add-admob-rewarded           Add rewarded placement
+admob/add-admob-rewarded-interstitial  Add rewarded interstitial placement
+admob/add-admob-appOpen-Entrance   Wire App Open ENTRANCE (splash/consent)
+admob/add-admob-appOpen-lifecycle  Wire App Open LIFECYCLE (resume)
 release/pre-release                Ship checklist
 ```
 
@@ -87,20 +95,20 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 
 ## Rules index (`00`–`28`)
 
-| File                   | Role                                                                                                                                    |
-|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| `00-global`            | Always-on stack + Always/Never law                                                                                                      |
-| `01-feature-checklist` | Feature scaffolding checklist (not always-on)                                                                                           |
-| `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)                                                                                          |
-| `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)                                                                                  |
-| `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`, R8 `optimization` / `keepRules`), resources/XML, manifest (`09` → `reference/`)     |
-| `11`–`13`              | Testing, naming, libraries                                                                                                              |
-| `14`–`16`              | Security (always), compatibility, logging (always)                                                                                      |
-| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions                                                                                 |
-| `21`–`25`              | Ads/billing (**ads are not MVI** — keep existing ads architecture unless the user asks), Firebase, startup, Figma assets, in-app update |
-| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                                                                                            |
-| `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)                                                                                     |
-| `28-compose-ui`        | Compose feature modules / Screen-Content / NavGraph (`uiFramework` compose) — [reference/compose-ui.md](rules/reference/compose-ui.md)   |
+| File                   | Role                                                                                                                                                                 |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `00-global`            | Always-on stack + Always/Never law                                                                                                                                   |
+| `01-feature-checklist` | Feature scaffolding checklist (not always-on)                                                                                                                        |
+| `02`–`03`              | Modules + Clean Architecture (+ SOLID in `03`)                                                                                                                       |
+| `04`–`07`              | MVI, Kotlin, coroutines, DI (`04`/`07` → `reference/`)                                                                                                               |
+| `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`, R8 `optimization` / `keepRules`), resources/XML, manifest (`09` → `reference/`) |
+| `11`–`13`              | Testing, naming, libraries                                                                                                                                           |
+| `14`–`16`              | Security (always), compatibility, logging (always)                                                                                                                   |
+| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions                                                                                                              |
+| `21`–`25`              | Ads/billing (**ads are not MVI** — `:gmaAds` from GitHub; see `admob/*` skills + `reference/ads-gma.md`), Firebase, startup, Figma assets, in-app update             |
+| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                                                                                                                         |
+| `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)                                                                                                                  |
+| `28-compose-ui`        | Compose feature modules / Screen-Content / NavGraph (`uiFramework` compose) — [reference/compose-ui.md](rules/reference/compose-ui.md)                               |
 
 ### `rules/reference/` (full detail)
 
@@ -114,6 +122,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 | `compose-ui.md`                                     | `28-compose-ui`           |
 | `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence`     |
 | `premium-billing.md`                                | `21-ads-billing`          |
+| `ads-gma.md`                                        | `21-ads-billing`          |
 
 ## Future distribution (not in v1)
 

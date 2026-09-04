@@ -23,24 +23,27 @@ Confirm with the user before scaffolding. Write answers to **`.cursor/project-se
 }
 ```
 
-| Setting                        | Allowed values                    | Effect                                                         |
-|--------------------------------|-----------------------------------|----------------------------------------------------------------|
-| `applicationId` / root package | e.g. `com.company.app`            | Module namespaces, package roots                               |
-| `appName`                      | display name                      | Launcher label / strings                                       |
-| `writeTestsWithFeatures`       | `true` / `false`                  | Whether later skills add UseCase/ViewModel tests with features |
-| `orientation`                  | `portrait` / `landscape` / `both` | Layout orientation support (default `both`)                    |
-| `themeModes`                   | `day` / `night` / `both`          | Theme resource folders (default `both`)                        |
-| `figmaDesignSystemUrl`         | Figma `/design/` URL or `""`      | Optional; set when user picks design-system option **a**       |
+| Setting                        | Allowed values                    | Effect                                                                                                   |
+|--------------------------------|-----------------------------------|----------------------------------------------------------------------------------------------------------|
+| `applicationId` / root package | e.g. `com.company.app`            | Module namespaces, package roots                                                                         |
+| `appName`                      | display name                      | Launcher label / strings                                                                                 |
+| `writeTestsWithFeatures`       | `true` / `false`                  | Whether later skills add UseCase/ViewModel tests with features                                           |
+| `orientation`                  | `portrait` / `landscape` / `both` | Layout orientation support (default `both`)                                                              |
+| `themeModes`                   | `day` / `night` / `both`          | Theme resource folders (default `both`)                                                                  |
+| `figmaDesignSystemUrl`         | Figma `/design/` URL or `""`      | Optional; set when user picks design-system option **a**                                                 |
 | `uiFramework`                  | `xml` / `compose`                 | **Ask first.** xml = View Binding + `:presentation`. compose = Jetpack Compose + `:feature-*` (AnimeHub) |
 
 Also ask:
 
 0. **`uiFramework`** — `xml` or `compose`. Show both options. Default is `xml`. Compose follows AnimeHub (`:feature-*`, `:app` `NavGraph.kt`) — see `28-compose-ui` + [templates/compose/](templates/compose/).
-1. Optional: **ads** — do not add ad SDKs without approval. If adding later, copy the existing ads architecture from the reference app — do **not** convert ads to MVI unless the user **explicitly** asks
+1. **Ads** — always place `:gmaAds` from GitHub (see **Step — Place `:gmaAds`**). Ask: **Implement ads on screens now?**
+    - **yes** — after modules/DI exist, run **`implement-admob-ads`** (wire existing screens only; report changed Fragments/`*Screen`s)
+    - **no** — keep `:gmaAds` in the project (builds) but do **not** wire screens
+      Never convert ads to MVI unless the user **explicitly** asks. See `21-ads-billing` + [reference/ads-gma.md](../../../rules/reference/ads-gma.md).
 2. **Firebase Cloud Messaging** is **mandatory** for every new project: add `firebase-messaging` to the catalog + `implementation` on `:core-platform` only (dependency — no `FirebaseMessagingService` or push UI). See **`implement-firebase-messaging`**.
 3. **Design system (Figma)** — ask the user to pick:
-   - **a)** Provide a Figma link to build the design system (`figma.com/design/...`)
-   - **b)** Ignore design system now (later)
+    - **a)** Provide a Figma link to build the design system (`figma.com/design/...`)
+    - **b)** Ignore design system now (later)
 
    If **a**: save the URL as `figmaDesignSystemUrl` in `project-settings.json`. After Step 6 (`:core-ui` exists), run **`setup-design-system`** with that URL (theme-first tokens in `:core-ui`).  
    If **b**: leave `figmaDesignSystemUrl` empty; scaffold default Material3 `themes.xml` / `colors.xml` in Step 6. User can invoke `/setup-design-system` later.
@@ -49,16 +52,17 @@ All later skills **must read** `.cursor/project-settings.json` and obey it.
 
 ## Module set (mandatory)
 
-| Module           | Required | Role                                                                                                          |
-|------------------|----------|---------------------------------------------------------------------------------------------------------------|
-| `:app`           | Must     | `App`, manifest, DI aggregation only — **no `res/values/`**                                                   |
-| `:domain`        | Must     | Entities, repository interfaces, use cases                                                                    |
-| `:data`          | Must     | Repository impls, DataSources, SharedPref + RC cache                                                          |
-| `:presentation`  | xml only | Screens, MVI, nav graphs, MainActivity host UI. **Omit when compose**                                                                 |
-| `:feature-entrance` | compose only | Entrance start destination (`ENTRANCE_ROUTE`) |
-| `:core-common`   | Required | `Constants` (TAGs), `EventsProvider`                                                                          |
-| `:core-ui`       | Required | **All** themes/strings/colors/splash, Parent*, extensions                                                     |
-| `:core-platform` | Required | `InternetManager`, `PlatformFirebase`, dispatchers DI, **Firebase BOM + analytics / crashlytics / messaging** |
+| Module              | Required     | Role                                                                                                                                          |
+|---------------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `:app`              | Must         | `App`, manifest, DI aggregation only — **no `res/values/`**                                                                                   |
+| `:domain`           | Must         | Entities, repository interfaces, use cases                                                                                                    |
+| `:data`             | Must         | Repository impls, DataSources, SharedPref + RC cache                                                                                          |
+| `:presentation`     | xml only     | Screens, MVI, nav graphs, MainActivity host UI. **Omit when compose**                                                                         |
+| `:feature-entrance` | compose only | Entrance start destination (`ENTRANCE_ROUTE`)                                                                                                 |
+| `:core-common`      | Required     | `Constants` (TAGs), `EventsProvider`                                                                                                          |
+| `:core-ui`          | Required     | **All** themes/strings/colors/splash, Parent*, extensions                                                                                     |
+| `:core-platform`    | Required     | `InternetManager`, `PlatformFirebase`, dispatchers DI, **Firebase BOM + analytics / crashlytics / messaging**                                 |
+| `:gmaAds`           | Must         | AdMob module from [hypersoftdev/Admob-Ads](https://github.com/hypersoftdev/Admob-Ads) — place always; screen wiring only if user said **yes** |
 
 ```
 app (Composition Root) — no values resources
@@ -68,14 +72,26 @@ xml: presentation → domain ← data
 compose: feature-* → domain ← data
  |
  ↓
-core-common / core-ui / core-platform
+core-common / core-ui / core-platform / gmaAds
 ```
+
+## Step — Place `:gmaAds` (mandatory)
+
+Do this once modules and host types (`Constants.TAG_ADS`, `InternetManager`, `SharedPrefManager`) exist (after core/data scaffold). Full detail: [ads-gma.md](../../../rules/reference/ads-gma.md).
+
+1. Download `gmaAds` from `https://github.com/hypersoftdev/Admob-Ads` — exact copy; do not invent a parallel ads module.
+2. `include(":gmaAds")`; UI modules that show ads depend on `:gmaAds` when wiring (presentation / feature / app as needed).
+3. Rename package / `namespace` only → `{applicationId}.gmaAds`.
+4. Remap Gradle (`:core` / `:data` → `:core-common` + `:core-platform` + `:data`) and host-only imports. Catalog: `play-services-ads`, UMP.
+5. Register `gmaAdsModule` (`lazyModule`); AdMob App ID in `:app` manifest (sample for debug).
+6. During place: **do not** edit engine or catalog inside `:gmaAds`.
+7. If user said **yes** to implement → run **`implement-admob-ads`**. If **no** → stop after place (module only).
 
 ## Step 1 — Gradle
 
 Follow `08-gradle.mdc` + [reference/gradle.md](../../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
 
-1. `settings.gradle.kts` — `include` all modules above
+1. `settings.gradle.kts` — `include` all modules above (including `:gmaAds`)
 2. Root plugins `apply false` via catalog; **latest stable AGP 9.3+**. Do **not** apply `org.jetbrains.kotlin.android` — AGP has built-in Kotlin. `compileSdk { version = release(37) { minorApiLevel = 1 } }`; `targetSdk = 37`; `compileOptions` `VERSION_21`; first build `versionName = "1.0.1"`.
 3. Catalog sections/naming per `08-gradle.mdc` / `gradle-organize`
 4. Dependency graph: UI modules (`:presentation` or `:feature-*`) **never** → `:data`; `domain` → coroutines only
@@ -93,13 +109,13 @@ Copy the `:app` and library shapes from [reference/gradle.md](../../../rules/ref
 
 **`:app` must include**
 
-| Item                    | Rule                                                                                                                     |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| `android` section order | `defaultConfig` → `signingConfigs` → `buildTypes` → `buildFeatures` → `compileOptions` → `bundle` |
-| `signingConfigs`        | Always — search `*.jks` in root then `app/`; set `storeFile` if found; else empty strings; do not invent passwords       |
-| `bundle`                | Always `language { enableSplit = false }`                                                                                |
-| `base.archivesName`     | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known              |
-| First versions          | `versionCode = 1`, `versionName = "1.0.1"`                                                                               |
+| Item                    | Rule                                                                                                                                                                                                                                                                                              |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `android` section order | `defaultConfig` → `signingConfigs` → `buildTypes` → `buildFeatures` → `compileOptions` → `bundle`                                                                                                                                                                                                 |
+| `signingConfigs`        | Always — search `*.jks` in root then `app/`; set `storeFile` if found; else empty strings; do not invent passwords                                                                                                                                                                                |
+| `bundle`                | Always `language { enableSplit = false }`                                                                                                                                                                                                                                                         |
+| `base.archivesName`     | `AppName-Account-v{versionCode}({versionName})` from `project-settings.json` `appName` + account when known                                                                                                                                                                                       |
+| First versions          | `versionCode = 1`, `versionName = "1.0.1"`                                                                                                                                                                                                                                                        |
 | R8                      | `:app` release `optimization { enable = true }` (code **and** resource shrinking). Keep rules in `src/main/keepRules/*.keep` on `:app` and on library modules that need them. Copy [templates/keepRules/](templates/keepRules/). **No** `proguardFiles` / `isMinifyEnabled` / `isShrinkResources` |
 
 **Library modules** (`:presentation` xml, `:feature-*` compose, `:data`, `:domain`, `:core-*`): same relative order; **omit** `signingConfigs`, `bundle`, `base`, and app-only `defaultConfig` fields. xml UI modules get View Binding; compose UI modules get `compose = true`; `:domain` / `:core-common` may omit `buildFeatures`.
@@ -324,7 +340,7 @@ object PlatformFirebase {
 - **No** `Context` field / constructor on the object
 - Event name constants in `:core-common` `EventsProvider`
 - Do **not** log the Installation token value (`14-security-secrets`)
-- Ads revenue (`fun Float.logRevenueEvent(context: Context, threshold: Float = 0.1f)`): add **only** when the app has ads. Pass `Context` as an argument. Use this app's prefs name / cache key / event string — never copy Speak-Translate `rossPref` / `TaichiTroasCache`
+- Ads revenue (`fun Float.logRevenueEvent(context: Context, threshold: Float = 0.1f)`): add when ads screens are wired (`implement-admob-ads` / user said **yes**). Pass `Context` as an argument. Use this app's prefs name / cache key / event string — never copy Speak-Translate `rossPref` / `TaichiTroasCache`
 
 ### InternetManager
 
@@ -396,8 +412,10 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 - [ ] `.cursor/project-settings.json` written and valid (incl. `uiFramework` + `figmaDesignSystemUrl` if option **a`)
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
 - [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
-- [ ] **xml** modules: app, domain, data, presentation, core-common, core-ui, core-platform
-- [ ] **compose** modules: app, domain, data, feature-entrance, core-common, core-ui, core-platform — **no** `:presentation`, **no** `:core-design`
+- [ ] **xml** modules: app, domain, data, presentation, core-common, core-ui, core-platform, **gmaAds**
+- [ ] **compose** modules: app, domain, data, feature-entrance, core-common, core-ui, core-platform, **gmaAds** — **no** `:presentation`, **no** `:core-design`
+- [ ] `:gmaAds` placed from GitHub; package `{applicationId}.gmaAds`; host imports remapped; `gmaAdsModule` registered
+- [ ] Ads screens wired only if user said **yes** (`implement-admob-ads`); otherwise module-only
 - [ ] `:app` `android` section order: defaultConfig → signingConfigs → buildTypes → buildFeatures → compileOptions → bundle
 - [ ] `:app` has `signingConfigs` (`.jks` path if found, else empty strings) + `bundle.language.enableSplit = false` + `base.archivesName`
 - [ ] `:app` release `optimization { enable = true }`; `src/main/keepRules/rules.keep` on `:app` and on `:domain` / UI modules; no `proguard-rules.pro`
