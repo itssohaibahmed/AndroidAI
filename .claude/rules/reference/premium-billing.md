@@ -46,7 +46,7 @@ maven(url = "https://jitpack.io")
 
 Add `const val TAG_BILLING = "TAG_BILLING"` in `:core-common` `Constants`. Internal library logs use tag `BillingManager`.
 
-**Requires human approval** before adding the library if not already in the catalog (`13-libraries-stack.md`).
+**Requires human approval** before adding the library if not already in the catalog (`13-libraries-stack.mdc`).
 
 ---
 
@@ -236,6 +236,14 @@ koin.get<BillingDataSource>().start(applicationScope)
 - Fragment calls billing; maps `PurchaseOutcome` → `BillingPurchaseResult` → Intent
 - DEBUG: fake success; RELEASE: real Play sheet
 
+### Paywall UI (mandatory)
+
+- **Sticky footer:** primary CTA + legal/footer text fixed at bottom of root; benefits/plans scroll in `NestedScrollView` above (`09-resources-xml`, `33-screen-premium`)
+- **Close (X):** hidden until State `showCloseButton == true`
+  - UI: `screenStarted() = launchWhenResumed { handleIntent(ScreenStarted) }`
+  - VM: once (`hasStarted`) → `showCloseButtonWithDelay()` → `delay(3000.milliseconds)` → `showCloseButton = true`
+  - Never show close immediately on inflate
+
 ---
 
 ## 7. BillingManager v4 API
@@ -288,6 +296,6 @@ Never log purchase tokens or PII.
 
 **Console:** Option 1 IDs, trial offers active, license testers, in-app products created
 
-**Code:** `BillingProductIds` single source, singleton + Application connect, offerId in purchase calls, ads gated, fake purchase debug only, strings in `:core-ui`, portrait + landscape
+**Code:** `BillingProductIds` single source, singleton + Application connect, offerId in purchase calls, ads gated, fake purchase debug only, strings in `:core-ui`, portrait + landscape, paywall sticky footer + 3s delayed close
 
-**QA:** Trial sheet matches UI, restore works, cancel no error toast
+**QA:** Trial sheet matches UI, restore works, cancel no error toast, close X appears after ~3s

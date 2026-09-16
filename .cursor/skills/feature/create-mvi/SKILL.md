@@ -56,7 +56,10 @@ Copy [templates/compose/feature-module.gradle.kts](../../project/setup-new-proje
     - `exceptionHandler` → `handleError`; **`handleError` last** in the class
     - sparse logs (repo primary; ViewModel failures/`Log.w` guards only)
     - Inject **existing** UseCases / domain repos only — do not create new ones here
-5. **UI (xml)** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (`screenStarted` + **inline** `setOnClickListener` — no `setupClicks()`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown; `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`**; navigate with `navigateTo` / `popFrom`
+5. **UI (xml)** — extend `Parent*` / `Base*`; View Binding only; member order per `19-base-ui`: `onViewCreated` (`setupRecyclerView` / `setupViewPager` / `setupBottomNavigation` as needed, then `screenStarted` — prefer `launchWhenResumed { handleIntent(ScreenStarted) }` when work must wait for resume; **inline** `setOnClickListener` — no `setupClicks()`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown; `collectWhenStarted` / `collectWhenCreated` via **`viewLifecycleOwner`**; navigate with `navigateTo` / `popFrom` / `navigateRootTo`
+   - Paywall / Premium: sticky footer + 3s delayed close (`33-screen-premium`)
+   - Dashboard + bottom nav: dual graphs + backpress (`32-screen-dashboard`, `17-navigation`)
+   - Funnel screens: `29`–`31` + [reference/app-flow.md](../../../rules/reference/app-flow.md)
 5b. **UI (compose)** — `*Screen` + private `*ScreenContent` (`28-compose-ui`): `koinViewModel()`, `collectAsStateWithLifecycle`, `LaunchedEffect(viewModel) { effect.collect }`; `onNavigate*` lambdas; Coil `AsyncImage`; no `NavController` in the feature
 6. **Mapping** — heavy work in Repo/UseCase; `toUi()` in ViewModel with dispatcher if large lists
 7. **Logs** — `Constants.TAG*` format; prefer Repository; ViewModel not every method

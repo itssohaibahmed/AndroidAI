@@ -5,7 +5,7 @@ description: Add Google Play in-app billing to a new app — subscriptions and/o
 
 # Implement In-App Billing
 
-Follow `.claude/rules/21-ads-billing.md`, `00-global.md`, `04-mvi-presentation.md`, `07-dependency-injection.md`, `16-logging.md`, `13-libraries-stack.md`.
+Follow `.claude/rules/21-ads-billing.md`, `00-global.mdc`, `04-mvi-presentation.mdc`, `07-dependency-injection.mdc`, `16-logging.mdc`, `13-libraries-stack.mdc`.
 
 Full detail: [`.claude/rules/reference/premium-billing.md`](../../rules/reference/premium-billing.md)
 
@@ -241,6 +241,11 @@ Map `PurchaseOutcome` → `BillingPurchaseResult` → `PurchaseResultReceived` I
 | RELEASE | Real purchase with `offerId` when applicable |
 
 Portrait **and** landscape unless `project-settings.json` locks orientation. All strings in `:core-ui`.
+
+**Paywall layout / close (mandatory — `33-screen-premium`):**
+
+- Sticky footer: CTA + legal fixed at bottom; scrollable content above
+- Close (X): `showCloseButton = false` until 3s delay after `launchWhenResumed { handleIntent(ScreenStarted) }` → `showCloseButtonWithDelay()`
 
 ---
 

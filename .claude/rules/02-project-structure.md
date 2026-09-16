@@ -8,22 +8,26 @@ paths:
 
 ## Standard modules
 
-| Module           | Responsibility                                                                                                                                                                                                                                                                                                                       |
-|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `:app`           | Application class, DI aggregation, manifest, composition root only — **no `res/values/`** (themes/strings/colors in `:core-ui`)                                                                                                                                                                                                      |
-| `:domain`        | Entities, repository **interfaces**, UseCases, `useCaseModule` (`lazyModule`) — no Android UI; **never** repo impls                                                                                                                                                                                                                  |
-| `:data`          | Repository **impls**, DataSources, `dataModule` (`lazyModule` with `//// DataSources` then `//// Repositories`) — **never** UseCases or repo interfaces                                                                                                                                                                              |
-| `:presentation`  | Screens, ViewModels, navigation, feature MVI packages — **xml only**. Compose apps use `:feature-*` instead (no `:presentation`)                                                                                                                                                                                                     |
-| `:core-*`        | Shared utilities — create as many core modules as needed                                                                                                                                                                                                                                                                             |
-| `:core-common`   | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI                                                                                                                                                                                                                                                                  |
-| `:core-platform` | Network, location, Firebase helpers, platform services, **`firebase-messaging` dep** (new projects)                                                                                                                                                                                                                                  |
-| `:core-ui`       | Base UI (`Parent*` when xml), themes, drawables, fonts, anim, **single shared `strings.xml`**, extensions. **compose:** also `core/ui/theme/` (`Color.kt`, `Type.kt`, `AppTheme`)                                                                                                                                                    |
-| `:feature-*`     | xml: optional self-contained feature libraries. **compose: required** — one module per screen cluster (`28-compose-ui`)                                                                                                                                                                                                              |
-| `:gmaAds`        | AdMob — **always place** from [hypersoftdev/Admob-Ads](https://github.com/hypersoftdev/Admob-Ads) on setup (package `{applicationId}.gmaAds` + host remaps). Screen wiring via `implement-admob-ads` when user says yes. Extensions API — **not** MVI unless the user explicitly asks. See `21-ads-billing` + `reference/ads-gma.md` |
+| Module | Responsibility |
+|--------|----------------|
+| `:app` | Application class, DI aggregation, full manifest, composition root — **resources:** `mipmap`, `xml`, launcher-related `drawable` only — **no** `res/values/`, layouts, menus, or nav graphs |
+| `:domain` | Entities, repository **interfaces**, UseCases, `useCaseModule` (`lazyModule`) — no Android UI; **never** repo impls |
+| `:data` | Repository **impls**, DataSources, `dataModule` (`lazyModule` with `//// DataSources` then `//// Repositories`) — **never** UseCases or repo interfaces |
+| `:presentation` | Screens, ViewModels, feature MVI — **xml only**. **Resources:** `layout` (+ `layout-land`), `menu`, `navigation` **only**. Compose apps use `:feature-*` instead (no `:presentation`) |
+| `:core-*` | Shared utilities — create as many core modules as needed |
+| `:core-common` | Pure Kotlin shared types / `Constants` (TAGs) — no Android UI or DI |
+| `:core-platform` | Connectivity (`InternetManager`), location, Firebase helpers, platform services, **`firebase-messaging` dep** (new projects). Manifest only when needed (`ACCESS_NETWORK_STATE`) |
+| `:core-ui` | Base UI (`Parent*` when xml), **all other resources** (themes, colors, strings, fonts, anim, drawable, raw, splash…), extensions. **compose:** also `core/ui/theme/` (`Color.kt`, `Type.kt`, `AppTheme`) |
+| `:core-database` | **When Room is added** — `AppDatabase`, `entity/`, DAOs, `lazyModule`. Not created empty on every greenfield setup |
+| `:core-network` | **When Retrofit / API clients are added** — OkHttp/Retrofit wiring. Connectivity checks stay in `:core-platform`. Not created empty on every greenfield setup |
+| `:feature-*` | xml: optional self-contained feature libraries. **compose: required** — one module per screen cluster (`28-compose-ui`) |
+| `:gmaAds` | AdMob — **always place** from [hypersoftdev/Admob-Ads](https://github.com/hypersoftdev/Admob-Ads) on setup (package `{applicationId}.gmaAds` + host remaps). Screen wiring via `implement-admob-ads` when user says yes. Extensions API — **not** MVI unless the user explicitly asks. See `21-ads-billing` + `reference/ads-gma.md` |
 
 - Use as many `:core-*` modules as the project needs; keep each focused
 - Gradle module names: kebab-case (`:core-ui`, `:feature-auth`, `:gmaAds`)
+- **`settings.gradle.kts`:** `include(...)` modules in **alphabetical** ascending order
 - Billing / prefs / Remote Config implementations live in `:data`; Firebase helpers in `:core-platform`
+- **AndroidManifest:** only when necessary — `:app` (full), `:gmaAds` (INTERNET + ads components), `:core-platform` (`ACCESS_NETWORK_STATE`). Do **not** add empty boilerplate manifests to every module
 
 ## Feature package layout (presentation)
 
@@ -59,23 +63,23 @@ Feature folders: camelCase (`onBoarding`, `userProfile`). Ads (`:gmaAds`) do **n
 <applicationId>.<layer>.<area>.<subpackage>
 ```
 
-| Layer        | Example suffix                                                                                                                                 |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| Domain       | `domain.entity`, `domain.repository.*`, `domain.usecase.*`                                                                                     |
-| Data         | `data.*.repository`, `data.*.dataSource`, `data.di`                                                                                            |
+| Layer | Example suffix |
+|-------|----------------|
+| Domain | `domain.entity`, `domain.repository.*`, `domain.usecase.*` |
+| Data | `data.*.repository`, `data.*.dataSource`, `data.di` |
 | Presentation | `presentation.<feature>.{intent\|state\|effect\|viewModel\|ui\|di}` (xml) or `feature.<name>.{intent\|state\|effect\|viewModel\|di}` (compose) |
-| Core         | `core.common`, `core.platform`, `core.ui`                                                                                                      |
+| Core | `core.common`, `core.platform`, `core.ui` |
 
 ## Allowed dependencies
 
-| From                  | To                                                                                 |
-|-----------------------|------------------------------------------------------------------------------------|
-| `presentation`        | `domain`, any `core-*`, optional `feature-*`, optional ads module                  |
-| `feature-*` (compose) | `domain`, `core-common`, `core-ui` — **never** `:data` or other `:feature-*`       |
-| `data`                | `domain`, any `core-*` (prefer **not** depending on `:core-ui`)                    |
-| `domain`              | coroutines-core, Koin DSL (`lazyModule` for UseCases), optional pure feature libs  |
-| ads module            | `data` and/or `core-*` when gating on premium/prefs (if project uses that pattern) |
-| `app`                 | all modules (composition root)                                                     |
+| From | To |
+|------|----|
+| `presentation` | `domain`, any `core-*`, optional `feature-*`, optional ads module |
+| `feature-*` (compose) | `domain`, `core-common`, `core-ui` — **never** `:data` or other `:feature-*` |
+| `data` | `domain`, any `core-*` (prefer **not** depending on `:core-ui`) |
+| `domain` | coroutines-core, Koin DSL (`lazyModule` for UseCases), optional pure feature libs |
+| ads module | `data` and/or `core-*` when gating on premium/prefs (if project uses that pattern) |
+| `app` | all modules (composition root) |
 
 ```
 app (Composition Root)
@@ -91,10 +95,10 @@ core modules (shared utilities)
 
 Every Gradle module must include its own `.gitignore` (in addition to the root `.gitignore`).
 
-| Module type                                                                 | Typical contents        |
-|-----------------------------------------------------------------------------|-------------------------|
-| Library (`:domain`, `:data`, `:presentation`, `:core-*`, `:feature-*`, ads) | `/build`                |
-| Application (`:app`)                                                        | `/build` and `/release` |
+| Module type | Typical contents |
+|-------------|------------------|
+| Library (`:domain`, `:data`, `:presentation`, `:core-*`, `:feature-*`, ads) | `/build` |
+| Application (`:app`) | `/build` and `/release` |
 
 ```gitignore
 /build

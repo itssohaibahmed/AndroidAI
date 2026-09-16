@@ -21,6 +21,8 @@ Obey `.claude/project-settings.json` when present (`writeTestsWithFeatures`).
 - Confirm which pieces are needed: remote API / Room cache / SharedPreferences / pure domain UseCase over existing repo
 - Optional: screen or Figma refs for context only (do not implement UI here)
 - **Add Retrofit / Room / new libs only with human approval** — catalog first
+- When adding **Room**: create **`:core-database`** (`entity/`, DAOs, `AppDatabase`, `lazyModule`); `include` alphabetically; `:data` depends on it (`26`, `reference/room.md`)
+- When adding **Retrofit/API**: create **`:core-network`**; connectivity stays in `:core-platform` (`reference/retrofit.md`)
 - Do **not** rebuild `:gmaAds` as a new domain/data MVI feature unless the user **explicitly** asks. Ads keep their existing module structure (`21-ads-billing`)
 
 ## Create only what’s missing

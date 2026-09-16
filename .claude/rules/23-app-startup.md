@@ -10,27 +10,41 @@ paths:
 
 ## Application class
 
-- Single `Application` in `:app` — **DI bootstrap only** (e.g. Koin `startKoin` + `lazyModules`)
+- Single `Application` in `:app` — **DI bootstrap first**, then work that needs Koin
 - Use **`lazyModule` / `lazyModules` only** — convert any leftover `module` / `modules` (see `07-dependency-injection`)
 - Call `startKoin` **once** here — never from Activity; never guard with `GlobalContext.getOrNull()`
-- Do not stuff analytics, ads, billing, or heavy init into `onCreate` unless project already does and must stay consistent
 - Prefer lazy / on-demand init for non-critical SDKs
+
+### Method order (mandatory)
 
 ```kotlin
 override fun onCreate() {
     super.onCreate()
+    startKoin()
+    onKoinStarted()
+}
+
+private fun startKoin() {
     startKoin {
         androidContext(this@App)
         lazyModules(KoinModules().getKoinModules())
     }
-    // Any app-level theme / DynamicColors that needs DI — after startKoin
-    applyAppTheme()
+}
+
+private fun onKoinStarted() {
+    getKoin().runOnKoinStarted {
+        applyAppTheme()
+        // billing connect, etc. — anything that needs lazyModule bindings
+    }
 }
 ```
 
+- **`runOnKoinStarted`** avoids `KoinNotStarted` when using `lazyModules`
+- Same wait-for-Koin pattern on **MainActivity** / **EntranceFragment** when resolving Koin deps at the start of the app
+
 ## Theme vs Koin
 
-- Sequence: **Koin first**, then theme apply in `Application.onCreate`
+- Sequence: **Koin first**, then theme / billing / SDK work inside `runOnKoinStarted`
 - **Forbidden:** `GlobalContext.getOrNull()` (or other GlobalContext probes) as a theme/DI gate
 - Activity `enableMaterialDynamicTheme()` may apply DynamicColors directly — no GlobalContext check
 - Never call `startKoin` from Activity — theme toggles recreate the Activity and will crash with `KoinAppAlreadyStartedException`
@@ -41,7 +55,7 @@ override fun onCreate() {
 - Define splash theme in **`:core-ui` `res/values/splash.xml`** (dedicated file — not only inside `themes.xml`)
 - Style name: `Theme.App.Starting` parent `Theme.SplashScreen`
 - Set `windowSplashScreenAnimatedIcon` (and optional background) + `postSplashScreenTheme` → main Material3 DayNight app theme
-- Apply `@style/Theme.App.Starting` on Application and/or launcher Activity in `:app` manifest
+- Manifest: **Application** → product theme (`Theme.App`); **launcher Activity** → `@style/Theme.App.Starting` (`10-manifest`)
 - Install splash in Activity base before `setContentView`: `installSplashScreen()` / project `installSplashTheme()` helper
 
 ```xml
@@ -49,19 +63,22 @@ override fun onCreate() {
 <resources>
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
-        <item name="postSplashScreenTheme">@style/Theme.YourApp</item>
+        <item name="postSplashScreenTheme">@style/Theme.App</item>
     </style>
 </resources>
 ```
 
-```xml
-<!-- :app AndroidManifest — application and/or launcher activity -->
-android:theme="@style/Theme.App.Starting"
-```
+## MainActivity (xml)
+
+- Extends `ParentActivity` / `BaseActivity` in `:presentation`
+- `ParentActivity.includeTopPadding` default **`false`**
+- Destination listener: `includeTopPadding = false` for Entrance (fullscreen feel); **`true`** for other destinations
+- Block back on initial funnel destinations (Entrance, Language, OnBoarding, WelcomeBack, …) — no `popBackStack`; elsewhere `navController.popBackStack()`
+- NavController: lazy from `supportFragmentManager` + `fcvContainerMain` (`17-navigation`)
 
 ## AndroidX Startup / WorkManager
 
-- If WorkManager is **not** used: remove default `WorkManagerInitializer` via Startup provider `tools:node="remove"` to avoid startup DB crashes (pattern used when WM is unused)
+- If WorkManager is **not** used: remove default `WorkManagerInitializer` via Startup provider `tools:node="remove"` to avoid startup DB crashes
 - Do not re-enable WorkManager initializer without fixing the crash root cause
 - If WorkManager **is** required later: add it deliberately with correct dependencies and keep rules
 
@@ -70,12 +87,15 @@ android:theme="@style/Theme.App.Starting"
 - `allowBackup` explicit + backup/extraction XML
 - `supportsRtl="true"`
 - App Locales / language persistence metadata when multi-language is supported
+- Child order inside `<application>`: MainActivity → other activities → services → receivers → meta-data (`10-manifest`)
 
 ## Forbidden
 
-- Fat Application classes that initialize every SDK eagerly
+- Fat Application classes that initialize every SDK eagerly **before** Koin is started
+- Calling `get()` / inject before `runOnKoinStarted` when using `lazyModules`
 - Hardcoding API keys in Application or themes
 - Leaving Startup initializers that crash cold start
 - Defining splash theme only ad hoc in Kotlin — use `splash.xml`
+- Applying splash theme on the `<application>` tag (launcher Activity only)
 - `startKoin` in Activity; leftover `module { }` / `modules(...)` after lazyModule migration
 - `GlobalContext.getOrNull()` (or any GlobalContext probe) to gate theme / DI

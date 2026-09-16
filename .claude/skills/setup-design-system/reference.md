@@ -10,9 +10,9 @@ Do this in the **same turn**. Match existing `:app` AGP / `compileSdk` style.
 2. `settings.gradle.kts`: `include(":core-ui")`.
 3. `core-ui/build.gradle.kts`: library shape from `reference/gradle.md` (no `signingConfigs` / `bundle` / `base`). `namespace` = `{applicationId}.core.ui` when `applicationId` in `project-settings.json` is non-empty; else `{ :app namespace }.core.ui`. View Binding on. `minSdk` matches `:app`.
 4. `core-ui/.gitignore` containing `/build` (`02-project-structure`).
-5. `core-ui/src/main/AndroidManifest.xml` — empty `<manifest />` (library).
+5. `core-ui/src/main/AndroidManifest.xml` — **omit** unless a permission/component is required (prefer no empty library manifest — `10-manifest`)
 6. `:app` `implementation(project(":core-ui"))`.
-7. If `:app` still has `res/values/` themes / strings / colors, **move** them into `:core-ui` (app keeps mipmap / xml backup only). Point the app manifest `android:theme` at the `:core-ui` `Theme.*`.
+7. If `:app` still has `res/values/` themes / strings / colors, **move** them into `:core-ui` (app keeps mipmap / xml backup only). Point the app manifest **application** theme at `:core-ui` `Theme.*`; launcher Activity uses `Theme.App.Starting`.
 8. Do **not** add `:presentation`, `:domain`, `:data`, `:core-common`, `:core-platform`, Entrance, or `Parent*` from this skill.
 
 Then write Figma tokens into that module.
@@ -97,20 +97,37 @@ When extracting, follow `VARIABLE_ALIAS` hops and write the **primitive resource
 <item name="android:windowBackground">@color/md_theme_background</item>
 <item name="android:colorBackground">@color/md_theme_background</item>
 <item name="colorSurface">@color/md_theme_surface</item>
-<item name="android:statusBarColor">@color/md_theme_surface</item>
-<item name="android:navigationBarColor">@color/md_theme_surface</item>
+<item name="android:includeFontPadding">false</item>
+<item name="android:fontFamily">@font/…</item>
+<item name="fontFamily">@font/…</item>
 ```
 
-Also map Figma → Material: `colorPrimary`, `colorOnPrimary`, containers, error, outline, `colorSurfaceContainer*`, `fontFamily`, `materialButtonStyle` → `ButtonStyle.Primary`, `materialButtonOutlinedStyle` → `ButtonStyle.Outline`, `borderlessButtonStyle` → `ButtonStyle.Ghost`, `textAppearanceHeadline*` / `Title*` / `Body*` / `Label*` → `TextStyle.*`.
+Also map Figma → Material: `colorPrimary`, `colorOnPrimary`, containers, error, outline, `colorSurfaceContainer*`, typography attrs → `TextStyle.*`.
 
-Night: `android:windowLightStatusBar` / `windowLightNavigationBar` false (`tools:targetApi="27"` on nav bar).
+**Do not** set `materialButtonStyle` / outlined / borderless theme defaults unless product asks — keep standalone `ButtonStyle.*` styles.
+
+**Never add until the user asks:** `android:statusBarColor`, `android:navigationBarColor`, `android:windowLightStatusBar`, `android:windowLightNavigationBar`.
+
+**BottomNavigation:** set `bottomNavigationStyle` → `Widget.App.BottomNavigationView` (or product name) with `itemIconTint` / `itemTextColor` color state lists from Figma selected/unselected icon+label colors (theme attrs). Do not leave Material default tints that ignore app tokens.
+
+Section order in `themes.xml`: App → Shapes → Text Styles → Button Styles → extras.
 
 Do not set unknown Material attrs that fail resource linking (verify `assembleDebug`).
 
 ## Type and buttons
 
 - `TextStyle.Heading.H1` … `H3` (+ Medium/Semibold/Bold); `TextStyle.Title.T1` … `T3`; `TextStyle.Body.B1` … `B3`. Sizes from Figma; prefer 4sp multiples when rounding.
-- `ButtonStyle.Primary` / `Secondary` / `Tonal` / `Outline` / `Ghost` / `IconButton` (`Widget.Material3.Button.IconButton`, `iconSize` `0dp`). Height `wrap_content`; fill/stroke via tint/stroke/cornerRadius — no `bg_shape_*` for that.
+- `ButtonStyle.Primary` / `Secondary` / `Tonal` / `Outline` / `Ghost` / `IconButton`:
+
+```xml
+<style name="ButtonStyle.IconButton" parent="Widget.Material3.Button.IconButton">
+    <item name="android:padding">8dp</item>
+    <item name="iconSize">0dp</item>
+    <item name="iconTint">?attr/colorIcon</item>
+</style>
+```
+
+- Height `wrap_content`; fill/stroke via tint/stroke/cornerRadius — no `bg_shape_*` for that.
 - `ShapeAppearance.App.Small` / `Medium` / `Large` from Figma radius tokens (typical 8 / 16 / 24).
 
 ## Layouts

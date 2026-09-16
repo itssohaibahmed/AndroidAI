@@ -1,22 +1,27 @@
 # Retrofit API (reference pattern)
 
-Follow `.claude/rules/08-gradle.md`, `13-libraries-stack.md`, `06-coroutines-flow.md`, `18-errors-result.md`, `22-platform-firebase.md`, `26-data-persistence.md`. **Add Retrofit/OkHttp/Moshi only with approval** — catalog first.
+Follow `.claude/rules/08-gradle.mdc`, `13-libraries-stack.mdc`, `06-coroutines-flow.mdc`, `18-errors-result.mdc`, `22-platform-firebase.mdc`, `26-data-persistence.mdc`. **Add Retrofit/OkHttp/Moshi only with approval** — catalog first.
 
 Prefer existing `InternetManager` (`:core-platform`) for connectivity checks before calls.
 
 ## Layers
 
-| Layer | Contents |
-|-------|----------|
-| Data | `ApiService` (Retrofit), DTOs, `RemoteDataSource`, `*RepositoryImpl` |
-| Domain | Domain models + repository interface — no Retrofit types |
-| Core-platform | OkHttp client, interceptors, base URL config |
+| Layer / module | Contents |
+|----------------|----------|
+| `:core-network` | OkHttp client, Retrofit builder, interceptors, base URL config, `ApiService` interfaces — **create when adding Retrofit/API** |
+| `:data` | DTOs (if not in network), `RemoteDataSource`, `*RepositoryImpl` |
+| `:domain` | Domain models + repository interface — no Retrofit types |
+| `:core-platform` | Connectivity only (`InternetManager`) — not the full Retrofit stack |
+
+- Do **not** create an empty `:core-network` on every `setup-new-project` — add when networking API is approved
+- Prefer existing `InternetManager` (`:core-platform`) for connectivity checks before calls
 
 ## Setup
 
 1. `libs.versions.toml`: retrofit, okhttp, converter (moshi/gson)
-2. `:core-platform` or `:data`: OkHttp + Retrofit `single` in DI
-3. Base URL from build config / `local.properties` — not hardcoded secrets
+2. Create `:core-network`; `include` alphabetically; wire `lazyModule`
+3. `:data` depends on `:core-network`
+4. Base URL from build config / `local.properties` — not hardcoded secrets
 
 ```kotlin
 interface UserApi {

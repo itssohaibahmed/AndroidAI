@@ -29,7 +29,7 @@ Notes:
 - `ParentSheet` uses **null-safe** binding (avoid `!!` on binding)
 - Theme: apply after `startKoin` in Application; no `GlobalContext` probes (`07`, `23`)
 - `FragmentExtensions` collectors use **`viewLifecycleOwner`** (avoids duplicate collectors after navigate away / back)
-- Prefer `navigateTo` / `popFrom` over raw `findNavController()` calls
+- Prefer `navigateTo` / `popFrom` / `navigateRootTo` over raw `findNavController()` calls
 - `ContextExtensions.showToast(String)` / `showToast(@StringRes)` — call as `context?.showToast(...)`
 - `ImageViewExtensions.loadImage(...)` — Glide for all programmatic image loads (`siv.loadImage(...)`)
 - Naming: `<Receiver>Extensions.kt` only — never a shared `FlowCollectionExtensions.kt` / `LifecycleFlowExtensions.kt`

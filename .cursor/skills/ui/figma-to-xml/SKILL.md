@@ -52,7 +52,9 @@ Per `24-figma-assets`:
 
 ## Rules
 
-Obey **all** XML invariants in `09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md) (Material widgets, Hungarian IDs, IconButton, button tint/stroke, chip selectors, no `dimens.xml`, `:core-ui` strings/`cd_*`, View Binding, RecyclerView in XML, closing-tag formatting). Also `12-naming-conventions.mdc`.
+Obey **all** XML invariants in `09-resources-xml.mdc` + [reference/resources-xml.md](../../../rules/reference/resources-xml.md) (Material widgets, Hungarian IDs, IconButton padding `8dp` + `iconTint` `?attr/colorIcon`, button tint/stroke, chip selectors, no `dimens.xml`, resource module placement, sticky footers, `clRoot*` + `tools:context`, View Binding, RecyclerView in XML, closing-tag formatting). Also `12-naming-conventions.mdc`.
+
+Layouts go in **`:presentation`** only; drawables/strings used by the screen stay in **`:core-ui`**.
 
 **Skill-specific (Figma / screen XML):**
 

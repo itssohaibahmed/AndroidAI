@@ -54,15 +54,17 @@ All later skills **must read** `.claude/project-settings.json` and obey it.
 
 | Module              | Required     | Role                                                                                                                                          |
 |---------------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `:app`              | Must         | `App`, manifest, DI aggregation only — **no `res/values/`**                                                                                   |
+| `:app`              | Must         | `App`, DI aggregation, full manifest — **res:** `mipmap`, `xml`, launcher `drawable` only — **no** `values/` / layouts / menus / nav |
 | `:domain`           | Must         | Entities, repository interfaces, use cases                                                                                                    |
 | `:data`             | Must         | Repository impls, DataSources, SharedPref + RC cache                                                                                          |
-| `:presentation`     | xml only     | Screens, MVI, nav graphs, MainActivity host UI. **Omit when compose**                                                                         |
+| `:presentation`     | xml only     | Screens, MVI — **res:** `layout` (+ land), `menu`, `navigation` only. **Omit when compose**                                                   |
 | `:feature-entrance` | compose only | Entrance start destination (`ENTRANCE_ROUTE`)                                                                                                 |
 | `:core-common`      | Required     | `Constants` (TAGs), `EventsProvider`                                                                                                          |
-| `:core-ui`          | Required     | **All** themes/strings/colors/splash, Parent*, extensions                                                                                     |
-| `:core-platform`    | Required     | `InternetManager`, `PlatformFirebase`, dispatchers DI, **Firebase BOM + analytics / crashlytics / messaging**                                 |
+| `:core-ui`          | Required     | **All other resources** (themes/strings/colors/fonts/anim/drawable/splash), Parent*, extensions                                               |
+| `:core-platform`    | Required     | `InternetManager`, `PlatformFirebase`, dispatchers DI, **Firebase BOM + analytics / crashlytics / messaging** — manifest `ACCESS_NETWORK_STATE` only when needed |
 | `:gmaAds`           | Must         | AdMob module from [hypersoftdev/Admob-Ads](https://github.com/hypersoftdev/Admob-Ads) — place always; screen wiring only if user said **yes** |
+| `:core-database`    | On demand    | **When Room is added** — not empty on greenfield                                                                                              |
+| `:core-network`     | On demand    | **When Retrofit/API is added** — not empty on greenfield                                                                                      |
 
 ```
 app (Composition Root) — no values resources
@@ -89,17 +91,18 @@ Do this once modules and host types (`Constants.TAG_ADS`, `InternetManager`, `Sh
 
 ## Step 1 — Gradle
 
-Follow `08-gradle.md` + [reference/gradle.md](../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
+Follow `08-gradle.mdc` + [reference/gradle.md](../../rules/reference/gradle.md) (canonical `:app` / library scripts) and **`gradle-organize`** for catalog + dependency sections.
 
-1. `settings.gradle.kts` — `include` all modules above (including `:gmaAds`)
+1. `settings.gradle.kts` — `include` all modules above (including `:gmaAds`) in **alphabetical** ascending order
 2. Root plugins `apply false` via catalog; **latest stable AGP 9.3+**. Do **not** apply `org.jetbrains.kotlin.android` — AGP has built-in Kotlin. `compileSdk { version = release(37) { minorApiLevel = 1 } }`; `targetSdk = 37`; `compileOptions` `VERSION_21`; first build `versionName = "1.0.1"`.
-3. Catalog sections/naming per `08-gradle.md` / `gradle-organize`
+3. Catalog sections/naming per `08-gradle.mdc` / `gradle-organize`
 4. Dependency graph: UI modules (`:presentation` or `:feature-*`) **never** → `:data`; `domain` → coroutines only
 5. **xml:** View Binding on UI modules; Safe Args on `:presentation`. **compose:** Compose Compiler plugin (`kotlin-compose`) + `buildFeatures { compose = true }` on `:app`, `:core-ui`, `:feature-*` — **not** `kotlin-android`; Compose BOM + Navigation Compose + Coil 3 + `koin-androidx-compose` in catalog (latest stable). No View Binding on feature modules.
-6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors/themes into `:core-ui`
-7. `:app` may keep only `mipmap` / `xml` backup rules if needed — **no** `strings.xml` / `themes.xml` / `colors.xml` at app level
-8. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
-9. **Firebase (mandatory):** catalog BOM + analytics / crashlytics / **messaging** on **`:core-platform`**; **config** + `kotlinx-coroutines-play-services` on **`:data`**. Latest stable. **No** `FirebaseMessagingService` / FCM manifest / token UI during setup (see **`implement-firebase-messaging`**)
+6. **Remove** `:app` `src/main/res/values/` (and night) — move themes/strings/colors into `:core-ui`
+7. `:app` may keep only `mipmap` / `xml` / launcher `drawable` — **no** layouts, menus, nav, `strings.xml` / `themes.xml` / `colors.xml`
+8. **Manifests:** only `:app` (full), `:gmaAds`, `:core-platform` (network state) as needed — **no** empty manifests on every module (`10-manifest`)
+9. **Every module** gets a `.gitignore`: libraries → `/build`; `:app` → `/build` + `/release` (see `02-project-structure`)
+10. **Firebase (mandatory):** catalog BOM + analytics / crashlytics / **messaging** on **`:core-platform`**; **config** + `kotlinx-coroutines-play-services` on **`:data`**. Latest stable. **No** `FirebaseMessagingService` / FCM manifest / token UI during setup (see **`implement-firebase-messaging`**)
 
 Organize dependency sections with **`gradle-organize`**.
 
@@ -126,34 +129,48 @@ Copy the `:app` and library shapes from [reference/gradle.md](../../rules/refere
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
+        startKoin()
+        onKoinStarted()
+    }
+
+    private fun startKoin() {
         startKoin {
             androidContext(this@App)
             lazyModules(KoinModules().getKoinModules())
         }
-        // Theme / DynamicColors after Koin — never use GlobalContext.getOrNull()
-        applyAppTheme()
+    }
+
+    private fun onKoinStarted() {
+        getKoin().runOnKoinStarted {
+            applyAppTheme()
+            // billing connect, etc.
+        }
     }
 }
 ```
 
-- Aggregate with **`lazyModule` only** (convert any `module` → `lazyModule`, `modules` → `lazyModules`): `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule` (xml) or `entranceFeatureModule` (compose), …
-- Theme: apply **after** `startKoin` in Application; Activity DynamicColors needs no GlobalContext gate (`07-dependency-injection`, `23-app-startup`)
-- Manifest: `android:name=".App"`, `android:theme="@style/Theme.App.Starting"`, `supportsRtl="true"`
+- Aggregate with **`lazyModule` only** (convert any `module` → `lazyModule`, `modules` → `lazyModules`): `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule` (xml) or `entranceFeatureModule` (compose), `gmaAdsModule`, …
+- Theme / billing / anything needing bindings: inside **`runOnKoinStarted`** (`23-app-startup`) — avoids `KoinNotStarted` with `lazyModules`
+- Manifest: `android:name=".App"`, **application** `android:theme="@style/Theme.App"` (product theme), **launcher Activity** `android:theme="@style/Theme.App.Starting"`; child order MainActivity → services → receivers → meta-data (`10-manifest`); `supportsRtl="true"`
 - Orientation: follow `project-settings.json` — default portrait **and** landscape; do not lock unless `orientation` is single-mode and product requires lock
 - Theme modes: create `values` / `values-night` per `themeModes`
 - UseCases + repo interfaces → `:domain`; DataSources + repo impls → `:data` (`dataModule` with `//// DataSources` / `//// Repositories`)
 
 ## Step 3 — MainActivity + host (xml)
 
-- `MainActivity` extends `ParentActivity` in `:presentation`
+- `MainActivity` extends `ParentActivity` in `:presentation` (`includeTopPadding` default **false**)
+- Destination listener: Entrance → `includeTopPadding = false`; else `true`
+- Block back on funnel destinations (Entrance, Language, OnBoarding, WelcomeBack, …)
+- NavController: `lazy { (supportFragmentManager.findFragmentById(binding.fcvContainerMain.id) as NavHostFragment).navController }`
 - `activity_main.xml` with `fcvContainerMain` + `NavHostFragment` + `@navigation/nav_graph`
 - Call `installSplashTheme()` in `onPreCreated()` when using splash
+- Wait for Koin if resolving deps at start (`runOnKoinStarted` / equivalent)
 
 **compose:** skip this step. Copy [templates/compose/MainActivity.kt](templates/compose/MainActivity.kt) into `:app` `ui/`. `ComponentActivity` + `setContent { AppTheme { NavGraph() } }`. **Never** `GlobalContext.get()`.
 
 ## Step 4 — Navigation (mandatory Entrance)
 
-**xml:** `nav_graph.xml` **must** use `app:startDestination="@id/entranceFragment"`. Class: `EntranceFragment` under `presentation/entrance/ui/`. Layout: `fragment_entrance.xml`. No Home/Splash/Main as start destination. Copy anims from [templates/anim/](templates/anim/) + [templates/anim-ldrtl/](templates/anim-ldrtl/) into `:core-ui`. Every forward `<action>` must include the four slide anim attrs (`17-navigation`).
+**xml:** one `nav_graph.xml` **must** use `app:startDestination="@id/entranceFragment"`. Class: `EntranceFragment` under `presentation/entrance/ui/`. Layout: `fragment_entrance.xml`. No Home/Splash/Main as start destination. Copy anims from [templates/anim/](templates/anim/) + [templates/anim-ldrtl/](templates/anim-ldrtl/) into `:core-ui`. Every forward `<action>` must include the four slide anim attrs (`17-navigation`). When BottomNavigation is added later → also `nav_graph_dashboard` (`17`, `32-screen-dashboard`).
 
 **compose:** copy [templates/compose/NavGraph.kt](templates/compose/NavGraph.kt) to `:app` `navigation/NavGraph.kt`. `startDestination = ENTRANCE_ROUTE`. Slide `enterTransition` / `exitTransition` on the `NavHost`. No XML `nav_*.xml`. Feature screens do not receive `NavController`.
 
@@ -196,7 +213,7 @@ core/ui/base/
   dialog/ParentDialogDismissal.kt + ParentDialog.kt
   sheet/ParentSheetDismissal.kt + ParentSheet.kt
 core-ui …/extensions/
-  FragmentExtensions.kt   # viewLifecycleOwner collectWhen* / launchWhen* + navigateTo / popFrom
+  FragmentExtensions.kt   # viewLifecycleOwner collectWhen* / launchWhen* + navigateTo / popFrom / navigateRootTo
   ActivityExtensions.kt   # Activity collectWhen* / launchWhen*
   ContextExtensions.kt    # showToast(String) / showToast(@StringRes)
   ImageViewExtensions.kt  # loadImage via Glide (ShapeableImageView / ImageView)
@@ -350,7 +367,7 @@ object PlatformFirebase {
 
 ### SharedPref (`data/sharedPreferences/`)
 
-- `SharedPrefManager(context)` — **sync only, no dispatcher** (see `.claude/rules/reference/shared-preferences.md` + `26-data-persistence.md`)
+- `SharedPrefManager(context)` — **sync only, no dispatcher** (see `.claude/rules/reference/shared-preferences.md` + `26-data-persistence.mdc`)
 - Domain `SharedPrefRepository` + `SharedPrefRepositoryImpl` with `withContext(ioDispatcher)`
 - Include RC cache properties (ints/bools/strings) written by RC repository
 
@@ -411,22 +428,24 @@ Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow 
 
 - [ ] `.claude/project-settings.json` written and valid (incl. `uiFramework` + `figmaDesignSystemUrl` if option **a`)
 - [ ] Every module has `.gitignore` (`/build`; `:app` also `/release`)
-- [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`)
-- [ ] **xml** modules: app, domain, data, presentation, core-common, core-ui, core-platform, **gmaAds**
+- [ ] No `:app/src/main/res/values/` (themes/strings/colors live in `:core-ui`); `:app` res = mipmap/xml/launcher drawable only; `:presentation` = layout/menu/navigation only
+- [ ] **xml** modules: app, domain, data, presentation, core-common, core-ui, core-platform, **gmaAds** (`include` alphabetical)
 - [ ] **compose** modules: app, domain, data, feature-entrance, core-common, core-ui, core-platform, **gmaAds** — **no** `:presentation`, **no** `:core-design`
 - [ ] `:gmaAds` placed from GitHub; package `{applicationId}.gmaAds`; host imports remapped; `gmaAdsModule` registered
 - [ ] Ads screens wired only if user said **yes** (`implement-admob-ads`); otherwise module-only
+- [ ] Manifests only as needed (`:app`, `:gmaAds`, `:core-platform`); application theme = `Theme.App`; launcher = `Theme.App.Starting`; MainActivity first in `<application>`
 - [ ] `:app` `android` section order: defaultConfig → signingConfigs → buildTypes → buildFeatures → compileOptions → bundle
 - [ ] `:app` has `signingConfigs` (`.jks` path if found, else empty strings) + `bundle.language.enableSplit = false` + `base.archivesName`
 - [ ] `:app` release `optimization { enable = true }`; `src/main/keepRules/rules.keep` on `:app` and on `:domain` / UI modules; no `proguard-rules.pro`
 - [ ] `compileSdk` 37.1 block, `targetSdk = 37`, `versionName = "1.0.1"`, `compileOptions` `VERSION_21`
 - [ ] Library modules omit `signingConfigs` / `bundle` / `base`
 - [ ] UseCases + repo interfaces only in `:domain`; `dataModule` has `//// DataSources` then `//// Repositories`
-- [ ] All DI uses `lazyModule` / `lazyModules` only; theme applied after `startKoin` (no `GlobalContext` probes)
+- [ ] All DI uses `lazyModule` / `lazyModules` only; `App` uses `startKoin` then `runOnKoinStarted` (no `GlobalContext` probes)
 - [ ] **xml:** `nav_graph` startDestination = `entranceFragment`; **compose:** `NavGraph.kt` `startDestination = ENTRANCE_ROUTE`
 - [ ] **xml:** `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs. **compose:** slide `enterTransition` / `exitTransition` on `NavHost`
-- [ ] **xml:** ParentActivity / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
-- [ ] **xml:** `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom`)
+- [ ] **xml:** ParentActivity (`includeTopPadding` default false) / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist
+- [ ] **xml:** `FragmentExtensions.kt` + `ActivityExtensions.kt` + `ContextExtensions.kt` + `ImageViewExtensions.kt` (`showToast` / `loadImage`; Fragment collectors on `viewLifecycleOwner`; `navigateTo` / `popFrom` / `navigateRootTo`)
+- [ ] Themes: `includeFontPadding=false`, IconButton `8dp` + `colorIcon`, no status/nav bar attrs until asked; BNV via `bottomNavigationStyle` when design system sets colors
 - [ ] **xml:** Glide on `:core-ui` (+ presentation if needed); all programmatic image binds use `loadImage`. **compose:** Coil 3; no Glide in feature modules
 - [ ] **compose:** `:core-ui` `AppTheme` in `core/ui/theme/`; `:app` `MainActivity` uses `koinInject()` — never `GlobalContext.get()`
 - [ ] Firebase BOM + analytics/crashlytics/messaging on `:core-platform`; `firebase-config` on `:data` (no MessagingService)

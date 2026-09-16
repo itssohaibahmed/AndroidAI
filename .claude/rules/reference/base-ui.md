@@ -1,6 +1,6 @@
 ﻿# Base UI classes, ViewBinding lifecycle, and Flow collection
 
-Full detail for `19-base-ui.md`. Do not delete lines from this file — edit here and keep the rule stub in sync.
+Full detail for `19-base-ui.mdc`. Do not delete lines from this file — edit here and keep the rule stub in sync.
 
 When `uiFramework` is `compose`, do not scaffold `ParentFragment` / View Binding bases — use [compose-ui.md](compose-ui.md) (`*Screen` / `AppTheme` / `:app` `MainActivity`). This file stays the XML `Parent*` contract.
 
@@ -18,7 +18,7 @@ When `uiFramework` is `compose`, do not scaffold `ParentFragment` / View Binding
 ```
 
 **Templates (copy + replace `YOUR.PACKAGE`):**  
-`.claude/skills/project/setup-new-project/templates/base/`  
+`.cursor/skills/project/setup-new-project/templates/base/`  
 See that folderâ€™s `README.md`. Same shape as the company template; `ParentSheet` is null-safe (not `!!`).
 
 ### ParentFragment
@@ -51,7 +51,8 @@ See that folderâ€™s `README.md`. Same shape as the company template; `Paren
 
 - Fragment helpers: `templates/base/FragmentExtensions.kt` â†’ `â€¦core.ui.extensions.FragmentExtensions.kt`  
   Uses **`viewLifecycleOwner`** for `collectWhen*` / `repeatWhen` / `launchWhen*` (survives only with the view â€” avoids duplicate collectors after navigate away / back)  
-  Safe nav: `navigateTo(fragmentId, action)` / `popFrom(fragmentId)` â€” only when `isAdded` and current destination matches
+  Safe nav: `navigateTo` / `popFrom` / `navigateRootTo` — only when `isAdded` and current destination matches
+  Collectors: `collectWhenStarted` / `collectWhenCreated` / `launchWhenResumed` on **viewLifecycleOwner**
 - Activity helpers: `templates/base/ActivityExtensions.kt` â†’ `â€¦core.ui.extensions.ActivityExtensions.kt`
 - Context helpers: `templates/base/ContextExtensions.kt` â†’ `â€¦core.ui.extensions.ContextExtensions.kt`  
   `context?.showToast("â€¦")` / `context?.showToast(R.string.x)` â€” prefer `@StringRes` for user-facing copy
@@ -61,7 +62,9 @@ See that folderâ€™s `README.md`. Same shape as the company template; `Paren
 - Effects: `collectWhenCreated` (or STARTED with SharedFlow that must not drop â€” follow project helper)
 - Reuse extensions â€” do not copy-paste collectors
 - Naming: `<Receiver>Extensions.kt` only â€” never a shared `FlowCollectionExtensions.kt` / `LifecycleFlowExtensions.kt`
-- Prefer `navigateTo` / `popFrom` over raw `findNavController().navigate` / `popBackStack` in Fragments
+- Prefer `navigateTo` / `popFrom` / `navigateRootTo` over raw `findNavController().navigate` / `popBackStack` in Fragments
+- `ParentActivity.includeTopPadding` defaults to **false**; MainActivity sets true except Entrance (`23-app-startup`)
+- Prefer `screenStarted() = launchWhenResumed { handleIntent(ScreenStarted) }` when start work must wait for resume (paywalls, etc.)
 
 ## Feature Fragment responsibilities
 

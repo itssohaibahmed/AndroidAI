@@ -64,6 +64,8 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 | **Any `review-*` skill**                             | Sibling `review-*`, `review-complete`                                                                                                                                                                                                    |
 | **Firebase / billing / platform skill**              | Sibling skills in that area + matching numbered rule if one exists                                                                                                                                                                       |
 | **Any `admob/*` / ads skill**                        | Sibling `admob/*` skills, `21-ads-billing` + `reference/ads-gma.md`, `setup-new-project` / `setup-old-project` ads steps, `.claude` twins                                                                                                |
+| **Screen / app-flow / premium UI**                   | `29`–`33` screen rules, `reference/app-flow.md`, `17` / `23` / `09`, billing skills + `reference/premium-billing.md`, `setup-new-project`, `.claude` twins                                                                              |
+| **Manifest / modules / resource placement**          | `02`, `09` + `resources-xml.md`, `10`, `23`, `setup-new-project` / `setup-old-project`, `.claude` twins                                                                                                                                 |
 
 ### Checklist before finishing a template edit
 

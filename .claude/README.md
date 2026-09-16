@@ -93,7 +93,7 @@ add-admob-appOpen-lifecycle   Wire App Open LIFECYCLE (resume)
 
 Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/rules/reference/`](rules/reference/) — not separate skills.
 
-## Rules index (`00`–`28`)
+## Rules index (`00`–`33`)
 
 | File                   | Role                                                                                                                                                                          |
 |------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -104,11 +104,12 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 | `08`–`10`              | Gradle (`08` → `reference/gradle.md`: section order, signingConfigs, bundle, `base`), resources/XML, manifest (`09` → `reference/`)                                           |
 | `11`–`13`              | Testing, naming, libraries                                                                                                                                                    |
 | `14`–`16`              | Security (always), compatibility, logging (always)                                                                                                                            |
-| `17`–`20`              | Nav, errors, base UI (`19` → `reference/`), permissions                                                                                                                       |
+| `17`–`20`              | Nav (dual graphs / `navigateRootTo`), errors, base UI (`19` → `reference/`), permissions                                                                                      |
 | `21`–`25`              | Ads/billing (**ads are not MVI** — `:gmaAds` from GitHub; see `implement-admob-ads` / `add-admob-*` + `reference/ads-gma.md`), Firebase, startup, Figma assets, in-app update |
-| `26-data-persistence`  | Retrofit / Room / SharedPreferences patterns                                                                                                                                  |
+| `26-data-persistence`  | Retrofit / Room / SharedPreferences (`:core-network` / `:core-database` when added)                                                                                           |
 | `27-in-app-review`     | Play In-App Review placement (`InAppReviewManager`)                                                                                                                           |
 | `28-compose-ui`        | Compose feature modules / Screen-Content / NavGraph (`uiFramework` compose) — [reference/compose-ui.md](rules/reference/compose-ui.md)                                        |
+| `29`–`33`              | Screen rules: Entrance, Language, Onboarding, Dashboard, Premium (paywall sticky footer + 3s close)                                                                           |
 
 ### `rules/reference/` (full detail)
 
@@ -121,8 +122,9 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 | `base-ui.md`                                        | `19-base-ui`              |
 | `compose-ui.md`                                     | `28-compose-ui`           |
 | `retrofit.md` / `room.md` / `shared-preferences.md` | `26-data-persistence`     |
-| `premium-billing.md`                                | `21-ads-billing`          |
+| `premium-billing.md`                                | `21-ads-billing` / `33`   |
 | `ads-gma.md`                                        | `21-ads-billing`          |
+| `app-flow.md`                                       | `29`–`32` screen rules    |
 
 ## Future distribution (not in v1)
 

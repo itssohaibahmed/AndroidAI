@@ -1,22 +1,33 @@
 # Room Cache (reference pattern)
 
-Follow `.claude/rules/08-gradle.md`, `13-libraries-stack.md`, `06-coroutines-flow.md`, `03-android-architecture.md`, `26-data-persistence.md`. **Add Room only with human approval** — add to `libs.versions.toml` first.
+Follow `.claude/rules/08-gradle.mdc`, `13-libraries-stack.mdc`, `06-coroutines-flow.mdc`, `03-android-architecture.mdc`, `26-data-persistence.mdc`. **Add Room only with human approval** — add to `libs.versions.toml` first.
 
 ## Layers
 
-| Layer | Contents |
-|-------|----------|
-| Data | `@Entity`, `@Dao`, `RoomDatabase`, `*DataSource` |
-| Domain | Entities (pure Kotlin) + repository interface |
-| Data | `*RepositoryImpl` maps Entity ↔ domain |
+| Layer / module | Contents |
+|----------------|----------|
+| `:core-database` | `@Entity` (under `entity/`), `@Dao`, `AppDatabase`, `di` `lazyModule` — **create this module when adding Room** |
+| `:data` | `*DataSource` wrapping DAOs, `*RepositoryImpl`, maps Entity ↔ domain |
+| `:domain` | Pure Kotlin entities + repository interface |
 
-- Room types stay in `:data` — not in domain or presentation
+- Room types stay in `:core-database` / data boundary — not in domain or presentation
+- Do **not** create an empty `:core-database` on every `setup-new-project` — add when Room is approved
 
 ## Setup
 
 1. Catalog: `room-runtime`, `room-ktx`, `ksp` room compiler
-2. `:data` `build.gradle.kts`: ksp + dependencies
-3. Database class — version migrations planned from day one
+2. Create `:core-database` module; `include` alphabetically in `settings.gradle.kts`
+3. `:data` depends on `:core-database`
+4. Database class — version migrations planned from day one
+
+```
+core/database/
+  AppDatabase.kt
+  di/DatabaseModule.kt
+  entity/YourEntity.kt
+  <feature>/YourDao.kt
+  keepRules/rules.keep
+```
 
 ```kotlin
 @Database(entities = [ItemEntity::class], version = 1)

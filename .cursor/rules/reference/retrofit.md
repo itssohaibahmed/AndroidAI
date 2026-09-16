@@ -6,17 +6,22 @@ Prefer existing `InternetManager` (`:core-platform`) for connectivity checks bef
 
 ## Layers
 
-| Layer | Contents |
-|-------|----------|
-| Data | `ApiService` (Retrofit), DTOs, `RemoteDataSource`, `*RepositoryImpl` |
-| Domain | Domain models + repository interface — no Retrofit types |
-| Core-platform | OkHttp client, interceptors, base URL config |
+| Layer / module | Contents |
+|----------------|----------|
+| `:core-network` | OkHttp client, Retrofit builder, interceptors, base URL config, `ApiService` interfaces — **create when adding Retrofit/API** |
+| `:data` | DTOs (if not in network), `RemoteDataSource`, `*RepositoryImpl` |
+| `:domain` | Domain models + repository interface — no Retrofit types |
+| `:core-platform` | Connectivity only (`InternetManager`) — not the full Retrofit stack |
+
+- Do **not** create an empty `:core-network` on every `setup-new-project` — add when networking API is approved
+- Prefer existing `InternetManager` (`:core-platform`) for connectivity checks before calls
 
 ## Setup
 
 1. `libs.versions.toml`: retrofit, okhttp, converter (moshi/gson)
-2. `:core-platform` or `:data`: OkHttp + Retrofit `single` in DI
-3. Base URL from build config / `local.properties` — not hardcoded secrets
+2. Create `:core-network`; `include` alphabetically; wire `lazyModule`
+3. `:data` depends on `:core-network`
+4. Base URL from build config / `local.properties` — not hardcoded secrets
 
 ```kotlin
 interface UserApi {

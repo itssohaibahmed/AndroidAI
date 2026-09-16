@@ -14,7 +14,7 @@ Extraction file map + `:core-ui` scaffold: [reference.md](reference.md).
 ## Preconditions
 
 1. **Figma URL** — `figma.com/design/...` in the prompt, or `figmaDesignSystemUrl` in `project-settings.json`. If neither exists, **ask**. Do not guess a file.
-2. Persist the URL to `figmaDesignSystemUrl` in `.claude/project-settings.json` (and `.cursor/project-settings.json` if that file exists).
+2. Persist the URL to `figmaDesignSystemUrl` in `.claude/project-settings.json` (and `.claude/project-settings.json` if that file exists).
 3. **`:core-ui`** — if it is not on the Gradle graph, **create it** (see [reference.md](reference.md)) and continue. Do not stop. Do not wait for another skill.
 4. Read `themeModes`: `day` → `values/` only; `night` / `both` → also `values-night/`.
 

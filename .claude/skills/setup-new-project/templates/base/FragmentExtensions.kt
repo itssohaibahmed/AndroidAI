@@ -10,7 +10,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withCreated
 import androidx.lifecycle.withResumed
 import androidx.lifecycle.withStarted
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -107,5 +109,39 @@ fun Fragment.popFrom(fragmentId: Int) {
 fun Fragment.popFrom(fragmentId: Int, destinationFragmentId: Int, inclusive: Boolean = false) {
     if (isAdded && isCurrentDestination(fragmentId)) {
         findNavController().popBackStack(destinationFragmentId, inclusive)
+    }
+}
+
+/** Root Activity NavHost — for nested-graph → root-graph navigation. */
+fun Fragment.findRootNavController(navHostContainerId: Int): NavController =
+    Navigation.findNavController(requireActivity(), navHostContainerId)
+
+fun Fragment.isRootCurrentDestination(navHostContainerId: Int, destinationId: Int): Boolean =
+    isAdded && findRootNavController(navHostContainerId).currentDestination?.id == destinationId
+
+fun Fragment.navigateRootTo(navHostContainerId: Int, currentDestinationId: Int, action: Int) {
+    if (isRootCurrentDestination(navHostContainerId, currentDestinationId)) {
+        findRootNavController(navHostContainerId).navigate(action)
+    }
+}
+
+fun Fragment.navigateRootTo(
+    navHostContainerId: Int,
+    currentDestinationId: Int,
+    action: Int,
+    bundle: Bundle,
+) {
+    if (isRootCurrentDestination(navHostContainerId, currentDestinationId)) {
+        findRootNavController(navHostContainerId).navigate(action, bundle)
+    }
+}
+
+fun Fragment.navigateRootTo(
+    navHostContainerId: Int,
+    currentDestinationId: Int,
+    action: NavDirections,
+) {
+    if (isRootCurrentDestination(navHostContainerId, currentDestinationId)) {
+        findRootNavController(navHostContainerId).navigate(action)
     }
 }

@@ -6,13 +6,13 @@ description: New feature / screen scaffolding checklist — use when adding a fe
 
 - [ ] Feature package: `{di,intent,state,effect,viewModel,ui}` (+ adapter/mapper as needed) — **compose:** `:feature-<kebab>` with `*Screen.kt` at feature root instead of `ui/` Fragment
 - [ ] Extend `Parent*` / `Base*` UI bases (xml) **or** `*Screen` / `*ScreenContent` (`28-compose-ui`) when `uiFramework` is compose; layouts / composables work in **portrait and landscape**
-- [ ] Fragment member order per `19-base-ui` when xml: `onViewCreated` (inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown (if any). Compose: `*Screen` collects state/effects → private `*ScreenContent` renders
-- [ ] Icon actions use `ButtonStyle.IconButton` (`mb` + `app:icon`) — not clickable `siv`
+- [ ] Fragment member order per `19-base-ui` when xml: `onViewCreated` (`setup*` helpers then `screenStarted` — often `launchWhenResumed`; inline clicks, no `setupClicks`) → helpers → `initObservers` → `renderState` → `handleEffect` → teardown (if any). Compose: `*Screen` collects state/effects → private `*ScreenContent` renders
+- [ ] Icon actions use `ButtonStyle.IconButton` (`mb` + `app:icon`, style padding `8dp` / `iconTint` `?attr/colorIcon`) — not clickable `siv`
 - [ ] Domain UseCase(s) + repository **interface** in `:domain` (never under `:data`)
-- [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main)
+- [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main); Room → `:core-database`, Retrofit → `:core-network` when adding those stacks
 - [ ] Mapping: Repo/UseCase for heavy work; `toUi()` in ViewModel if needed — not in UI classes
-- [ ] DI: **`lazyModule` / `lazyModules` only** with `//// Section` headers; theme after `startKoin` (never `GlobalContext` probes); UseCases in domain `useCaseModule`
-- [ ] Strings in the **single** shared strings file (+ translations)
+- [ ] DI: **`lazyModule` / `lazyModules` only** with `//// Section` headers; theme/billing after `runOnKoinStarted` (never `GlobalContext` probes); UseCases in domain `useCaseModule`
+- [ ] Strings in the **single** shared strings file (+ translations); layouts in `:presentation` only (xml)
 - [ ] Logs use `Constants.TAG*` format; prefer Repository; ViewModel sparse (`handleError` for failures)
 - [ ] Permissions via Intent → Effect → base permission helper when needed
 - [ ] Analytics event via shared EventsProvider when screen should be tracked
@@ -21,6 +21,7 @@ description: New feature / screen scaffolding checklist — use when adding a fe
 - [ ] Verify no `:presentation` → `:data` dependency
 - [ ] Large-list path: xml `ListAdapter` + DiffUtil / compose `LazyColumn`/`LazyVerticalGrid` + stable keys; `layoutManager` in XML unless dynamic (xml only)
 - [ ] Images: xml `ShapeableImageView` + Glide `loadImage`; compose Coil `AsyncImage` / `painterResource`
-- [ ] If ads/premium: gate on entitlement + RC; use existing ads managers / ad ViewModels — not raw SDK in Fragments. **Do not** wrap ads in MVI unless the user explicitly asks (`21-ads-billing`)
+- [ ] If ads/premium: gate on entitlement + RC; use existing ads extensions — not raw SDK in Fragments. **Do not** wrap ads in MVI unless the user explicitly asks (`21-ads-billing`). Paywalls: sticky footer + 3s delayed close (`33-screen-premium`)
+- [ ] Funnel / Dashboard: obey `29`–`32` + `reference/app-flow.md` when touching those screens
 - [ ] Obey `.claude/project-settings.json` (tests / orientation / theme modes / **`uiFramework`**)
 - [ ] Presentation-only scaffold via `create-mvi` (feature screens only — not ads); new domain/data via `create-clean-architecture`

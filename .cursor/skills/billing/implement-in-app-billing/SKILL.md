@@ -242,6 +242,11 @@ Map `PurchaseOutcome` → `BillingPurchaseResult` → `PurchaseResultReceived` I
 
 Portrait **and** landscape unless `project-settings.json` locks orientation. All strings in `:core-ui`.
 
+**Paywall layout / close (mandatory — `33-screen-premium`):**
+
+- Sticky footer: CTA + legal fixed at bottom; scrollable content above
+- Close (X): `showCloseButton = false` until 3s delay after `launchWhenResumed { handleIntent(ScreenStarted) }` → `showCloseButtonWithDelay()`
+
 ---
 
 ## Step 7 — Navigation & Remote Config (optional)

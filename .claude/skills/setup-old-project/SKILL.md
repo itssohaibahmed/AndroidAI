@@ -145,7 +145,9 @@ compose: feature-* → domain ← data
 core-common / core-ui / core-platform
 ```
 
-- `:app` — `App`, manifest, `KoinModules` only; **no** `res/values/` (move themes/strings/colors to `:core-ui`; keep `mipmap` / backup `xml` / `google-services.json` as needed)
+- `:app` — `App`, manifest, `KoinModules` only; **no** `res/values/` (move themes/strings/colors to `:core-ui`; keep `mipmap` / backup `xml` / launcher drawable / `google-services.json` as needed). Application theme = product `Theme.App`; launcher = `Theme.App.Starting`. App uses `startKoin` then `runOnKoinStarted` (`23-app-startup`)
+- `settings.gradle.kts` — keep `include` list **alphabetical** when adding modules
+- Manifests only where needed (`10-manifest`) — do not sprinkle empty manifests
 - Convert Hilt/Dagger/`module { }` → **`lazyModule` / `lazyModules` only** (same graph, new container)
 - Theme after `startKoin` (`23-app-startup`); no `GlobalContext.getOrNull()` gates
 - UseCases + repo **interfaces** → `:domain`; DataSources + repo **impls** → `:data`
