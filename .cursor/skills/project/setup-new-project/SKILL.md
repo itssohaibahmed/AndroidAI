@@ -151,7 +151,7 @@ class App : Application() {
 
 - Aggregate with **`lazyModule` only** (convert any `module` → `lazyModule`, `modules` → `lazyModules`): `appModule`, `coreModule`, `corePlatformModule`, `dataModule`, `useCaseModule`, `entrancePresentationModule` (xml) or `entranceFeatureModule` (compose), `gmaAdsModule`, …
 - Theme / billing / anything needing bindings: inside **`runOnKoinStarted`** (`23-app-startup`) — avoids `KoinNotStarted` with `lazyModules`
-- Manifest: `android:name=".App"`, **application** `android:theme="@style/Theme.App"` (product theme), **launcher Activity** `android:theme="@style/Theme.App.Starting"`; child order MainActivity → services → receivers → meta-data (`10-manifest`); `supportsRtl="true"`
+- Manifest: `android:name=".App"`, **application** `android:theme="@style/Theme.App"` (product theme), **launcher Activity** `android:theme="@style/Theme.App.Starting"`; child order MainActivity → other activities → services → receivers → meta-data (`10-manifest`); `supportsRtl="true"`
 - Orientation: follow `project-settings.json` — default portrait **and** landscape; do not lock unless `orientation` is single-mode and product requires lock
 - Theme modes: create `values` / `values-night` per `themeModes`
 - UseCases + repo interfaces → `:domain`; DataSources + repo impls → `:data` (`dataModule` with `//// DataSources` / `//// Repositories`)

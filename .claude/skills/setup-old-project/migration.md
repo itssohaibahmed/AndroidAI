@@ -23,8 +23,8 @@ Companion to [SKILL.md](SKILL.md). Target architecture: [setup-new-project](../s
 | Jetpack Compose                                          | Set `uiFramework` `compose`. Extract into `:feature-*` + `:core-ui` (theme + resources) + `:app` `NavGraph.kt`. Do **not** convert to XML unless asked. |
 | Java sources                                             | Convert to Kotlin when touching a file / moving into a new layer; keep control flow.                                     |
 | API in Activity/Presenter                                | DataSource (network) + Repository impl (`:data`) + interface/UseCase (`:domain`). Same URL, method, headers, parse.      |
-| OkHttp / Volley / Retrofit already                       | Keep the client. Place in `:data`. Add Retrofit only with approval (`00-global`).                                        |
-| Room / SQLite                                            | Move DB, entities, DAOs to `:data`. **Do not** migrate schema or change queries.                                         |
+| OkHttp / Volley / Retrofit already                       | Keep the client. Place Retrofit/OkHttp API stack in **`:core-network`** when extracting; DataSources/repo impls in `:data`. Add Retrofit only with approval (`00-global`). |
+| Room / SQLite                                            | Move DB, entities, DAOs to **`:core-database`**. DataSources wrapping DAOs stay in `:data`. **Do not** migrate schema or change queries. |
 | SharedPreferences / DataStore helper                     | Wrap existing file name + keys. Do not reset defaults.                                                                   |
 | Strings in `:app` / many modules                         | Single shared `:core-ui` `strings.xml` **plus all `values-*` locales**.                                                  |
 | Themes/colors in `:app`                                  | Move to `:core-ui`. Honor `themeModes`.                                                                                  |

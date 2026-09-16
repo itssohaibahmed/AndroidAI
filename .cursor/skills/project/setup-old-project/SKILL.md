@@ -159,8 +159,8 @@ Copy Parent*/anim/extensions/Glide/`PlatformFirebase` from [setup-new-project te
 
 Do not rewrite parsers, endpoints, headers, or DB queries.
 
-1. API / JSON parsing in Activity/Fragment/Presenter → `:data` DataSource + Repository impl; domain interface + UseCase.
-2. Room / SQLite / files / prefs → `:data`; keep schema, keys, file names, prefs name.
+1. API / JSON parsing in Activity/Fragment/Presenter → `:data` DataSource + Repository impl; domain interface + UseCase. If introducing Retrofit/OkHttp stack for the first time → also create **`:core-network`** (`26`, `reference/retrofit.md`).
+2. Room / SQLite → **`:core-database`** (entities under `entity/`, DAOs, `AppDatabase`); DataSources/repo impls stay in `:data`. Files / prefs → `:data`. Keep schema, keys, file names, prefs name.
 3. SharedPreferences: wrap the **existing** prefs file/name in `SharedPrefManager` (sync) + `SharedPrefRepository` (`26-data-persistence` + `reference/shared-preferences.md`). Do not change keys or defaults.
 4. Remote Config: if present, keep **existing keys**; wrap with DataSource + cache-to-prefs (`setup-new-project` Step 8 / `implement-firebase-remote-config`). If missing, add the template RC stack.
 5. Analytics: keep **event names and params**; move posting into `PlatformFirebase` + `EventsProvider`. Do not rename events.

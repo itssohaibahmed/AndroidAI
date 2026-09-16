@@ -84,7 +84,7 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 | `14-security-secrets.mdc`  | Yes        | Secrets / exported / PII                                         |
 | `16-logging.mdc`           | Yes        | `Constants.TAG*` format                                          |
 | `01-feature-checklist.mdc` | **No**     | Checklist when scaffolding a feature                             |
-| Other `02`–`28`            | **No**     | Glob or description when relevant (`28-compose-ui` when compose) |
+| Other `02`–`33`            | **No**     | Glob or description when relevant (`28-compose-ui` when compose; `29`–`33` screen rules) |
 
 **Prefer fewer always-on rules.** New “must always” items → add to `00-global` only if truly every chat needs them; otherwise use globs or a skill.
 
@@ -113,7 +113,7 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 
 ### Naming
 
-- Numbered rules: `00`–`28` style (`26-data-persistence.mdc`, `28-compose-ui.mdc`).
+- Numbered rules: `00`–`33` style (`26-data-persistence.mdc`, `28-compose-ui.mdc`, `33-screen-premium.mdc`).
 - Next free number if adding a new top-level topic.
 - Reference files: kebab-case (`mvi-presentation.md`).
 

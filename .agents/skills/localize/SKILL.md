@@ -1,6 +1,6 @@
 ---
 name: localize
-description: Native-quality Android string localization. Discover @LanguageDataSource, ask language and complete/missing MCQs, then translate in parallel — one agent per language writing only that locale's values-* folder. Use when the user says localize, translate strings, add locale strings.xml, missing translations, or native localization.
+description: Native-quality Android string localization. Discover LanguageDataSource.kt, ask language and complete/missing MCQs, then translate in parallel — one agent per language writing only that locale's values-* folder. Use when the user says localize, translate strings, add locale strings.xml, missing translations, or native localization.
 ---
 
 # Localize
@@ -13,34 +13,33 @@ Do not write any localization file until both MCQs are answered.
 
 ## 0. Hard rules
 
-1. Search `@LanguageDataSource` first. Do not invent languages.
+1. Search `LanguageDataSource.kt` first. Do not invent languages.
 2. Native translation (meaning + UI context), not word-for-word.
 3. One worker = one language. Launch **all** workers in **one** parallel turn. Never wait for language 1 before starting language 2.
 4. Each worker writes **only** `**/res/values-<qual>/**` for its locale. Two workers must never touch the same file.
 5. Preserve resource `name` keys, placeholders, formatting, XML validity, section comment order.
-6. Do not change `@LanguageDataSource`, Gradle, architecture, or extract hardcoded Kotlin/Compose strings unless the user explicitly asks.
+6. Do not change `LanguageDataSource.kt`, Gradle, architecture, or extract hardcoded Kotlin/Compose strings unless the user explicitly asks.
 7. Never delete resources. Never rename keys. Never remove an existing translation just because it differs from the source.
 
 ---
 
-## 1. Discover `@LanguageDataSource`
+## 1. Discover `LanguageDataSource.kt`
 
-Search the whole project for `@LanguageDataSource`. Read the annotated declaration and nearby enums, sealed classes, lists, constants, or objects that hold language codes.
+Search the whole project for the file `LanguageDataSource.kt` (filename match — do not search for an annotation named LanguageDataSource). Open that file and read the class plus nearby enums, sealed classes, lists, constants, or objects that hold language codes.
 
 Examples of shapes (do **not** assume these are the project):
 
 ```kotlin
-@LanguageDataSource
-val languages = listOf("en", "ur", "es")
+class LanguageDataSource {
+    val languages = listOf("en", "ur", "es")
+}
 ```
 
 ```kotlin
-@LanguageDataSource
 enum class Language(val code: String)
 ```
 
 ```kotlin
-@LanguageDataSource
 object SupportedLanguages {
     const val ENGLISH = "en"
     const val URDU = "ur"
@@ -54,10 +53,10 @@ Use the project's actual source of truth.
 Ask exactly this, then wait:
 
 ```text
-I couldn't find @LanguageDataSource in the project.
+I couldn't find LanguageDataSource.kt in the project.
 
 Please either:
-A. Add/restore @LanguageDataSource, or
+A. Add/restore LanguageDataSource.kt, or
 B. Provide the language code(s) manually.
 ```
 
@@ -70,7 +69,7 @@ If the user chooses B, continue with those codes. Do not guess.
 Show the detected codes numbered, then ask exactly:
 
 ```text
-I found these language codes in @LanguageDataSource:
+I found these language codes in LanguageDataSource.kt:
 
 1. en
 2. ur
@@ -87,7 +86,7 @@ C. Other — enter language code(s)
 Replace the numbered list with the real codes. The user must choose.
 
 - **B** → ask for the codes, then continue.
-- **C** → accept any codes (`ur`, `fr-CA`, `pt-BR`, `zh-CN`, …). Do not reject a code because it was not in `@LanguageDataSource`. Explicitly say it is outside the discovered language source.
+- **C** → accept any codes (`ur`, `fr-CA`, `pt-BR`, `zh-CN`, …). Do not reject a code because it was not in `LanguageDataSource.kt`. Explicitly say it is outside the discovered language source.
 
 Do not infer languages. Do not start work.
 
@@ -177,7 +176,7 @@ FOLDER=<values-xx>          # Android resource folder qualifier
 OUTPUT=<exact file paths>
 MODE=complete | missing-only
 
-WRITE ONLY the OUTPUT paths under FOLDER. Do not touch any other locale, Kotlin, Gradle, or @LanguageDataSource.
+WRITE ONLY the OUTPUT paths under FOLDER. Do not touch any other locale, Kotlin, Gradle, or LanguageDataSource.kt.
 
 Translate as a native product writer for LANGUAGE. Meaning + UI context, not word-for-word.
 
@@ -280,4 +279,4 @@ Do not translate: product names, company/brand names, API/library/framework name
 
 ## 10. Out of scope (stop and ask)
 
-Redesigning UI, extracting hardcoded strings, changing architecture, Gradle, locale-detection logic, or `@LanguageDataSource`.
+Redesigning UI, extracting hardcoded strings, changing architecture, Gradle, locale-detection logic, or `LanguageDataSource.kt`.

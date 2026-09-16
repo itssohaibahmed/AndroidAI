@@ -37,11 +37,14 @@ domain/
 data/
   <area>/dataSource/…                       # DataSource / manager / Api / Dao wrapper
   <area>/repository/<Name>RepositoryImpl.kt # impl ONLY
-  <area>/dto/…                              # DTOs / Room entities (data only)
+  <area>/dto/…                              # network DTOs (data only) — Room entities live in :core-database
   di/DataModule.kt                          # lazyModule { //// DataSources … //// Repositories … }
 
 core-* (only if required)
-  e.g. OkHttp/Retrofit provider in :core-platform; shared Constants in :core-common
+  :core-database — Room AppDatabase / entity/ / DAOs when adding Room
+  :core-network — OkHttp/Retrofit when adding API clients
+  :core-platform — InternetManager / connectivity (not full Retrofit stack)
+  :core-common — shared Constants
 ```
 
 - **Never** create UseCase or repository interface under `:data`
