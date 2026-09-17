@@ -1,6 +1,6 @@
 ---
 name: create-mvi
-description: Scaffold presentation-layer MVI only (Intent/State/Effect/ViewModel). XML: Fragment/DI/nav_graph. Compose: `:feature-*` *Screen + NavGraph. No domain or data. Use when adding a new screen with ViewModel. For new UseCases/repositories use create-clean-architecture. Do not use for ads / :gmaAds.
+description: Scaffold presentation-layer MVI only (Intent/State/Effect/ViewModel). XML: Fragment/DI/nav_graph. Compose: `:feature-*` *Screen + NavGraph. No domain or data. Use when adding a new screen with ViewModel and layout already exists (or after figma-to-*). For full UI+MVI+domain in one invoke use create-screen. For new UseCases/repositories use create-clean-architecture. Do not use for ads / :gmaAds.
 ---
 
 # Create MVI Feature (presentation only)

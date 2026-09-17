@@ -58,8 +58,10 @@ When you change a **skill**, **rule**, or **reference** doc, find every peer tha
 | **`gradle/gradle-organize`**                         | `gradle-update`, `setup-new-project` / `setup-old-project` Gradle steps, `08` + `reference/gradle.md`                                                                                                                                    |
 | **Groovy → Kotlin DSL guidance**                     | Lives in / must stay aligned with **`gradle-update`** (convert before bump) **and** `setup-old-project` Step 2 / `migration.md`; do not teach Groovy conversion in only one place                                                        |
 | **`setup-design-system`**                            | Skill `reference.md`, color/theme notes in `09` / `reference/resources-xml.md` if invariants change, `.claude` twin                                                                                                                      |
-| **`create-mvi` / MVI law**                           | `04-mvi-presentation` + `reference/mvi-presentation.md`, `01-feature-checklist`, `28-compose-ui` + `reference/compose-ui.md` when compose, `review-architecture` if gates change                                                         |
-| **UI / Figma (`figma-to-xml` / `figma-to-compose`)** | Sibling UI skills (`create-dialog`, `create-bottom-sheet`, `create-custom-view`), `09` / `28`, `setup-new-project` / `setup-old-project`, `.claude` twins                                                                                |
+| **`create-mvi` / MVI law**                           | `04-mvi-presentation` + `reference/mvi-presentation.md`, `01-feature-checklist`, `28-compose-ui` + `reference/compose-ui.md` when compose, `create-screen` (orchestrator), `review-architecture` if gates change                      |
+| **`create-screen` (orchestrator)**                   | Leaf skills it runs (`figma-to-xml` / `figma-to-compose`, `create-mvi`, `create-clean-architecture`), `01-feature-checklist`, skill maps in `.cursor/README.md` + `.claude/README.md`, `.claude` twin                                  |
+| **`create-clean-architecture`**                      | `26` + `reference/` (retrofit/room/prefs), `create-mvi`, `create-screen`, `01-feature-checklist`, `.claude` twin                                                                                                                          |
+| **UI / Figma (`figma-to-xml` / `figma-to-compose`)** | Sibling UI skills (`create-dialog`, `create-bottom-sheet`, `create-custom-view`), `create-screen`, `09` / `28`, `setup-new-project` / `setup-old-project`, `.claude` twins                                                               |
 | **Any `test-*` skill**                               | Sibling `test-*` banners/consent rules, `test-complete`, `11-testing.mdc`                                                                                                                                                                |
 | **Any `review-*` skill**                             | Sibling `review-*`, `review-complete`                                                                                                                                                                                                    |
 | **Firebase / billing / platform skill**              | Sibling skills in that area + matching numbered rule if one exists                                                                                                                                                                       |
@@ -157,7 +159,8 @@ Obey `.cursor/project-settings.json` when present.
 
 | You want to…                                                       | Prefer                                                                                                                                                   |
 |--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Scaffold a screen (Intent/State/Effect/VM + Fragment or `*Screen`) | `feature/create-mvi` (extend or new skill under `feature/`)                                                                                              |
+| Full feature screen (UI + MVI + optional domain/data) in one invoke | `feature/create-screen` (orchestrates UI + `create-mvi` + `create-clean-architecture`)                                                                   |
+| Scaffold presentation only (Intent/State/Effect/VM + Fragment or `*Screen`) | `feature/create-mvi`                                                                                                                              |
 | Add domain/data/repo                                               | `feature/create-clean-architecture`                                                                                                                      |
 | XML / Figma layout only                                            | `ui/figma-to-xml` (or dialog / bottom-sheet) — when `uiFramework` is `xml`                                                                               |
 | Compose / Figma screen only                                        | `ui/figma-to-compose` (or dialog / bottom-sheet) — when `uiFramework` is `compose`                                                                       |
@@ -230,7 +233,7 @@ Only after the user accepts → write `SKILL.md` (put the agreed host screen / m
 ### New feature conventions
 
 1. Read `00-global`, `01-feature-checklist`, `04` / `reference/mvi-presentation`, `03`, `07` / DI reference.
-2. Prefer extending existing skills (`create-mvi`, `create-clean-architecture`) over parallel skills.
+2. Prefer extending existing skills (`create-screen`, `create-mvi`, `create-clean-architecture`) over parallel skills. Full screens → `create-screen`; layer-only work → leaf skills.
 3. Add a **rule** only for new invariants; add a **skill** only for a new multi-step flow.
 
 ### Updates (deps, Gradle, platform)

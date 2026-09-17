@@ -1,6 +1,6 @@
 ---
 name: figma-to-xml
-description: Create Android XML layouts and drawables from a Figma URL or freeform screen request (fragment_/activity_/item_/layout_). Covers Dashboard BottomNavigation + nested nav_graph_dashboard when the design has a bottom bar. XML only — no Kotlin/MVI. Use when the user shares a Figma link, asks for Figma-to-XML, or wants a screen layout without ViewModel scaffolding. Loads Figma design-to-code skill, then adapts to project rules.
+description: Create Android XML layouts and drawables from a Figma URL or freeform screen request (fragment_/activity_/item_/layout_). Covers Dashboard BottomNavigation + nested nav_graph_dashboard when the design has a bottom bar. XML only — no Kotlin/MVI. Use when the user shares a Figma link, asks for Figma-to-XML, or wants a screen layout without ViewModel scaffolding. For full screen (UI + MVI + optional domain) in one invoke use create-screen. Loads Figma design-to-code skill, then adapts to project rules.
 ---
 
 # Figma / Screen → Android XML (XML only)
@@ -133,4 +133,4 @@ Tell the user to run **`create-mvi`** for Dashboard (and each tab if needed) and
 - Call out any asset that fell back from SVG → raster and why
 - Call out any gradient angle rounded to a multiple of 45
 - If Dashboard/BNV: list the menu + `nav_graph_dashboard` + tab layouts created
-- Tell user to wire via `create-mvi` (presentation) and `create-clean-architecture` if new domain/data is needed
+- Tell user to wire via `create-mvi` (presentation) and `create-clean-architecture` if new domain/data is needed — or **`create-screen`** for the full stack in one invoke

@@ -1,6 +1,6 @@
 ---
 name: create-clean-architecture
-description: Add domain, data, and core pieces for a feature (UseCases, repository interfaces/impls, DataSources, DI). No UI (no Fragment/XML/Compose Screen). Use when a screen needs new business/data capability, or after create-mvi when domain is missing. Follows Retrofit/Room/SharedPreferences rules references.
+description: Add domain, data, and core pieces for a feature (UseCases, repository interfaces/impls, DataSources, DI). No UI (no Fragment/XML/Compose Screen). Use when a screen needs new business/data capability, or after create-mvi when domain is missing. For full UI+MVI+domain in one invoke use create-screen. Follows Retrofit/Room/SharedPreferences rules references.
 ---
 
 # Create Clean Architecture Layers

@@ -42,6 +42,7 @@ All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `
 setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
 setup-old-project          Migrate existing production app to setup-new-project architecture; preserve product behavior; confirm settings first
 setup-design-system        Figma design-system file → :core-ui tokens/themes (+ AppTheme in core/ui/theme/ when compose)
+create-screen              Full screen: UI (figma-to-xml|compose) + create-mvi + create-clean-architecture when needed
 create-mvi                 Presentation MVI only (no domain/data) — Fragment if xml, `*Screen` in `:feature-*` if compose
 create-clean-architecture  Domain + data + core pieces as needed
 figma-to-xml               XML layouts (+ Figma design-to-code); `uiFramework` xml only
@@ -84,6 +85,8 @@ add-admob-appOpen-lifecycle   Wire App Open LIFECYCLE (resume)
 ```
 
 ### Typical feature flow
+
+**Shortcut:** `/create-screen` runs steps 3–5 in one invoke (UI → optional domain/data → MVI). Prefer it when you would otherwise attach all three leaf skills.
 
 1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app) — persist **`uiFramework`**
 2. `setup-design-system` — Figma tokens/themes in `:core-ui` (Compose `AppTheme` in `core/ui/theme/` when compose)
@@ -134,6 +137,6 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 
 1. Copy `.claude/` into the project root (this folder includes [`CLAUDE.md`](CLAUDE.md)).
 2. Open Android Studio, terminal at the repo root, run `claude`.
-3. Type `/` and pick a skill (e.g. `/figma-to-xml`, `/figma-to-compose`, `/create-mvi`).
+3. Type `/` and pick a skill (e.g. `/create-screen`, `/figma-to-xml`, `/figma-to-compose`, `/create-mvi`).
 4. Path-scoped rules load when matching files are touched; `00-global`, `14-security-secrets`, and `16-logging` always apply.
 5. Before PRs: `/review-complete` or individual `review-*` skills.

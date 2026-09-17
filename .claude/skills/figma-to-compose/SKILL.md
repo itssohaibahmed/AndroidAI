@@ -1,6 +1,6 @@
 ---
 name: figma-to-compose
-description: Create Jetpack Compose screens from a Figma URL or freeform request (FeatureScreen / ScreenContent / Item). Compose only — no XML layouts, no ViewModel/MVI. Use when uiFramework is compose, or the user asks for Figma-to-Compose. Loads Figma design-to-code, then adapts to AnimeHub feature-module patterns.
+description: Create Jetpack Compose screens from a Figma URL or freeform request (FeatureScreen / ScreenContent / Item). Compose only — no XML layouts, no ViewModel/MVI. Use when uiFramework is compose, or the user asks for Figma-to-Compose. For full screen (UI + MVI + optional domain) in one invoke use create-screen. Loads Figma design-to-code, then adapts to AnimeHub feature-module patterns.
 ---
 
 # Figma / Screen → Jetpack Compose (Compose only)
@@ -118,4 +118,4 @@ Obey **all** Compose invariants in `28-compose-ui.md` + [reference/compose-ui.md
 ## After UI
 
 - Call out any asset that fell back from SVG → raster and why
-- Tell user to wire via `create-mvi` (feature module MVI + NavGraph entry) and `create-clean-architecture` if new domain/data is needed
+- Tell user to wire via `create-mvi` (feature module MVI + NavGraph entry) and `create-clean-architecture` if new domain/data is needed — or **`create-screen`** for the full stack in one invoke
