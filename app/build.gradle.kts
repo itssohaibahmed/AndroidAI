@@ -50,6 +50,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     bundle {
         language {
             enableSplit = false
@@ -68,6 +72,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.fragment.ktx)
 
     // Glide
     implementation(libs.glide)
