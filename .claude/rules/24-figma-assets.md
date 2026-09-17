@@ -36,6 +36,10 @@ Use raster (`png` / `webp` / `jpg` from `rawImages` or export) when:
 
 Then name with `ic_png_*` / `img_png_*` / `bg_*` per `09-resources-xml`.
 
+## Shape / gradient XML (when generating drawables)
+
+If you author `bg_shape_*` / `fg_*` with `<gradient>`, **`android:angle` must be a multiple of 45** (0, 45, 90, …). Round Figma angles to the nearest valid value — non-multiples of 45 cause InflateException (`09` / `reference/resources-xml.md`).
+
 ## Usage in layouts (xml) / composables (compose)
 
 - **xml:** Always `ShapeableImageView` (`siv`) for **display-only** images — never plain `ImageView`. Bind with `siv.loadImage(...)` (Glide)

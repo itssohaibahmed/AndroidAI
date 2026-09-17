@@ -35,6 +35,7 @@ Applies to `res/**/*.xml` (strings, colors, themes, drawables, and XML layouts).
 - Default screen color via theme `android:windowBackground` — **not** `android:background="?attr/colorSurface"` on default roots
 - Sticky footers (Language continue, Premium CTA+legal): primary actions **outside** `NestedScrollView`; scrollable content above
 - XML closing: blank line between nested container closes; no extra blank after root
+- **Shape / gradient drawables:** `android:angle` on `<gradient>` **must be a multiple of 45** (0, 45, 90, …) — other angles inflate-crash (`resources-xml.md`)
 
 ## Themes (`:core-ui` `themes.xml`)
 

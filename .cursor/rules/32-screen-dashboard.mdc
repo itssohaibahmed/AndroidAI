@@ -8,13 +8,15 @@ alwaysApply: false
 
 ## BottomNavigation
 
-When the screen has a bottom nav:
+When the screen has a bottom nav (layouts often from **`figma-to-xml`**):
 
 1. Host nested `NavHostFragment` with `nav_graph_dashboard` (`defaultNavHost="false"`)
 2. Tab destinations **only** in that graph; ids match `menu` item ids
 3. `setupBottomNavigation()`: `setupWithNavController` + `onNavDestinationSelected`
 4. Root graph holds `dashboardFragment`; child → root navigation via `navigateRootTo` (`17-navigation`)
-5. Theme: BNV icon/label colors from `bottomNavigationStyle` on `Base.Theme.App` (`09-resources-xml`)
+5. Theme: BNV icon/label colors from `bottomNavigationStyle` on `Base.Theme.App` (`09-resources-xml`) — do not invent one-off tints on the view unless Figma forces it
+
+XML checklist (if missing): `fragment_dashboard.xml`, `menu_bottom_nav_dashboard.xml`, `nav_graph_dashboard.xml`, tab `fragment_*.xml` — see **`figma-to-xml`** “Dashboard + BottomNavigation”.
 
 ```kotlin
 private val navController by lazy {

@@ -57,6 +57,34 @@ Pattern: `{prefix}{Role}{Context}` â†’ `mtvHeadingHome`, `sivLogoEntrance`, `mbC
 
 Examples: `bg_shape_rounded_primary.xml`, `bg_svg_onboarding_header.xml`, `fg_gradient_header.xml`
 
+### Gradient / shape drawables (mandatory)
+
+Android only accepts gradient `android:angle` values that are **multiples of 45** (`0`, `45`, `90`, `135`, `180`, `225`, `270`, `315`). Any other value (e.g. `30`, `60`, `100`) causes **InflateException** at runtime.
+
+When converting Figma gradients:
+
+1. Round the design angle to the **nearest multiple of 45**
+2. Prefer exact Figma angle when it is already 0/45/90/…
+3. Document in a comment if you rounded (e.g. Figma `30°` ? `45`)
+
+```xml
+<!-- BAD — crashes on inflate -->
+<gradient
+    android:angle="30"
+    android:startColor="?attr/colorPrimary"
+    android:endColor="?attr/colorSurface"
+    android:type="linear" />
+
+<!-- GOOD -->
+<gradient
+    android:angle="45"
+    android:startColor="?attr/colorPrimary"
+    android:endColor="?attr/colorSurface"
+    android:type="linear" />
+```
+
+Same rule for `bg_shape_*`, `fg_*`, and any `<shape>` / `<layer-list>` that embeds `<gradient>`.
+
 ## Fonts and motion
 
 - Fonts in shared UI module (`res/font/`) + `preloaded_fonts.xml` when using downloadable/preloaded fonts
