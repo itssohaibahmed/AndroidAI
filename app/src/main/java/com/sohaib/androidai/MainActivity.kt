@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
-                replace(R.id.fragmentContainer, HomeFragment())
+                replace(R.id.fragmentContainer, DashboardFragment())
             }
         }
     }

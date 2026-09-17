@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.sohaib.androidai.databinding.FragmentHomeBinding
 
-class HomeFragment : Fragment() {
+class DashboardFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
