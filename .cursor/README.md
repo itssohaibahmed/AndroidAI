@@ -51,6 +51,7 @@ ui/create-custom-view              Custom View (xml) or reusable composable (com
 review/review-architecture         Architecture / MVI / boundaries
 review/review-performance          ANR / lists / dispatchers
 review/review-security             Secrets / manifest / PII
+review/review-cleanup              Unused code/resources / app size / release shrink
 review/review-complete             Runs all review-* + summary report
 test/test-unit                     Write+run JVM unit/Flow tests; consent before fix
 test/test-integration              Write+run multi-layer tests; consent before fix

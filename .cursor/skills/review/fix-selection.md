@@ -1,6 +1,6 @@
 # Fix selection (shared)
 
-Used by `review-architecture`, `review-performance`, `review-security`, and `review-complete`.
+Used by `review-architecture`, `review-performance`, `review-security`, `review-cleanup`, and `review-complete`.
 
 ## Numbering (mandatory)
 
@@ -8,12 +8,13 @@ Used by `review-architecture`, `review-performance`, `review-security`, and `rev
 2. Order: **Critical → Warnings / High → Medium → Suggestions / optional**.
 3. Each numbered line must be one concrete fix (actionable), not a vague note.
 4. Skip pure informational “Pass” notes — only number items the agent could implement if asked.
-5. For `review-complete`, keep **one** number sequence across Architecture + Performance + Security (do not restart at 1 per section).
+5. For `review-complete`, keep **one** number sequence across Architecture + Performance + Security + Cleanup (do not restart at 1 per section).
 
 Example shape:
 
 ```markdown
 ## Fix list
+
 1. [Critical] …
 2. [Critical] …
 3. [Warning] …
@@ -29,8 +30,8 @@ Example shape:
 
 3. Wait for the user’s reply.
 4. On reply:
-   - Parse selected numbers (and `fix all` / `none`).
-   - Implement **only** the selected items.
-   - Ignore unselected numbers.
-   - If a selected item needs missing secrets / user input, ask once — do not invent values.
+    - Parse selected numbers (and `fix all` / `none`).
+    - Implement **only** the selected items.
+    - Ignore unselected numbers.
+    - If a selected item needs missing secrets / user input, ask once — do not invent values.
 5. After applying selected fixes, briefly list what was done by number (e.g. `Fixed 1, 2, 4`).
