@@ -20,7 +20,16 @@ Each format is a pipeline: **config → validation → (interstitial counter) �
 
 Consent runs on Entrance (`ConsentManager`). SDK init is inside each `load`. Fullscreen formats share `FullscreenAdGate`.
 
-Catalog / extensions / `ad_ids.xml` / Koin order: **App Open → Banner → Interstitial → Native → Rewarded → Rewarded Interstitial**.
+Catalog / extensions / `gmaAds/build.gradle.kts` `resValue` units / Koin order: **App Open → Banner → Interstitial → Native → Rewarded → Rewarded Interstitial**.
+
+## Ad unit IDs (`resValue`, not `ad_ids.xml`)
+
+Unit IDs live in **`gmaAds/build.gradle.kts`**, not `src/main/res/values/ad_ids.xml`.
+
+- Declare the **same string resource names** in both `debug` and `release` via `resValue("string", "admob_…_id", "…")` (and `admob_app_id`).
+- Debug = Google sample IDs; release = production (or samples until marketing fills them).
+- Set `buildFeatures { resValues = true }` so AGP generates those resources.
+- Catalog / code reads `R.string.admob_…_id` — do **not** hardcode unit IDs in Kotlin.
 
 ## Placing `:gmaAds` into an app
 
@@ -32,7 +41,7 @@ Catalog / extensions / `ad_ids.xml` / Koin order: **App Open → Banner → Inte
     - Ref `:data` → `:data`
     - Rewrite imports for `Constants.TAG_ADS`, `InternetManager`, `SharedPrefManager`, `launchWhenResumed`, `onBackPressedDispatcher` to the target app packages
 5. Do **not** edit controllers, validators, `AdsSdk`, `FullscreenAdGate`, `ConsentManager`, or catalog during place.
-6. Later placement work (`add-admob-*`) may edit catalog files (`*AdKey`, `*AdConfig`, `ad_ids.xml`) + `:data` RC — still leave the engine alone unless changing engine behavior on purpose.
+6. Later placement work (`add-admob-*`) may edit catalog files (`*AdKey`, `*AdConfig`) + `gmaAds/build.gradle.kts` `resValue` units + `:data` RC — still leave the engine alone unless changing engine behavior on purpose.
 
 ## Call shapes
 
@@ -57,7 +66,7 @@ Do not inject `AdsManager` in Fragments / Compose screens.
 
 1. Enum value on `*AdKey` (string id is log-only).
 2. Matching row in that format’s `*AdConfig` `placements` map.
-3. AdMob unit in `src/main/res/values/ad_ids.xml`.
+3. AdMob unit via `resValue("string", "admob_…_id", "…")` in **both** `debug` and `release` of `gmaAds/build.gradle.kts` (same string names). Ensure `buildFeatures { resValues = true }`.
 4. Remote Config in `:data`:
     - Key constant + `rc*` property on `SharedPrefManager`
     - Default in `RemoteConfigDataSource.DEFAULTS`
@@ -70,7 +79,7 @@ Do not inject `AdsManager` in Fragments / Compose screens.
 
 1. Delete load/show (and container) from the screen.
 2. Delete the config row and enum value.
-3. Delete the `ad_ids.xml` string.
+3. Delete the matching `resValue` lines from **both** `debug` and `release` in `gmaAds/build.gradle.kts`.
 4. Delete the RC key from `:data` and Firebase.
 5. Search the key name and confirm nothing still references it.
 
@@ -195,6 +204,8 @@ Always check `granted`. Skills: `add-admob-rewarded`, `add-admob-rewarded-inters
 | Interstitial counter                                            | —   | integer `n` for n-1 cap       |
 
 RC is fetched into `SharedPrefManager`. Placements read prefs at load time, not Firebase live.
+
+Entrance **navigation** waits for that fetch. Billing refresh, consent, AdMob init, and ad **load** do not — start them beside the fetch and ignore its result (timeout can be ~60s). The first two confirmed placements in funnel order use SharedPref default `1`; later placements stay `0`. `showAppOpenOrInterstitialAd` still runs when leaving Entrance, after the fetch returns.
 
 ## Ref app screen map (implement strategy)
 

@@ -1,6 +1,6 @@
 ---
 name: add-admob-rewarded-interstitial
-description: Add an AdMob rewarded interstitial placement to an existing :gmaAds app (AdKey, AdConfig, ad_ids, RC, load/show with granted). Use when adding rewarded interstitial ads, or /add-admob-rewarded-interstitial. If ads were never wired, use implement-admob-ads first.
+description: Add an AdMob rewarded interstitial placement to an existing :gmaAds app (AdKey, AdConfig, gmaAds resValue units, RC, load/show with granted). Use when adding rewarded interstitial ads, or /add-admob-rewarded-interstitial. If ads were never wired, use implement-admob-ads first.
 ---
 
 # Add AdMob Rewarded Interstitial
@@ -22,7 +22,7 @@ Same checklist as rewarded — different AdMob format and inventory (`RewardedIn
 1. Ask: placement name, load screen, show trigger, fallback flags.
 2. Add `RewardedInterstitialAdKey` enum value.
 3. Add matching row in `RewardedInterstitialAdConfig.placements`.
-4. Add unit string in `ad_ids.xml`.
+4. Add `resValue("string", "admob_…_id", "…")` in **both** `debug` and `release` of `gmaAds/build.gradle.kts` (same name; Google sample in debug / production in release).
 5. Add RC in `:data`. `isEnabled = { it.rcFlag != 0 }`.
 6. Calls:
 
@@ -39,4 +39,4 @@ Always check `granted`.
 
 ## Remove
 
-Delete load/show → config + key → `ad_ids` → RC → search leftovers.
+Delete load/show → config + key → `resValue` lines (debug + release) → RC → search leftovers.

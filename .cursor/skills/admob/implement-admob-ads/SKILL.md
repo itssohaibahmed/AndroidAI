@@ -32,7 +32,7 @@ Cross-skills: `add-admob-banner`, `add-admob-interstitial`, `add-admob-native`, 
 5. Remap Gradle: ref `:core` / `:data` → this app’s `:core-common`, `:core-platform`, `:data` as appropriate; add catalog deps (`play-services-ads`, UMP) if missing.
 6. Remap **host-only** imports inside `:gmaAds` to this app: `Constants.TAG_ADS`, `InternetManager`, `SharedPrefManager`, `launchWhenResumed`, `onBackPressedDispatcher`.
 7. Register `gmaAdsModule` (`lazyModule`) in the composition root.
-8. AdMob App ID in `:app` manifest (debug sample / release production). Keep Google sample units in `ad_ids.xml` for debug.
+8. AdMob App ID via `resValue("string", "admob_app_id", …)` in `gmaAds/build.gradle.kts` (and/or `:app` manifest as shipped). Keep Google sample unit `resValue`s for debug; release uses production (or samples until swapped). Require `buildFeatures.resValues = true`.
 9. During place: **do not** edit controllers, validators, `AdsSdk`, `FullscreenAdGate`, `ConsentManager`, or catalog files.
 
 If `:gmaAds` already exists from setup → skip copy; verify package + DI + App ID.
@@ -147,7 +147,7 @@ Confirm implement yes / no (usually Native only).
 
 For each confirmed `(screen, format)` pair, follow the matching `add-admob-*` skill (do not invent a parallel path):
 
-1. Ensure catalog key + `ad_ids.xml` + Remote Config exist **for that placement only**.
+1. Ensure catalog key + matching `resValue` unit IDs in `gmaAds/build.gradle.kts` (debug + release) + Remote Config exist **for that placement only**.
 2. Wire load / show / lifecycle on that screen only.
 3. Cross-screen rules:
    - Entrance: `blockAppOpen` when any Entrance fullscreen was chosen
@@ -156,12 +156,60 @@ For each confirmed `(screen, format)` pair, follow the matching `add-admob-*` sk
 4. **xml:** Fragment extensions + View Binding containers (`BannerAdView`, `Native*View`).
 5. **compose:** same keys and timing; host extensions (or thin wrappers); no raw AdMob SDK in composables; `AndroidView` for banner/native when needed.
 
+### Entrance startup — do not wait for Remote Config
+
+`setup-new-project` navigates when `FetchRemoteConfigUseCase` returns. Keep that.
+
+In `EntranceViewModel` (`ScreenStarted`), do **not** run billing, consent, AdMob init, or ad load after that result. Start them in a **second** coroutine and ignore the fetch result. Remote Config can sit on its timeout (~60s); splash ads must not wait for it.
+
+```kotlin
+private fun onScreenStarted() {
+    viewModelScope.launch {
+        fetchRemoteConfigUseCase()
+        // existing navigation — still waits for this call
+    }
+    viewModelScope.launch {
+        // billing (if present) → consent → AdMob init → load
+        // do not read the remote-config result
+    }
+}
+```
+
+Order inside the second coroutine, only for pieces this app has:
+
+1. Billing refresh (`implement-in-app-billing`) so `isAppPurchased` is current before ads load
+2. `ConsentManager` (UMP)
+3. AdMob / `AdsSdk` init
+4. Load confirmed entrance inventory (`loadAppOpenAd` / `loadInterstitialAd` / preloads)
+
+Load/show stay on `:gmaAds` extensions. Do not add an Intent / State / Effect per ad event. `showAppOpenOrInterstitialAd` still runs on the navigate path (after Remote Config returns), so the request can finish during the fetch.
+
+### First two ads default on
+
+SharedPref read default is **`1`** for the first **two** confirmed placements in funnel order:
+
+Entrance (App Open, then Interstitial, then any other entrance format) → Language → Onboarding → Menu → Dashboard → Home → Trending / Settings → Feature screens.
+
+Every later confirmed placement stays default **`0`**. If `RemoteConfigDataSource.DEFAULTS` exists, use the same `1` / `0` split. Catalog `isEnabled` stays `{ it.rcFlag != 0 }`. A console value of `0` still turns a placement off after a successful activate; the default only covers the window before that write. Banner TOP/BOTTOM default-on means `1` (adaptive).
+
+```kotlin
+// one of the first two confirmed placements
+var rcAppOpen: Int
+    get() = sharedPreferences.getInt(appOpen, 1)
+    set(value) = sharedPreferences.edit { putInt(appOpen, value) }
+
+// later placement
+var rcBannerLanguage: Int
+    get() = sharedPreferences.getInt(bannerLanguage, 0)
+    set(value) = sharedPreferences.edit { putInt(bannerLanguage, value) }
+```
+
 ### Remote Config + SharedPreferences (mandatory — confirmed only)
 
 Add **only** keys for placements the developer confirmed in Round 2:
 
-- Key constant + `SharedPrefManager` `rc*` property
-- Default in `RemoteConfigDataSource.DEFAULTS`
+- Key constant + `SharedPrefManager` `rc*` property (read default `1` for the first two confirmed placements, `0` for the rest — see above)
+- Default in `RemoteConfigDataSource.DEFAULTS` (same `1` / `0` split when that map exists)
 - Copy into prefs in `RemoteConfigRepositoryImpl`
 - Same key in Firebase Remote Config console notes / marketing handoff
 - Catalog `isEnabled = { it.rcYourFlag != 0 }` (banner TOP/BOTTOM: `0` off, `1` adaptive, `2` collapsible)
@@ -179,6 +227,8 @@ Unconfirmed catalog rows: keep RC-off via `isEnabled = { 0 }` (or leave existing
 - `gmaAdsModule` registered; App ID present.
 - No MVI Intent/State/Effect for ads load/show.
 - SharedPrefManager / RC defaults contain **only** implemented placement keys (plus any pre-existing unrelated keys).
+- Entrance billing / consent / AdMob init / load does **not** await Remote Config. Navigation still does.
+- First two confirmed placements use SharedPref default `1`; later ones use `0`.
 
 ---
 
@@ -266,7 +316,7 @@ Rules for filling the template:
 
 1. List every **implemented** RC key under its format group (Banner / Interstitial / Native / App Open / Rewarded…).
 2. Banner lines always document `0` / `1` / `2` when TOP/BOTTOM adaptive-collapsible applies; other formats use `0` off / `1` on unless the app uses a different scheme — match catalog.
-3. **Required Admob Ad Ids:** one blank line per implemented placement (marketing fills production unit IDs).
+3. **Required Admob Ad Ids:** one blank line per implemented placement (marketing fills production unit IDs → put them in **release** `resValue` lines in `gmaAds/build.gradle.kts`; keep debug on Google samples).
 4. **Premium / InAppBilling:** include only if this pass (or the linked billing skill run) added or changed them; use real `product_id` / `plan_id` from the app.
 5. Do not list RC keys or ad slots that were not implemented.
 
@@ -284,3 +334,5 @@ Same handoff applies when later passes use `add-admob-*`, `implement-in-app-bill
 - Creating SharedPreferences / Remote Config keys for placements the developer did not confirm
 - Inventing formats not in the ref capability map for that screen role
 - Guessing “both” or enabling extra formats when the developer’s answer is incomplete
+- Awaiting Remote Config in `EntranceViewModel` before billing refresh, consent, AdMob init, or ad load
+- Defaulting every placement to `0`, including the first two confirmed ads

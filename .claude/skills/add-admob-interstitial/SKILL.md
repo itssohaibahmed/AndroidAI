@@ -1,6 +1,6 @@
 ---
 name: add-admob-interstitial
-description: Add an AdMob interstitial placement to an existing :gmaAds app (AdKey, AdConfig, ad_ids, RC, load/show). Use when adding interstitial ads, or /add-admob-interstitial. If ads were never wired, use implement-admob-ads first.
+description: Add an AdMob interstitial placement to an existing :gmaAds app (AdKey, AdConfig, gmaAds resValue units, RC, load/show). Use when adding interstitial ads, or /add-admob-interstitial. If ads were never wired, use implement-admob-ads first.
 ---
 
 # Add AdMob Interstitial
@@ -20,7 +20,7 @@ Do **not** edit `InterstitialAds`, `InterstitialAdController`, `InterstitialAdVa
 1. Ask: placement name, host screen, when to load, when to show, `navigateOn` (`IMPRESSION` vs `DISMISS`), optional frequency cap (`loadOnStart` + RC counter).
 2. Add `InterstitialAdKey` enum value.
 3. Add matching row in `InterstitialAdConfig.placements`.
-4. Add unit string in `gmaAds/.../res/values/ad_ids.xml` (Google sample in debug / shipped samples OK).
+4. Add `resValue("string", "admob_…_id", "…")` in **both** `debug` and `release` of `gmaAds/build.gradle.kts` (same name; Google sample in debug / production in release).
 5. Add RC in `:data`: key + `SharedPrefManager` `rc*` + `DEFAULTS` + `RemoteConfigRepositoryImpl` copy + Firebase console key. `isEnabled = { it.rcFlag != 0 }`. For caps, add counter RC property and `remoteCounter` / `loadOnStart`.
 6. On the host screen (Fragment or Compose host):
     - `loadInterstitialAd(InterstitialAdKey.YOURS)` where inventory can wait
@@ -30,4 +30,4 @@ Do **not** edit `InterstitialAds`, `InterstitialAdController`, `InterstitialAdVa
 
 ## Remove
 
-Delete load/show → config row + key → `ad_ids` → RC (and counter if any) → search for leftovers.
+Delete load/show → config row + key → `resValue` lines (debug + release) → RC (and counter if any) → search for leftovers.

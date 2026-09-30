@@ -26,7 +26,7 @@ Sibling: `add-admob-appOpen-Entrance` for splash `ENTRANCE`.
 | **true**  | `AppOpenLoadingActivity` loads then shows `LIFECYCLE`. Do **not** preload on Dashboard or reload after dismiss.          |
 | **false** | Load `LIFECYCLE` on Dashboard (or main shell); `AppOpenLifecycle` shows on process foreground and reloads after dismiss. |
 
-2. Ensure `AppOpenAdKey.LIFECYCLE` + catalog row + `ad_ids.xml` + RC exist.
+2. Ensure `AppOpenAdKey.LIFECYCLE` + catalog row + `resValue` unit IDs in `gmaAds/build.gradle.kts` + RC exist.
 3. Confirm `AppOpenLifecycle` is registered in `gmaAdsModule` (shipped with module — do not reinvent).
 4. On Dashboard / main shell when ads are active:
 

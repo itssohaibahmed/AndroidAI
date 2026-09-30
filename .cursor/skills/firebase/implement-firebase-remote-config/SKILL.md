@@ -149,6 +149,8 @@ is EntranceIntent.FetchRemoteConfig -> fetchRemoteConfigUseCase()
 
 No `FetchRemoteConfig` start/success ViewModel logs (repository already logs).
 
+Navigation waits for this use case (`setup-new-project`). Do not run billing refresh, consent, AdMob init, or ad load after it returns — those start in a parallel coroutine (`implement-admob-ads`, `implement-in-app-billing`).
+
 If there is no `EntranceFragment` / `EntranceScreen`: **AskQuestion** for the host (prefer `nav_graph` / `NavGraph` startDestination). Do not fetch only from `Application` unless the user says so.
 
 ---

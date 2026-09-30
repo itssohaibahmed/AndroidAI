@@ -1,6 +1,6 @@
 ---
 name: add-admob-native
-description: Add an AdMob native placement to an existing :gmaAds app (AdKey, AdConfig, ad_ids, RC, container, load/show/destroy). Use when adding native ads, or /add-admob-native. If ads were never wired, use implement-admob-ads first.
+description: Add an AdMob native placement to an existing :gmaAds app (AdKey, AdConfig, gmaAds resValue units, RC, container, load/show/destroy). Use when adding native ads, or /add-admob-native. If ads were never wired, use implement-admob-ads first.
 ---
 
 # Add AdMob Native
@@ -20,7 +20,7 @@ Do **not** edit `NativeAds`, `NativeAdController`, or `NativeAdValidator` unless
 1. Ask: placement name, host screen(s), preload-elsewhere vs same-screen, `cache` true/false, fallback flags, which view (`NativeSmallView` / `NativeLargeView` / `NativeLargeSecondView`).
 2. Add `NativeAdKey` enum value.
 3. Add matching row in `NativeAdConfig.placements`.
-4. Add unit string in `ad_ids.xml`.
+4. Add `resValue("string", "admob_…_id", "…")` in **both** `debug` and `release` of `gmaAds/build.gradle.kts` (same name; Google sample in debug / production in release).
 5. Add RC in `:data` (`rc*` + defaults + repository copy). `isEnabled = { it.rcFlag != 0 }`.
 6. UI container:
     - **xml:** add the native view class to the layout
@@ -33,4 +33,4 @@ Do **not** edit `NativeAds`, `NativeAdController`, or `NativeAdValidator` unless
 
 ## Remove
 
-Delete load/show/destroy + container → config + key → `ad_ids` → RC → search leftovers.
+Delete load/show/destroy + container → config + key → `resValue` lines (debug + release) → RC → search leftovers.

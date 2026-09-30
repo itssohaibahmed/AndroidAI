@@ -1,6 +1,6 @@
 ---
 name: add-admob-banner
-description: Add an AdMob banner placement to an existing :gmaAds app (AdKey, AdConfig, ad_ids, RC, BannerAdView, load/pause/resume/clear/destroy). Use when adding banner ads, or /add-admob-banner. If ads were never wired, use implement-admob-ads first.
+description: Add an AdMob banner placement to an existing :gmaAds app (AdKey, AdConfig, gmaAds resValue units, RC, BannerAdView, load/pause/resume/clear/destroy). Use when adding banner ads, or /add-admob-banner. If ads were never wired, use implement-admob-ads first.
 ---
 
 # Add AdMob Banner
@@ -20,7 +20,7 @@ Do **not** edit `BannerAds`, `BannerAdController`, or `BannerAdValidator` unless
 1. Ask: placement name, host screen, slot (`TOP` / `BOTTOM` / `MREC` / `INLINE`), `cache`, fallback flags, `maxHeightDp` if INLINE.
 2. Add `BannerAdKey` enum value.
 3. Add matching row in `BannerAdConfig.placements` (format from RC for TOP/BOTTOM).
-4. Add unit string in `ad_ids.xml`.
+4. Add `resValue("string", "admob_…_id", "…")` in **both** `debug` and `release` of `gmaAds/build.gradle.kts` (same name; Google sample in debug / production in release).
 5. Add RC in `:data`. TOP/BOTTOM: `0` off, `1` adaptive, `2` collapsible. MREC/INLINE: `0` off, `!= 0` on.
 6. UI:
     - **xml:** `BannerAdView` — width `0dp` or `wrap_content`, height `wrap_content` (do not hardcode 300×250 / inline max height)
@@ -39,4 +39,4 @@ destroyBannerAd(BannerAdKey.YOURS)            // onDestroy when leaving for good
 
 ## Remove
 
-Delete calls + view → config + key → `ad_ids` → RC → search leftovers.
+Delete calls + view → config + key → `resValue` lines (debug + release) → RC → search leftovers.

@@ -1,6 +1,6 @@
 ---
 name: add-admob-rewarded
-description: Add an AdMob rewarded placement to an existing :gmaAds app (AdKey, AdConfig, ad_ids, RC, load/show with granted). Use when adding rewarded ads, or /add-admob-rewarded. If ads were never wired, use implement-admob-ads first.
+description: Add an AdMob rewarded placement to an existing :gmaAds app (AdKey, AdConfig, gmaAds resValue units, RC, load/show with granted). Use when adding rewarded ads, or /add-admob-rewarded. If ads were never wired, use implement-admob-ads first.
 ---
 
 # Add AdMob Rewarded
@@ -20,7 +20,7 @@ Do **not** edit `RewardedAds`, `RewardedAdController`, or `RewardedAdValidator` 
 1. Ask: placement name, load screen, show trigger (button), fallback flags.
 2. Add `RewardedAdKey` enum value.
 3. Add matching row in `RewardedAdConfig.placements`.
-4. Add unit string in `ad_ids.xml`.
+4. Add `resValue("string", "admob_…_id", "…")` in **both** `debug` and `release` of `gmaAds/build.gradle.kts` (same name; Google sample in debug / production in release).
 5. Add RC in `:data`. `isEnabled = { it.rcFlag != 0 }`.
 6. Calls:
 
@@ -38,4 +38,4 @@ Always check `granted` — failed/skipped show reports `false`.
 
 ## Remove
 
-Delete load/show → config + key → `ad_ids` → RC → search leftovers.
+Delete load/show → config + key → `resValue` lines (debug + release) → RC → search leftovers.

@@ -422,7 +422,9 @@ val useCaseModule = lazyModule {
 - Interfaces + `FetchRemoteConfigUseCase` in **`:domain`**
 - Register both modules in `KoinModules`
 
-Wire `FetchRemoteConfigUseCase` and call early from Entrance / App startup flow (non-blocking UX).
+Wire `FetchRemoteConfigUseCase` from Entrance. **Navigate when that call returns** (success or failure). Do not block the main thread; the splash waits on the result.
+
+When `implement-admob-ads` or `implement-in-app-billing` is applied later, billing refresh, consent, AdMob init, and ad load start **in parallel** with this fetch and must **not** await it. Navigation keeps waiting on the fetch.
 
 ## Step 9 — Verify
 

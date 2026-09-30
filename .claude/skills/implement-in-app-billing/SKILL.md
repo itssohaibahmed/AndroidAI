@@ -258,6 +258,26 @@ Portrait **and** landscape unless `project-settings.json` locks orientation. All
 
 Both require `!isAppPurchased`. Hide premium entry when purchased.
 
+### Entrance — refresh billing in parallel with Remote Config
+
+`setup-new-project` still navigates when `FetchRemoteConfigUseCase` returns. Do not put the billing refresh on that path.
+
+In `EntranceViewModel` (`ScreenStarted`), start the billing refresh in a **second** coroutine and ignore the Remote Config result. Fetch can take up to its timeout (~60s). Application `connect()` / `start(applicationScope)` stays once at process start; this refresh is the entrance products / purchases read.
+
+```kotlin
+viewModelScope.launch {
+    fetchRemoteConfigUseCase()
+    // existing navigation — still waits for this call
+}
+viewModelScope.launch {
+    refreshBilling() // do not read the remote-config result
+}
+```
+
+When ads are also wired (`implement-admob-ads`), billing refresh is the **first** step of that second coroutine: billing → consent → AdMob init → load. It still does not await Remote Config.
+
+`showPremiumFirstTime` / `showPremiumSecondTime` may still choose the screen **after** navigation. They must not delay the billing refresh.
+
 ---
 
 ## Step 8 — Tests
@@ -274,6 +294,7 @@ When `writeTestsWithFeatures: true` (`test-unit`):
 - [ ] JitPack + catalog + deps + `TAG_BILLING`
 - [ ] Console products match `BillingProductIds`
 - [ ] Singleton `BillingManager` + Application connect
+- [ ] Entrance billing refresh does **not** await Remote Config (parallel coroutine; ads chain starts with billing when ads are wired)
 - [ ] Prefer-trial mapper; `offerId` in `purchaseSubs`
 - [ ] In-app in correct `setNonConsumables` / `setConsumables`
 - [ ] `isAppPurchased` synced; ads gated
@@ -290,3 +311,4 @@ When `writeTestsWithFeatures: true` (`test-unit`):
 - Use raw `BillingClient` or v3 listeners
 - Ship fake purchase in release
 - Log purchase tokens or PII
+- Awaiting Remote Config in `EntranceViewModel` before the billing refresh (or before consent / AdMob init / ad load when ads are wired)
