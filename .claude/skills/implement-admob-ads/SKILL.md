@@ -187,6 +187,8 @@ private fun onScreenStarted() {
 
 Load/show stay on `:gmaAds` extensions. Do not add an Intent / State / Effect per ad event. `showAppOpenOrInterstitialAd` (when that format was confirmed) is an ad call inside the 8-second ads window, before navigate.
 
+If `isAppPurchased` is already true, or the billing response sets it true during this sequence, cancel the job (consent, init, ad calls) and do not show an ad. A first-time user still continues to Language / Onboarding. A returning user goes to Dashboard and skips Welcome Back (`implement-in-app-billing`).
+
 ### First two ads default on
 
 SharedPref read default is **`1`** for the first **two** confirmed placements in funnel order:

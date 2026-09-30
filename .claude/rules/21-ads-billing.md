@@ -42,6 +42,7 @@ Skills: `implement-admob-ads`, `add-admob-banner`, `add-admob-interstitial`, `ad
 
 - Billing manager lives behind a domain `BillingRepository` (impl in `:data`)
 - Persist entitlement (e.g. `isAppPurchased`) in SharedPreferences / DataStore via repository
+- When `isAppPurchased` becomes true on Entrance, cancel splash ads. First-time users still open Language / Onboarding. Returning users open Dashboard and skip Welcome Back
 - Premium screens follow normal MVI feature packages (`premium/`)
 - Product IDs: constants in data/domain — not duplicated in UI
 - After purchase success: update entitlement, then let ads/UI react

@@ -13,9 +13,10 @@ Companion to screen rules `29`–`32` and SharedPreferences patterns (`reference
 ## Routing (Entrance)
 
 ```
-if (!isFirstTime) → WelcomeBack / Dashboard   // returning
-else if (!isLanguageCompleted) → Language     // first-time
-else → OnBoarding                             // language done, onboarding pending
+if (isAppPurchased && !isFirstTime) → Dashboard   // skip Welcome Back; no ads
+else if (!isFirstTime) → WelcomeBack              // returning, not purchased
+else if (!isLanguageCompleted) → Language         // first-time, purchased or not
+else → OnBoarding                                 // language done, onboarding pending
 ```
 
 Marketing may reorder steps — ask before inventing a new funnel.

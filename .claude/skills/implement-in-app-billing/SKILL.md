@@ -262,14 +262,44 @@ Both require `!isAppPurchased`. Hide premium entry when purchased.
 
 Application `connect()` / `start(applicationScope)` stays once at process start.
 
-Do not navigate Entrance from a billing refresh or from Remote Config when ads are wired.
+A billing refresh does not replace the normal leave-splash gate, and it does not navigate from Remote Config when ads are wired.
 
 | Entrance ads | Who decides when to leave |
 |--------------|---------------------------|
 | Not wired | `setup-new-project`: Remote Config returns, or **5 seconds** |
 | Wired (`implement-admob-ads`) | Consent (8s) → AdMob init → ad calls (8s), then navigate. Remote Config result is ignored |
 
-`showPremiumFirstTime` / `showPremiumSecondTime` may still choose the **next** screen after that leave. They must not add another wait on the splash.
+`showPremiumFirstTime` / `showPremiumSecondTime` may still choose the **next** screen after that leave. They must not add another wait on the splash. Both require `!isAppPurchased`.
+
+### Purchased user — cancel ads, keep the first-time funnel
+
+`isAppPurchased` in `SharedPrefManager` is the no-ads flag (written when the billing response syncs `purchasesState`, and on `PurchaseOutcome.Success` / `AlreadyOwned`). Subs and non-consumable lifetime only. A consumable must not take this path.
+
+In `EntranceViewModel`, as soon as that flag is **true** (already true at start, or it flips true when the billing response writes the pref):
+
+1. Cancel the in-flight Entrance work: Remote Config wait, consent, AdMob init, ad load/show, and the 5s / 16s timers.
+2. Do not show ads or splash premium.
+3. Then navigate with the normal first-time funnel. `isAppPurchased` does **not** skip Language or Onboarding.
+
+| User | `isFirstTime` | Destination |
+|------|---------------|-------------|
+| Purchased, first time | `true` | Language, then Onboarding, same as an unpaid first-time user |
+| Purchased, returning | `false` | **Dashboard**. Skip Welcome Back and any other returning-user screen |
+| Not purchased, returning | `false` | Welcome Back |
+
+The Fragment still performs navigation from that effect. Do not call `NavController` inside the ViewModel.
+
+```kotlin
+fun onPurchased() {
+    entranceJob?.cancel()
+    val destination = if (sharedPrefManager.isFirstTime) {
+        entranceDestination() // Language or Onboarding
+    } else {
+        Dashboard
+    }
+    _effect.emit(EntranceEffect.Navigate(destination))
+}
+```
 
 ---
 
@@ -288,6 +318,7 @@ When `writeTestsWithFeatures: true` (`test-unit`):
 - [ ] Console products match `BillingProductIds`
 - [ ] Singleton `BillingManager` + Application connect
 - [ ] Billing does not own Entrance navigation (5s Remote Config gate without ads; consent + ads 16s gate when ads are wired)
+- [ ] `isAppPurchased == true` cancels Entrance ads. First-time users still open Language / Onboarding. Returning users open Dashboard and skip Welcome Back
 - [ ] Prefer-trial mapper; `offerId` in `purchaseSubs`
 - [ ] In-app in correct `setNonConsumables` / `setConsumables`
 - [ ] `isAppPurchased` synced; ads gated
@@ -304,5 +335,7 @@ When `writeTestsWithFeatures: true` (`test-unit`):
 - Use raw `BillingClient` or v3 listeners
 - Ship fake purchase in release
 - Log purchase tokens or PII
-- Navigating Entrance from a billing refresh
-- Replacing the ads leave-splash sequence (consent 8s → AdMob init → ad calls 8s) with a Remote Config wait when ads are wired
+- Using a billing refresh as the normal leave-splash gate
+- Keeping a purchased user on Entrance, Welcome Back, or an ad once `isAppPurchased` is true
+- Skipping Language or Onboarding because `isAppPurchased` is true
+- Replacing the ads leave-splash sequence (consent 8s → AdMob init → ad calls 8s) with a Remote Config wait when ads are wired and the user is not purchased

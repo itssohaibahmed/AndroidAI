@@ -23,9 +23,10 @@ Use SharedPref / domain UseCase (demo names):
 
 Typical destination choice (adjust for marketing):
 
-1. Returning user (`!isFirstTime`) → WelcomeBack (or Dashboard)
-2. Else if language incomplete → Language
-3. Else → OnBoarding
+1. `isAppPurchased` and returning (`!isFirstTime`) → Dashboard now (skip Welcome Back and any other returning-user screen; cancel ads). Language and Onboarding still run for a first-time purchase (`implement-in-app-billing`)
+2. Returning user (`!isFirstTime`) → WelcomeBack
+3. Else if language incomplete → Language (purchased or not)
+4. Else → OnBoarding (purchased or not)
 
 Implement via `GetEntranceDestinationUseCase` (or equivalent) — heavy logic not in the Fragment.
 
@@ -37,6 +38,7 @@ Implement via `GetEntranceDestinationUseCase` (or equivalent) — heavy logic no
 - Remote Config fetch starts here (domain/data, not live RC in UI)
 - **No Entrance ads:** navigate when Remote Config returns or after **5 seconds** (`setup-new-project`)
 - **Entrance ads wired:** ignore the Remote Config result. Then consent (8s) → AdMob init → ad calls (8s) → navigate. Do not navigate from Remote Config (`implement-admob-ads`)
+- **Purchased (`isAppPurchased`):** cancel ads. First-time users still go to Language / Onboarding. Returning users go to Dashboard and skip Welcome Back
 
 ## Forbidden
 
