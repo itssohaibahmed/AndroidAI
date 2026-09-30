@@ -22,7 +22,7 @@ Sibling: `add-admob-appOpen-lifecycle` for `LIFECYCLE`.
 1. Confirm Entrance screen exists (Fragment or Compose start destination). If missing → stop; do not create Entrance only for ads.
 2. Ensure `AppOpenAdKey.ENTRANCE` + catalog row + `resValue` unit IDs in `gmaAds/build.gradle.kts` + RC (`!= 0` on) exist (shipped with module or add via shared placement steps).
 3. On Entrance start: `blockAppOpen()` so process `ON_START` does not steal the splash ad.
-4. On Entrance start, in parallel with Remote Config (do **not** await `FetchRemoteConfigUseCase` — `implement-admob-ads` Entrance startup): run `ConsentManager` (UMP). On ads allowed → init AdMob if needed, then load inventory. This placement’s SharedPref default is `1` when it is one of the first two confirmed ads:
+4. Follow `implement-admob-ads` Entrance startup: start Remote Config and ignore its result. Consent max **8 seconds**, then AdMob init, then load inventory inside the ads **8 seconds**. SharedPref default is `1` when this placement is one of the first two confirmed ads. On ads allowed:
 
 ```kotlin
 loadAppOpenAd(AppOpenAdKey.ENTRANCE) { /* settled */ }
@@ -30,7 +30,7 @@ loadInterstitialAd(InterstitialAdKey.ENTRANCE) { /* settled */ }
 // optional: preload natives for Language / next screens
 ```
 
-5. Before navigate to Language / Onboarding / Menu:
+5. Still inside the ads 8 seconds, before navigate to Language / Onboarding / Menu (do not navigate from Remote Config):
 
 ```kotlin
 showAppOpenOrInterstitialAd(AppOpenAdKey.ENTRANCE, InterstitialAdKey.ENTRANCE) {

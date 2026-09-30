@@ -205,7 +205,7 @@ Always check `granted`. Skills: `add-admob-rewarded`, `add-admob-rewarded-inters
 
 RC is fetched into `SharedPrefManager`. Placements read prefs at load time, not Firebase live.
 
-Entrance **navigation** waits for that fetch. Billing refresh, consent, AdMob init, and ad **load** do not — start them beside the fetch and ignore its result (timeout can be ~60s). The first two confirmed placements in funnel order use SharedPref default `1`; later placements stay `0`. `showAppOpenOrInterstitialAd` still runs when leaving Entrance, after the fetch returns.
+Without Entrance ads, navigation waits for that fetch or **5 seconds**. With Entrance ads, start the fetch and ignore its result. Leave only after consent (8s) → AdMob init → ad calls (8s), including `showAppOpenOrInterstitialAd` inside the ads window. The first two confirmed placements in funnel order use SharedPref default `1`; later placements stay `0`.
 
 ## Ref app screen map (implement strategy)
 

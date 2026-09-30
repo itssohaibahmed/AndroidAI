@@ -31,8 +31,9 @@ Implement via `GetEntranceDestinationUseCase` (or equivalent) — heavy logic no
 - Helper: `screenStarted()` → `launchWhenResumed { handleIntent(ScreenStarted) }` when work must wait for resume
 - Wait for Koin if resolving deps at cold start (`23-app-startup`)
 - MainActivity: Entrance uses `includeTopPadding = false`; back press blocked
-- Remote Config fetch starts here (domain/data, not live RC in UI). **Navigate when it returns** (`setup-new-project`)
-- Same `ScreenStarted`: a **second** coroutine refreshes billing (if present), then consent, AdMob init, and ad load. Ignore the Remote Config result. Fetch timeout can be ~60s; the first two confirmed ad placements default on in prefs (`implement-admob-ads`, `implement-in-app-billing`)
+- Remote Config fetch starts here (domain/data, not live RC in UI)
+- **No Entrance ads:** navigate when Remote Config returns or after **5 seconds** (`setup-new-project`)
+- **Entrance ads wired:** ignore the Remote Config result. Then consent (8s) → AdMob init → ad calls (8s) → navigate. Do not navigate from Remote Config (`implement-admob-ads`)
 
 ## Forbidden
 

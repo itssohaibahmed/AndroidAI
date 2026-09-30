@@ -258,25 +258,18 @@ Portrait **and** landscape unless `project-settings.json` locks orientation. All
 
 Both require `!isAppPurchased`. Hide premium entry when purchased.
 
-### Entrance — refresh billing in parallel with Remote Config
+### Entrance navigation is not owned by billing
 
-`setup-new-project` still navigates when `FetchRemoteConfigUseCase` returns. Do not put the billing refresh on that path.
+Application `connect()` / `start(applicationScope)` stays once at process start.
 
-In `EntranceViewModel` (`ScreenStarted`), start the billing refresh in a **second** coroutine and ignore the Remote Config result. Fetch can take up to its timeout (~60s). Application `connect()` / `start(applicationScope)` stays once at process start; this refresh is the entrance products / purchases read.
+Do not navigate Entrance from a billing refresh or from Remote Config when ads are wired.
 
-```kotlin
-viewModelScope.launch {
-    fetchRemoteConfigUseCase()
-    // existing navigation — still waits for this call
-}
-viewModelScope.launch {
-    refreshBilling() // do not read the remote-config result
-}
-```
+| Entrance ads | Who decides when to leave |
+|--------------|---------------------------|
+| Not wired | `setup-new-project`: Remote Config returns, or **5 seconds** |
+| Wired (`implement-admob-ads`) | Consent (8s) → AdMob init → ad calls (8s), then navigate. Remote Config result is ignored |
 
-When ads are also wired (`implement-admob-ads`), billing refresh is the **first** step of that second coroutine: billing → consent → AdMob init → load. It still does not await Remote Config.
-
-`showPremiumFirstTime` / `showPremiumSecondTime` may still choose the screen **after** navigation. They must not delay the billing refresh.
+`showPremiumFirstTime` / `showPremiumSecondTime` may still choose the **next** screen after that leave. They must not add another wait on the splash.
 
 ---
 
@@ -294,7 +287,7 @@ When `writeTestsWithFeatures: true` (`test-unit`):
 - [ ] JitPack + catalog + deps + `TAG_BILLING`
 - [ ] Console products match `BillingProductIds`
 - [ ] Singleton `BillingManager` + Application connect
-- [ ] Entrance billing refresh does **not** await Remote Config (parallel coroutine; ads chain starts with billing when ads are wired)
+- [ ] Billing does not own Entrance navigation (5s Remote Config gate without ads; consent + ads 16s gate when ads are wired)
 - [ ] Prefer-trial mapper; `offerId` in `purchaseSubs`
 - [ ] In-app in correct `setNonConsumables` / `setConsumables`
 - [ ] `isAppPurchased` synced; ads gated
@@ -311,4 +304,5 @@ When `writeTestsWithFeatures: true` (`test-unit`):
 - Use raw `BillingClient` or v3 listeners
 - Ship fake purchase in release
 - Log purchase tokens or PII
-- Awaiting Remote Config in `EntranceViewModel` before the billing refresh (or before consent / AdMob init / ad load when ads are wired)
+- Navigating Entrance from a billing refresh
+- Replacing the ads leave-splash sequence (consent 8s → AdMob init → ad calls 8s) with a Remote Config wait when ads are wired

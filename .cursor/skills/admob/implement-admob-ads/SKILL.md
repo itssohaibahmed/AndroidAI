@@ -156,33 +156,36 @@ For each confirmed `(screen, format)` pair, follow the matching `add-admob-*` sk
 4. **xml:** Fragment extensions + View Binding containers (`BannerAdView`, `Native*View`).
 5. **compose:** same keys and timing; host extensions (or thin wrappers); no raw AdMob SDK in composables; `AndroidView` for banner/native when needed.
 
-### Entrance startup — do not wait for Remote Config
+### Entrance startup — ignore Remote Config, then navigate
 
-`setup-new-project` navigates when `FetchRemoteConfigUseCase` returns. Keep that.
+This replaces the `setup-new-project` 5-second Remote Config navigation gate once Entrance ads are wired.
 
-In `EntranceViewModel` (`ScreenStarted`), do **not** run billing, consent, AdMob init, or ad load after that result. Start them in a **second** coroutine and ignore the fetch result. Remote Config can sit on its timeout (~60s); splash ads must not wait for it.
+In `EntranceViewModel` (`ScreenStarted`):
+
+1. Start `FetchRemoteConfigUseCase` and **ignore its result**. Do not navigate from it. The first two ads stay default-on so this splash does not depend on a fetch that can take ~60s.
+2. Run the leave-splash sequence **in order**, then navigate:
+   - Consent (`ConsentManager` / UMP) — **8 seconds** max
+   - AdMob / `AdsSdk` init
+   - Ad calls (load, then show for the confirmed entrance formats) — **8 seconds** max
+3. **Navigate after that sequence.** Total cap is **16 seconds** (8 + 8). If a phase finishes early, continue. If it hits its cap, continue anyway.
 
 ```kotlin
 private fun onScreenStarted() {
     viewModelScope.launch {
-        fetchRemoteConfigUseCase()
-        // existing navigation — still waits for this call
+        fetchRemoteConfigUseCase() // ignored — do not navigate here
     }
     viewModelScope.launch {
-        // billing (if present) → consent → AdMob init → load
-        // do not read the remote-config result
+        withTimeoutOrNull(8.seconds) { runConsent() }
+        withTimeoutOrNull(8.seconds) {
+            initAdMob()
+            loadAndShowEntranceAds()
+        }
+        // navigate
     }
 }
 ```
 
-Order inside the second coroutine, only for pieces this app has:
-
-1. Billing refresh (`implement-in-app-billing`) so `isAppPurchased` is current before ads load
-2. `ConsentManager` (UMP)
-3. AdMob / `AdsSdk` init
-4. Load confirmed entrance inventory (`loadAppOpenAd` / `loadInterstitialAd` / preloads)
-
-Load/show stay on `:gmaAds` extensions. Do not add an Intent / State / Effect per ad event. `showAppOpenOrInterstitialAd` still runs on the navigate path (after Remote Config returns), so the request can finish during the fetch.
+Load/show stay on `:gmaAds` extensions. Do not add an Intent / State / Effect per ad event. `showAppOpenOrInterstitialAd` (when that format was confirmed) is an ad call inside the 8-second ads window, before navigate.
 
 ### First two ads default on
 
@@ -227,7 +230,7 @@ Unconfirmed catalog rows: keep RC-off via `isEnabled = { 0 }` (or leave existing
 - `gmaAdsModule` registered; App ID present.
 - No MVI Intent/State/Effect for ads load/show.
 - SharedPrefManager / RC defaults contain **only** implemented placement keys (plus any pre-existing unrelated keys).
-- Entrance billing / consent / AdMob init / load does **not** await Remote Config. Navigation still does.
+- Entrance starts Remote Config and ignores its result. Navigation follows consent (8s) → AdMob init → ad calls (8s), then leaves. It does not leave on the Remote Config result.
 - First two confirmed placements use SharedPref default `1`; later ones use `0`.
 
 ---
@@ -334,5 +337,7 @@ Same handoff applies when later passes use `add-admob-*`, `implement-in-app-bill
 - Creating SharedPreferences / Remote Config keys for placements the developer did not confirm
 - Inventing formats not in the ref capability map for that screen role
 - Guessing “both” or enabling extra formats when the developer’s answer is incomplete
-- Awaiting Remote Config in `EntranceViewModel` before billing refresh, consent, AdMob init, or ad load
+- Navigating Entrance from the Remote Config result once ads are wired
+- Waiting on Remote Config before consent, AdMob init, or ad calls
+- Letting consent or ads run past their 8-second caps (16 seconds total) before navigating
 - Defaulting every placement to `0`, including the first two confirmed ads

@@ -32,7 +32,7 @@ Skills: `implement-admob-ads`, `add-admob-banner`, `add-admob-interstitial`, `ad
 ## Ads usage invariants
 
 - Gate load/show on **premium** + **Remote Config** ints in `SharedPrefManager` (placements read prefs, not live Firebase)
-- Entrance: billing refresh, consent, AdMob init, and ad load run **in parallel** with the Remote Config fetch — do not await it (timeout ~60s). Navigation may still wait. The first two confirmed placements default on (`1`); later ones default `0`
+- Entrance with ads: start Remote Config and ignore its result. Leave after consent (8s) → AdMob init → ad calls (8s). Do not leave on the Remote Config result. Without ads, leave when Remote Config returns or after 5s. The first two confirmed placements default on (`1`); later ones default `0`
 - Debug = Google sample unit IDs; release = production — both via `resValue` in `gmaAds/build.gradle.kts` (`buildFeatures.resValues = true`); App ID same way — not hardcoded in Kotlin; **no** `ad_ids.xml`
 - New placement = `*AdKey` + `*AdConfig` row + `resValue` unit IDs in `gmaAds/build.gradle.kts` (debug + release) + RC in `:data` + screen load/show — **not** controller/validator edits
 - Compose: same strategy via host Activity/Fragment extensions — no raw AdMob in composables

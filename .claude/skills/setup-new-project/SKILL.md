@@ -422,9 +422,16 @@ val useCaseModule = lazyModule {
 - Interfaces + `FetchRemoteConfigUseCase` in **`:domain`**
 - Register both modules in `KoinModules`
 
-Wire `FetchRemoteConfigUseCase` from Entrance. **Navigate when that call returns** (success or failure). Do not block the main thread; the splash waits on the result.
+Wire `FetchRemoteConfigUseCase` from Entrance. **Navigate when that call returns** (success or failure) **or after 5 seconds**, whichever comes first. Do not block the main thread. Do not leave the splash on the Firebase fetch timeout (~60s).
 
-When `implement-admob-ads` or `implement-in-app-billing` is applied later, billing refresh, consent, AdMob init, and ad load start **in parallel** with this fetch and must **not** await it. Navigation keeps waiting on the fetch.
+```kotlin
+viewModelScope.launch {
+    withTimeoutOrNull(5.seconds) { fetchRemoteConfigUseCase() }
+    // navigate
+}
+```
+
+This 5-second gate is only for Entrance **without** an ad startup sequence. When `implement-admob-ads` wires Entrance ads, that skill replaces it: Remote Config still starts, its result is ignored, and navigation follows consent (8s) → AdMob init → ad calls (8s).
 
 ## Step 9 — Verify
 
@@ -457,6 +464,7 @@ When `implement-admob-ads` or `implement-in-app-billing` is applied later, billi
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC DataSource: Mutex, lazy instance, `await()`, `addConfigUpdateListener`, getters with defaults
 - [ ] RC `minimumFetchIntervalInSeconds(0)` + cache write to `SharedPrefManager` only when activate succeeds
+- [ ] Entrance navigates when Remote Config returns or after **5 seconds** (no ad startup sequence yet)
 - [ ] UI modules (`:presentation` or `:feature-*`) ↛ `:data`
 - [ ] `assembleDebug` succeeds; orientation / theme modes match `project-settings.json`
 - [ ] Design system: option **a** ran `setup-design-system` (theme `windowBackground`, no default layout `colorSurface`); or **b** left default Material3 theme
