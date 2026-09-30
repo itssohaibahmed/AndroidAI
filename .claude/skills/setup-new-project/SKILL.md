@@ -321,41 +321,23 @@ Koin resolves `Dispatchers.IO` / `Dispatchers.Default` as distinct `CoroutineDis
 
 ### PlatformFirebase — `object`, no Context field
 
-Copy [templates/firebase/PlatformFirebase.kt](templates/firebase/PlatformFirebase.kt) → `:core-platform` `firebase/PlatformFirebase.kt`. Replace `YOUR.PACKAGE`.
+Copy [templates/firebase/PlatformFirebase.kt](templates/firebase/PlatformFirebase.kt) → `:core-platform` `firebase/PlatformFirebase.kt`.  
+Copy [templates/firebase/EventsProvider.kt](templates/firebase/EventsProvider.kt) → `:core-common` `EventsProvider.kt`.  
+Replace `YOUR.PACKAGE`. Naming and which events to post: [events.md](../events.md).
 
 ```kotlin
 object PlatformFirebase {
-
-    fun Throwable.recordException(log: String) {
-        Log.e(TAG_FIREBASE, "PlatformFirebase: recordException: Failed: $log")
-        FirebaseCrashlytics.getInstance().log(log)
-        FirebaseCrashlytics.getInstance().recordException(this)
-    }
-
-    fun String.postFirebaseEvent() {
-        val bundle = Bundle().apply {
-            putString(FirebaseAnalytics.Param.ITEM_NAME, this@postFirebaseEvent)
-        }
-        Firebase.analytics.logEvent(this, bundle)
-        Log.d(TAG_FIREBASE, "PlatformFirebase: postFirebaseEvent: Success: event=$this")
-    }
-
-    fun getDeviceToken() {
-        FirebaseInstallations.getInstance().getToken(false)
-            .addOnCompleteListener { task ->
-                when {
-                    task.isSuccessful && task.result != null ->
-                        Log.d(TAG_FIREBASE, "PlatformFirebase: getDeviceToken: Success")
-                    else ->
-                        Log.e(TAG_FIREBASE, "PlatformFirebase: getDeviceToken: Failed")
-                }
-            }
-    }
+    fun setEntrySource(source: String)
+    fun Throwable.recordException(log: String)  // Log.e + Crashlytics.log + recordException
+    fun postScreenView(screenName: String, screenClass: String)  // screen_view + SCREEN_NAME + SCREEN_CLASS
+    fun postUiClick(screenName: String, elementName: String, elementType: String)
+    fun getDeviceToken()  // Success/Failed, never the token
 }
 ```
 
 - **No** `Context` field / constructor on the object
-- Event name constants in `:core-common` `EventsProvider`
+- Event and screen constants in `:core-common` `EventsProvider` (snake_case string values)
+- Manifest: `google_analytics_automatic_screen_reporting_enabled` = `false`
 - Do **not** log the Installation token value (`14-security-secrets`)
 - Ads revenue (`fun Float.logRevenueEvent(context: Context, threshold: Float = 0.1f)`): add when ads screens are wired (`implement-admob-ads` / user said **yes**). Pass `Context` as an argument. Use this app's prefs name / cache key / event string — never copy Speak-Translate `rossPref` / `TaichiTroasCache`
 
@@ -459,7 +441,7 @@ This 5-second gate is only for Entrance **without** an ad startup sequence. When
 - [ ] **compose:** `:core-ui` `AppTheme` in `core/ui/theme/`; `:app` `MainActivity` uses `koinInject()` — never `GlobalContext.get()`
 - [ ] Firebase BOM + analytics/crashlytics/messaging on `:core-platform`; `firebase-config` on `:data` (no MessagingService)
 - [ ] `kotlinx-coroutines-play-services` on `:core-platform` and `:data`
-- [ ] `PlatformFirebase` is `object` without a Context field; poster uses `Param.ITEM_NAME` + `Firebase.analytics`
+- [ ] `PlatformFirebase` is `object` without a Context field; poster is `postScreenView` / `postUiClick` (`Param.SCREEN_NAME`, not one event per button)
 - [ ] `getDeviceToken` logs Success/Failed without the token value
 - [ ] Dispatchers registered **without** `named("io")` / `named("default")`
 - [ ] RC DataSource: Mutex, lazy instance, `await()`, `addConfigUpdateListener`, getters with defaults

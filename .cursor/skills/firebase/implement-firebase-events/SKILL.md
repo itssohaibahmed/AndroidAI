@@ -1,13 +1,12 @@
 ---
 name: implement-firebase-events
-description: First-time Firebase Analytics events for the full app (EventsProvider + screen and/or button posts). Use when adding Analytics events app-wide, EventsProvider, postFirebaseEvent, or /implement-firebase-events — not for a few screens (use add-firebase-events) and not for Remote Config.
+description: First-time Firebase Analytics for the full app (shared screen_view and ui_click, EventsProvider). Use when adding Analytics events app-wide, EventsProvider, postScreenView, or /implement-firebase-events — not for a few screens (use add-firebase-events) and not for Remote Config.
 ---
 
 # Implement Firebase Events (full app, first time)
 
 Follow `.cursor/rules/22-platform-firebase.mdc`, `12-naming-conventions.mdc`, `16-logging.mdc`, `08-gradle.mdc`, `00-global.mdc`.  
-Shared event rules: [events.md](../events.md).  
-Photo Collage `EventsProvider` catalog + Qibla Fragment call sites.
+Shared event rules: [events.md](../events.md).
 
 Obey `.cursor/project-settings.json` when present.
 
@@ -17,33 +16,22 @@ For extra screens later → `add-firebase-events`.
 
 ## Entry
 
-| App state                                                              | Action                                                                                |
-|------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| `EventsProvider` + poster + most screens already instrumented          | Stop. Point user to `add-firebase-events`.                                            |
-| Poster exists (`PlatformFirebase` / `FirebaseUtils`) but few/no events | Continue: fill provider + call sites. **Do not** replace the poster without approval. |
-| No events                                                              | Continue.                                                                             |
+| App state | Action |
+|-----------|--------|
+| `EventsProvider` + `postScreenView` + most screens already instrumented | Stop. Point user to `add-firebase-events`. |
+| Shipped analytics history under other event names | Stop. Do not rename shipped events. |
+| Poster exists but still uses `String.postFirebaseEvent()` and nothing has shipped | Continue. Replace that poster with `postScreenView` / `postUiClick` from [events.md](../events.md). |
+| No events | Continue. |
 
 ---
 
 ## Step 0 — Ask before coding
 
-### 0.1 Event kinds (mandatory)
+List every user-visible Fragment / Compose Screen / dialog / sheet.
 
-**AskQuestion** (single choice):
+If a screen has no name in [events.md](../events.md), **AskQuestion** for the snake_case `screen_name` before adding a constant. Do not invent one.
 
-- Screen events
-- Button events
-- Both screen and button events
-
-Do not invent a fourth kind. Wait for the answer.
-
-### 0.2 Structure (only if a different poster/constants file already exists)
-
-If `FirebaseUtils` / `Events` / similar exists: **keep it**. Ask before creating `PlatformFirebase` or moving to `:core-common`.
-
-### 0.3 FT / ST (optional)
-
-If `isFirstTime` (or equivalent) exists: **AskQuestion** whether entrance/home should use `SPLASH_FT`/`SPLASH_ST` and `HOME_FT`/`HOME_ST` (Photo Collage) instead of a single `*_SCREEN`.
+Splash, when the app has one: `splash_ft_screen` on first launch after install, `splash_st_screen` on every later launch.
 
 ---
 
@@ -52,18 +40,28 @@ If `isFirstTime` (or equivalent) exists: **AskQuestion** whether entrance/home s
 Latest stable, `# Firebase` / `// Firebase`:
 
 ```toml
-firebaseAnalytics = "…"   # latest stable
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
+firebaseBom = "…"   # latest stable
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 ```
 
 ```kotlin
 // Firebase
+implementation(platform(libs.firebase.bom))
 implementation(libs.firebase.analytics)   // :core-platform (or :app if single-module)
 ```
 
-`:app` still needs `google-services` + `google-services.json`.
+`:app` still needs `google-services` + `google-services.json` before events can reach GA4.
 
 Ensure `Constants.TAG_FIREBASE` exists (`16-logging`).
+
+In the **application** manifest:
+
+```xml
+<meta-data
+    android:name="google_analytics_automatic_screen_reporting_enabled"
+    android:value="false" />
+```
 
 ---
 
@@ -71,39 +69,38 @@ Ensure `Constants.TAG_FIREBASE` exists (`16-logging`).
 
 Multi-module greenfield:
 
-1. Copy [templates/EventsProvider.kt](templates/EventsProvider.kt) → `:core-common` `…/core/common/` (or `…/core/common/constants/events/` if that package already exists)
-2. Add `fun String.postFirebaseEvent()` to existing `PlatformFirebase` (`:core-platform`) using the [events.md](../events.md) poster (`Param.ITEM_NAME` + `Firebase.analytics`). Create the `object` only if missing — copy `setup-new-project` [templates/firebase/PlatformFirebase.kt](../../project/setup-new-project/templates/firebase/PlatformFirebase.kt) (`recordException` + poster + `getDeviceToken`). No `Context` field; no ads-revenue helper in this skill.
+1. Copy [templates/firebase/EventsProvider.kt](../../project/setup-new-project/templates/firebase/EventsProvider.kt) → `:core-common`. Keep only screen and element constants for screens that exist, plus the closed event list and parameter constants.
+2. Copy [templates/firebase/PlatformFirebase.kt](../../project/setup-new-project/templates/firebase/PlatformFirebase.kt) → `:core-platform` `firebase/PlatformFirebase.kt` when the object is missing (`recordException` + `postScreenView` + `postUiClick` + `getDeviceToken`). No `Context` field. No ads-revenue helper in this skill.
 
-Single-module / existing helper: add constants + `postFirebaseEvent` **there**.
+Single-module: same two types next to existing helpers. Ask before inventing a new module.
 
-Discover every user-visible Fragment / Compose Screen / dialog / sheet. Add constants for the kinds chosen in 0.1 (do not add button constants if the user picked screens only).
+Add an element constant for each real control, using [events.md](../events.md) (`language_continue_button`, `home_premium_icon`, …).
 
 ---
 
 ## Step 3 — Wire every screen
 
-For each Fragment (xml) or `*Screen` (compose):
-
-**Screen** (if chosen):
-
-**xml:**
+**Screen** — xml Fragment `onStart` (once each time that destination starts, including return from another screen or an ad). Do not log the parent again when a dialog that only paused it is dismissed.
 
 ```kotlin
-override fun onViewCreated() {
-    postEvent()
-    // existing UI…
-}
-
-private fun postEvent() {
-    EventsProvider.HOME_SCREEN.postFirebaseEvent()
+override fun onStart() {
+    super.onStart()
+    PlatformFirebase.postScreenView(
+        screenName = EventsProvider.HOME_SCREEN,
+        screenClass = HomeFragment::class.java.simpleName,
+    )
 }
 ```
 
-**compose:** `LaunchedEffect(Unit) { EventsProvider.HOME_SCREEN.postFirebaseEvent() }` on `*Screen` (once per entry).
+**compose:** post `postScreenView` when `*Screen` is shown, once per entry.
 
-**Button** (if chosen): post on the actual click / continue / cross handler, not on every bind.
+Host Activity sets the entry source before the first screen starts. It does not also log `screen_view` for that fragment.
 
-Entrance + first-time: if 0.3 is FT/ST, branch on the cached first-time flag.
+```kotlin
+PlatformFirebase.setEntrySource(EventsProvider.ENTRY_ORGANIC)
+```
+
+**Tap** — on the click handler: `postUiClick`. If that tap is a semantic event in [events.md](../events.md) (`language_confirm`, `iap_start`, `exit_confirm`, …), log that event as well.
 
 Do **not** auto-log in `ParentFragment`.
 
@@ -111,10 +108,12 @@ Do **not** auto-log in `ParentFragment`.
 
 ## Step 4 — Verify
 
-- [ ] One events file (no parallel constant objects)
+- [ ] One `EventsProvider` (no parallel constant objects)
 - [ ] No raw event string literals in UI
-- [ ] Only the kinds the user picked
-- [ ] Poster has no `Context` on `PlatformFirebase` if that object is used
+- [ ] Event names are only the closed list in [events.md](../events.md)
+- [ ] Screen and element values are lowercase snake_case constants
+- [ ] Automatic screen reporting is off
+- [ ] Poster has no `Context` on `PlatformFirebase`
 - [ ] All discovered screens covered (or listed as skipped with reason)
 
 ## Do not
@@ -122,5 +121,6 @@ Do **not** auto-log in `ParentFragment`.
 - Remote Config (`implement-firebase-remote-config`)
 - New modules / migrate folder layout without approval
 - Second `EventsProvider`
-- Flaky sleeps
+- One event name per screen or button
+- Rename a name that has already shipped
 - PII in event names or bundles

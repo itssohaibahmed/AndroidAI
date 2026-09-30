@@ -27,7 +27,8 @@ Speak-Translate shape (`:core-platform` `firebase/PlatformFirebase.kt` — see `
 ```kotlin
 object PlatformFirebase {
     fun Throwable.recordException(log: String)  // Log.e + Crashlytics.log + recordException
-    fun String.postFirebaseEvent()             // Bundle ITEM_NAME + Firebase.analytics.logEvent
+    fun postScreenView(screenName: String, screenClass: String)  // screen_view + SCREEN_NAME + SCREEN_CLASS
+    fun postUiClick(screenName: String, elementName: String, elementType: String)
     fun getDeviceToken()                      // FirebaseInstallations; log Success/Failed, never the token
 }
 ```
@@ -45,8 +46,9 @@ object PlatformFirebase {
 
 ## Analytics events
 
-- Keys in `EventsProvider` (`:core-common`)
-- `EventsProvider.HOME_SCREEN.postFirebaseEvent()` — no raw event string literals in UI
+- Keys in `EventsProvider` (`:core-common`). String values are lowercase snake_case (`home_screen`). Event names are the closed list in `events.md` (`screen_view`, `ui_click`, …).
+- `PlatformFirebase.postScreenView(EventsProvider.HOME_SCREEN, …)` — no raw event string literals in UI
+- Manifest: `google_analytics_automatic_screen_reporting_enabled` = `false`
 
 ## Remote Config + SharedPreferences cache
 

@@ -70,7 +70,6 @@ class FeatureViewModel(
     }
 
     private suspend fun onScreenStarted() {
-        EventsProvider.SCREEN_FEATURE.postFirebaseEvent()
         val data = getFeatureUseCase()
         val uiItems = withContext(defaultDispatcher) { FeatureUiMapper.toUi(data) }
         _state.update { it.copy(items = uiItems, isLoading = false) }
@@ -119,7 +118,7 @@ class FeatureViewModel(
 - View Binding only — never `findViewById` / Data Binding
 - **Render only** — no DTO/domain mapping, filtering, or sorting in Fragment / Activity / Adapter
 - Adapters bind pre-mapped UI models (`*UiItem`) only
-- Log screen analytics via shared `EventsProvider` (or equivalent) when the project uses Firebase events
+- Log `screen_view` from the screen (`onStart` on xml, when the composable is shown on compose) via `PlatformFirebase.postScreenView` and `EventsProvider`
 - **Fragment member order** (see `19-base-ui`): `onViewCreated` (`screenStarted` + **inline** clicks — no `setupClicks()`) → `onStart`/`onResume` (if any) → helper implementations → `initObservers` → `renderState` → `handleEffect` → `onPause`/`onStop`/`onDestroyView` (if any)
 
 ## Compose screen rules (`uiFramework` compose)

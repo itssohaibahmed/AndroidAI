@@ -1,6 +1,6 @@
 ---
 name: add-firebase-events
-description: Add Firebase Analytics events for one or more existing screens (asks which screens and screen vs button vs both). Use when extending EventsProvider, adding events to selected Fragments or Compose Screens, or /add-firebase-events — not for first-time full-app wiring (use implement-firebase-events).
+description: Add Firebase Analytics screen_view and ui_click for one or more existing screens. Use when extending EventsProvider, adding events to selected Fragments or Compose Screens, or /add-firebase-events — not for first-time full-app wiring (use implement-firebase-events).
 ---
 
 # Add Firebase Events (selected screens)
@@ -14,10 +14,11 @@ For first-time full-app events → `implement-firebase-events`.
 
 ## Entry
 
-| App state                                                      | Action                                                                                                                               |
-|----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| No `EventsProvider` (or equivalent) and no `postFirebaseEvent` | Stop → **`implement-firebase-events`**                                                                                               |
-| Provider + poster exist                                        | Continue. Add into **existing** files. Do **not** migrate to `:core-common` / `PlatformFirebase` without **explicit user approval**. |
+| App state | Action |
+|-----------|--------|
+| No `EventsProvider` and no `postScreenView` | Stop → **`implement-firebase-events`** |
+| Provider + poster exist | Continue. Add into **existing** files. Do **not** migrate modules without **explicit user approval**. |
+| Shipped names that are not this catalog | Keep those names. Add new screens with [events.md](../events.md) only when the user asks to adopt the catalog. |
 
 ---
 
@@ -25,56 +26,58 @@ For first-time full-app events → `implement-firebase-events`.
 
 ### 0.1 Which screens (mandatory)
 
-List user-visible Fragments / Compose Screens / dialogs / sheets that **lack** the events being added.
+List user-visible Fragments / Compose Screens / dialogs / sheets that lack `screen_view`.
 
 **AskQuestion** (`allow_multiple`): the user picks one or more screens. Wait. Do not instrument screens they did not pick.
 
-### 0.2 Event kinds (mandatory)
+### 0.2 Names
 
-**AskQuestion** (single choice):
+Use the `screen_name` from [events.md](../events.md). If the screen is not listed, ask for the snake_case name before adding a constant.
 
-- Screen events
-- Button events
-- Both screen and button events
-
-Wait. Do not add the other kind.
-
-### 0.3 FT / ST
-
-Only if a picked screen is entrance/home **and** `isFirstTime` exists **and** the existing provider already uses `*_FT`/`*_ST`: match that. Otherwise use `*_SCREEN` unless the user asks for FT/ST.
+Splash, only when a picked screen is the splash: `splash_ft_screen` / `splash_st_screen`.
 
 ---
 
 ## Step 1 — Constants
 
-Add SCREAMING_SNAKE constants to the **existing** `EventsProvider` (same string as the name). Match neighboring names (`LANGUAGE_CONTINUE_BUTTON`, `PREMIUM_WEEKLY_CROSS`, …).
+Add `SCREAMING_SNAKE` constants to the **existing** `EventsProvider`. The string value is lowercase snake_case (`HOME_SCREEN = "home_screen"`, `LANGUAGE_CONTINUE_BUTTON = "language_continue_button"`).
 
-Do not create a second events file.
+Do not create a second events file. Do not add a new event name; use `screen_view`, `ui_click`, and the semantic events in [events.md](../events.md).
 
 ---
 
 ## Step 2 — Call sites
 
-Same as [events.md](../events.md): xml Fragment `postEvent()` or compose `LaunchedEffect` on `*Screen`; click / `handleEffect` for buttons. Follow this app’s existing posts if they already fire from ViewModel.
+Same as [events.md](../events.md): xml Fragment `onStart` or compose when `*Screen` is shown; click handler for taps.
 
 ```kotlin
-EventsProvider.SETTING_SCREEN.postFirebaseEvent()
-EventsProvider.SETTING_RATE_US_BUTTON.postFirebaseEvent()
+PlatformFirebase.postScreenView(
+    screenName = EventsProvider.SETTINGS_SCREEN,
+    screenClass = SettingsFragment::class.java.simpleName,
+)
+PlatformFirebase.postUiClick(
+    screenName = EventsProvider.SETTINGS_SCREEN,
+    elementName = EventsProvider.SETTINGS_RATE_US_BUTTON,
+    elementType = EventsProvider.TYPE_BUTTON,
+)
 ```
+
+Follow this app’s existing posts if they already fire from somewhere else. Do not move them.
 
 ---
 
 ## Step 3 — Verify
 
 - [ ] Only the screens the user picked
-- [ ] Only the event kinds the user picked
+- [ ] `screen_view` for the screen; `ui_click` for each real tap
 - [ ] No raw event strings in UI
-- [ ] No new Analytics library unless poster was missing (then stop and send user to `implement-firebase-events`)
+- [ ] No new Analytics library unless the poster was missing (then stop and send the user to `implement-firebase-events`)
 
 ## Do not
 
 - Full-app sweep (that is `implement-firebase-events`)
 - Remote Config (`add-firebase-remote-config`)
 - Replace `FirebaseUtils` with `PlatformFirebase` without approval
-- Weak assertions / unused dummy events
+- One event name per button
+- Rename a shipped name
 - Log PII

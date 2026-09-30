@@ -16,7 +16,7 @@ alwaysApply: false
 - [ ] Strings in the **single** shared strings file (+ translations); layouts in `:presentation` only (xml)
 - [ ] Logs use `Constants.TAG*` format; prefer Repository; ViewModel sparse (`handleError` for failures)
 - [ ] Permissions via Intent → Effect → base permission helper when needed
-- [ ] Analytics event via shared EventsProvider when screen should be tracked
+- [ ] Analytics: `screen_view` from the screen (`onStart` / compose entry) and `ui_click` on taps, via `EventsProvider` + `PlatformFirebase`
 - [ ] R8 keep rules in `src/main/keepRules/*.keep` cover new `state`/`intent`/`effect`/`model` types
 - [ ] Unit tests for UseCase / ViewModel
 - [ ] Verify no `:presentation` → `:data` dependency

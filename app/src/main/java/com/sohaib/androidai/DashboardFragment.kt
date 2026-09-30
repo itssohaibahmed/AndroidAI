@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.sohaib.androidai.analytics.EventsProvider
+import com.sohaib.androidai.analytics.PlatformFirebase
 import com.sohaib.androidai.databinding.FragmentDashboardBinding
 
 class DashboardFragment : Fragment() {
@@ -19,6 +21,14 @@ class DashboardFragment : Fragment() {
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        PlatformFirebase.postScreenView(
+            screenName = EventsProvider.HOME_SCREEN,
+            screenClass = DashboardFragment::class.java.simpleName,
+        )
     }
 
     override fun onDestroyView() {
