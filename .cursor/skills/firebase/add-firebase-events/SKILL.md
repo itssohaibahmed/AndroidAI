@@ -16,9 +16,8 @@ For first-time full-app events → `implement-firebase-events`.
 
 | App state | Action |
 |-----------|--------|
-| No `EventsProvider` and no `postScreenView` | Stop → **`implement-firebase-events`** |
-| Provider + poster exist | Continue. Add into **existing** files. Do **not** migrate modules without **explicit user approval**. |
-| Shipped names that are not this catalog | Keep those names. Add new screens with [events.md](../events.md) only when the user asks to adopt the catalog. |
+| No `postScreenView`, or old per-screen / per-button events are still posted | Stop → **`implement-firebase-events`** (it removes the old posts, then wires this catalog for the whole app) |
+| `postScreenView` and this catalog already exist | Continue. Add into **existing** files. Do **not** migrate modules without **explicit user approval**. |
 
 ---
 
@@ -79,5 +78,6 @@ Follow this app’s existing posts if they already fire from somewhere else. Do 
 - Remote Config (`add-firebase-remote-config`)
 - Replace `FirebaseUtils` with `PlatformFirebase` without approval
 - One event name per button
-- Rename a shipped name
+- Add `screen_view` beside an old event name for the same screen (that cutover is `implement-firebase-events`)
+- Rename a catalog name after it has shipped (`home_screen` stays `home_screen`)
 - Log PII

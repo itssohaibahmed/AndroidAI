@@ -1,6 +1,6 @@
 ---
 name: implement-firebase-events
-description: First-time Firebase Analytics for the full app (shared screen_view and ui_click, EventsProvider). Use when adding Analytics events app-wide, EventsProvider, postScreenView, or /implement-firebase-events — not for a few screens (use add-firebase-events) and not for Remote Config.
+description: First-time Firebase Analytics for the full app, or a full cutover off old per-screen event names (shared screen_view and ui_click, EventsProvider). Use when adding Analytics events app-wide, replacing old events, EventsProvider, postScreenView, or /implement-firebase-events — not for a few screens on an app that already uses this catalog (use add-firebase-events) and not for Remote Config.
 ---
 
 # Implement Firebase Events (full app, first time)
@@ -18,9 +18,8 @@ For extra screens later → `add-firebase-events`.
 
 | App state | Action |
 |-----------|--------|
-| `EventsProvider` + `postScreenView` + most screens already instrumented | Stop. Point user to `add-firebase-events`. |
-| Shipped analytics history under other event names | Stop. Do not rename shipped events. |
-| Poster exists but still uses `String.postFirebaseEvent()` and nothing has shipped | Continue. Replace that poster with `postScreenView` / `postUiClick` from [events.md](../events.md). |
+| `postScreenView` + this catalog already on most screens | Stop. Point user to `add-firebase-events`. |
+| Old events exist (`postFirebaseEvent`, one event name per screen or button, strings like `"HOME_SCREEN"`) | Continue. Remove those first, then post only the catalog in [events.md](../events.md). |
 | No events | Continue. |
 
 ---
@@ -32,6 +31,22 @@ List every user-visible Fragment / Compose Screen / dialog / sheet.
 If a screen has no name in [events.md](../events.md), **AskQuestion** for the snake_case `screen_name` before adding a constant. Do not invent one.
 
 Splash, when the app has one: `splash_ft_screen` on first launch after install, `splash_st_screen` on every later launch.
+
+---
+
+## Step 0.5 — Remove old events first
+
+Search the whole project before adding the new catalog.
+
+Delete every old analytics post and the constants that fed it:
+
+- `postFirebaseEvent` and any `logEvent` whose name is the screen or button (`HOME_SCREEN`, `LANGUAGE_CONTINUE_BUTTON`, `SPLASH_FT`, …)
+- Constants whose string value is that old event name
+- A second events object, if one exists only for those old names
+
+Do not post an old name and a new name for the same screen. From this build on, the only events that leave the app are the closed list in [events.md](../events.md).
+
+GA4 keeps events already collected. This step only stops the app from sending the old names.
 
 ---
 
@@ -115,6 +130,7 @@ Do **not** auto-log in `ParentFragment`.
 - [ ] Automatic screen reporting is off
 - [ ] Poster has no `Context` on `PlatformFirebase`
 - [ ] All discovered screens covered (or listed as skipped with reason)
+- [ ] No `postFirebaseEvent` and no old per-screen or per-button event names left in source
 
 ## Do not
 
@@ -122,5 +138,6 @@ Do **not** auto-log in `ParentFragment`.
 - New modules / migrate folder layout without approval
 - Second `EventsProvider`
 - One event name per screen or button
-- Rename a name that has already shipped
+- Leave old event posts in place next to `screen_view` / `ui_click`
+- Rename a name from this catalog after it has shipped (`home_screen` stays `home_screen`)
 - PII in event names or bundles

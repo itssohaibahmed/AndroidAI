@@ -163,7 +163,7 @@ Do not rewrite parsers, endpoints, headers, or DB queries.
 2. Room / SQLite → **`:core-database`** (entities under `entity/`, DAOs, `AppDatabase`); DataSources/repo impls stay in `:data`. Files / prefs → `:data`. Keep schema, keys, file names, prefs name.
 3. SharedPreferences: wrap the **existing** prefs file/name in `SharedPrefManager` (sync) + `SharedPrefRepository` (`26-data-persistence` + `reference/shared-preferences.md`). Do not change keys or defaults.
 4. Remote Config: if present, keep **existing keys**; wrap with DataSource + cache-to-prefs (`setup-new-project` Step 8 / `implement-firebase-remote-config`). If missing, add the template RC stack.
-5. Analytics: keep **event names and params**; move posting into `PlatformFirebase` + `EventsProvider`. Do not rename events. Apps with no analytics history use [events.md](../events.md) (`screen_view` / `ui_click`).
+5. Analytics: during this architecture move, keep **event names and params**; move posting into `PlatformFirebase` + `EventsProvider`. Do not rename events here. Cutting old per-screen names over to `screen_view` / `ui_click` is only [implement-firebase-events](../implement-firebase-events/SKILL.md) (it deletes the old posts first).
 6. Ads: if existing ads → keep managers / mediation; relocate into `:gmaAds` only if still inside `:app` and structure matches. If no ads → place GitHub `:gmaAds` (package + host remaps). Wire screens only if user said **yes** (`implement-admob-ads`). **Not** MVI unless the user explicitly asks (`21-ads-billing`).
 7. Billing, maps, login SDKs, etc.: keep behavior; place per `02-project-structure`.
 
