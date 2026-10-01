@@ -98,6 +98,8 @@ val homeFeatureModule = lazyModule {
 
 Register in app composition root (`KoinModules` — `featureList` when compose). Always `lazyModule` — never `module { }`. Use `//// Section` headers (`07-dependency-injection`).
 
+If the screen is **Entrance** / start destination / cold-start Splash: also register every ViewModel ctor dependency (UseCases in `useCaseModule`, repos/sources in `dataModule`, etc.) and confirm those modules are in `KoinModules` — incomplete graph crashes on first open (`23`, `29`, `review-architecture`).
+
 Do **not** add `useCaseModule` / `dataModule` entries here — that belongs to `create-clean-architecture`.
 
 ## Navigation
@@ -126,5 +128,6 @@ Do **not** add `useCaseModule` / `dataModule` entries here — that belongs to `
 - [ ] xml: Fragment collectors use `viewLifecycleOwner`; nav via `navigateTo` / `popFrom`; member order per `19-base-ui`
 - [ ] compose: `*Screen` / `*ScreenContent` split; route const; NavGraph entry; `koinViewModel`; no `NavController` in feature
 - [ ] ViewModel: single `handleIntent` launch, `suspend` handlers, `handleError` last
+- [ ] Module + every VM ctor dep registered in `KoinModules` (Critical for Entrance / start destination)
 - [ ] Icon buttons use `ButtonStyle.IconButton` when applicable
 - [ ] `DiffUtil.ItemCallback`: simple `areItemsTheSame` / `areContentsTheSame` as one-liners (see `04-mvi-presentation`)

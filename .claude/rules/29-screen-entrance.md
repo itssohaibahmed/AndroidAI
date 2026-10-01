@@ -34,6 +34,7 @@ Implement via `GetEntranceDestinationUseCase` (or equivalent) — heavy logic no
 
 - Helper: `screenStarted()` → `launchWhenResumed { handleIntent(ScreenStarted) }` when work must wait for resume
 - Wait for Koin if resolving deps at cold start (`23-app-startup`)
+- **DI (mandatory):** `EntranceViewModel` + `GetEntranceDestinationUseCase` (and every ctor dep — prefs/RC/consent/ads helpers used here) registered via `lazyModule` and included in composition root (`entrancePresentationModule` / `entranceFeatureModule` + domain `useCaseModule` / data bindings). Never add an Entrance dependency without a Koin definition (`07`, `review-architecture` cold-start check)
 - MainActivity: Entrance uses `includeTopPadding = false`; back press blocked
 - Remote Config fetch starts here (domain/data, not live RC in UI)
 - **No Entrance ads:** navigate when Remote Config returns or after **5 seconds** (`setup-new-project`)

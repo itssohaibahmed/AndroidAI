@@ -220,6 +220,7 @@ Dispatchers: register **without** `named("io")` / `named("default")`.
 - [ ] Existing FCM service / billing / third-party flows still present
 - [ ] Previous start screen still reachable from Entrance
 - [ ] UI modules (`:presentation` or `:feature-*`) ↛ `:data`; `lazyModule` only
+- [ ] Cold-start: Entrance (+ MainActivity injects if any) ViewModel ctor chain fully registered in `KoinModules` (`07`, `23`, `29`)
 - [ ] `assembleDebug` succeeds
 
 ## Do not

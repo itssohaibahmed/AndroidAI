@@ -23,6 +23,8 @@ Obey `.claude/project-settings.json` when judging orientation / tests.
 - [ ] `dataModule` ordered: `//// DataSources` then `//// Repositories`
 - [ ] UseCase factories in domain `useCaseModule` (grouped by area)
 - [ ] New `lazyModule` registered in composition root (list also sectioned: Core / Data / Domain / Presentation or Feature / Ads)
+- [ ] **Cold-start Koin graph (Critical):** walk first UI resolve path — `App` `startKoin` + `lazyModules(KoinModules…)` → composition-root list includes every module those screens need → **MainActivity** (if it injects) / start destination (**EntranceFragment** / **EntranceScreen** / legacy **Splash***) ViewModel → **every constructor dependency** (`UseCase`, repo, manager, dispatcher, …) has a matching `viewModel` / `factory` / `single` in a **loaded** `lazyModule`. Missing def → **Fail** (`No definition found` / `Could not create instance`)
+- [ ] First-screen inject/`by viewModel()` only after Koin is ready (`runOnKoinStarted` / `23-app-startup`) — not before `startKoin` returns
 
 ### MVI
 
@@ -97,6 +99,6 @@ One-line verdict: Pass / Pass with notes / Fail
 - rule files that applied
 ```
 
-Severity: boundary violations and Main-thread heavy work = **Critical**.
+Severity: boundary violations, Main-thread heavy work, and **cold-start missing Koin definitions** (Entrance/Splash/MainActivity inject graph) = **Critical**.
 
 After the report: **do not fix yet** — ask which numbers to fix per `fix-selection.md` (e.g. user replies `fix 1, 2, 4, 7`).

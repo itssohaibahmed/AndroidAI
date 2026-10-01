@@ -432,6 +432,7 @@ This 5-second gate is only for Entrance **without** an ad startup sequence. When
 - [ ] Library modules omit `signingConfigs` / `bundle` / `base`
 - [ ] UseCases + repo interfaces only in `:domain`; `dataModule` has `//// DataSources` then `//// Repositories`
 - [ ] All DI uses `lazyModule` / `lazyModules` only; `App` uses `startKoin` then `runOnKoinStarted` (no `GlobalContext` probes)
+- [ ] Cold-start: Entrance (and MainActivity injects if any) ViewModel + full ctor chain registered in `KoinModules` / loaded `lazyModule`s (`07`, `23`, `29`)
 - [ ] **xml:** `nav_graph` startDestination = `entranceFragment`; **compose:** `NavGraph.kt` `startDestination = ENTRANCE_ROUTE`
 - [ ] **xml:** `:core-ui` has `anim/` + `anim-ldrtl/` slide_* set; nav actions use the four anim attrs. **compose:** slide `enterTransition` / `exitTransition` on `NavHost`
 - [ ] **xml:** ParentActivity (`includeTopPadding` default false) / ParentFragment / ParentDialog / ParentSheet (+ Dismissal) exist

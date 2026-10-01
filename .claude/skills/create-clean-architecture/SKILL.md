@@ -79,7 +79,7 @@ val dataModule = lazyModule {
 }
 ```
 
-Register **all** new modules/vals in app composition root (`KoinModules`). Never `module { }`. Use `//// Section` headers (`07-dependency-injection`).
+Register **all** new modules/vals in app composition root (`KoinModules`). Never `module { }`. Use `//// Section` headers (`07-dependency-injection`). If anything is used from **Entrance / Splash / MainActivity** cold start, the full ctor chain must be registered there too (`23`, `review-architecture`).
 
 ## Errors & logging
 

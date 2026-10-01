@@ -19,5 +19,6 @@ alwaysApply: false
 - Ads DI keeps existing managers / ad ViewModels (not MVI Intent/State/Effect) unless the user explicitly asks (`21-ads-billing`)
 - Register every new module in the composition root; bind `single<XRepository> { XRepositoryImpl(get()) }`
 - Dispatchers: `single { Dispatchers.IO }` / `Dispatchers.Default` — no `named("io")` unless true parallel instances (e.g. ad placements)
+- **Cold-start / first screens:** `App` + `MainActivity` (if injects) + start destination (**Entrance** / legacy **Splash**) — every type in the ViewModel constructor chain must have a binding in a `lazyModule` that is listed in `KoinModules` / `lazyModules(...)`. Incomplete graph → release crash (`No definition found`)
 
 Read [reference/dependency-injection.md](reference/dependency-injection.md) when adding or changing DI.

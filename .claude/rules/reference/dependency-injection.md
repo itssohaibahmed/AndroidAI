@@ -248,3 +248,13 @@ fun getKoinModules() = listOf(
 - Bind interfaces to implementations: `single<XRepository> { XRepositoryImpl(get()) }`
 - Dispatchers: `single { Dispatchers.IO }` and `single { Dispatchers.Default }` â€” **no** `named("io")` / `named("default")`; repos often use `ioDispatcher: CoroutineDispatcher = Dispatchers.IO`
 - Use named qualifiers only for true parallel instances (e.g. multiple ad placements): `named("banner_home")`
+
+### Cold-start / first screens (mandatory)
+
+Walk and verify before release (prevents `No definition found` / `Could not create instance` on Splash/Entrance):
+
+1. `App.startKoin` → `lazyModules(KoinModules().getKoinModules())`
+2. Composition root list includes every module the first UI needs
+3. **MainActivity** (if it uses `by inject` / `koinInject`) + start destination (**EntranceFragment** / **EntranceScreen** / legacy **Splash***) → ViewModel → **every** constructor parameter type has `viewModel` / `factory` / `single` in a loaded `lazyModule`
+
+**Forbidden:** adding a ctor dependency to Entrance/Splash/MainActivity without registering it and listing its module in `KoinModules`.

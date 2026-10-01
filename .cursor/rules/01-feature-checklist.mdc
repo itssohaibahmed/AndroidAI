@@ -12,7 +12,8 @@ alwaysApply: false
 - [ ] Domain UseCase(s) + repository **interface** in `:domain` (never under `:data`)
 - [ ] Data repository impl + DataSource if needed (heavy work / DTO mapping off Main); Room → `:core-database`, Retrofit → `:core-network` when adding those stacks
 - [ ] Mapping: Repo/UseCase for heavy work; `toUi()` in ViewModel if needed — not in UI classes
-- [ ] DI: **`lazyModule` / `lazyModules` only** with `//// Section` headers; theme/billing after `runOnKoinStarted` (never `GlobalContext` probes); UseCases in domain `useCaseModule`
+- [ ] DI: **`lazyModule` / `lazyModules` only** with `//// Section` headers; theme/billing after `runOnKoinStarted` (never `GlobalContext` probes); UseCases in domain `useCaseModule`; new module listed in `KoinModules`
+- [ ] If feature is **cold-start / Entrance / Splash / MainActivity inject**: verify full ctor inject graph (VM → UseCases → repos/managers) is registered before merge (`23`, `07`, `review-architecture`)
 - [ ] Strings in the **single** shared strings file (+ translations); layouts in `:presentation` only (xml)
 - [ ] Logs use `Constants.TAG*` format; prefer Repository; ViewModel sparse (`handleError` for failures)
 - [ ] Permissions via Intent → Effect → base permission helper when needed
