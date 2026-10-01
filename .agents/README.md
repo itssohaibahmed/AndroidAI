@@ -1,26 +1,26 @@
-# AndroidAI Claude Code template (v1)
+# AndroidAI Gemini template (v1)
 
 Company-grade **rules** + **skills** for Clean Architecture Android apps (XML + View Binding **or** Jetpack Compose via `uiFramework`, MVI, Koin `lazyModule`).
 
-This is the Claude Code package (Cursor users copy [`.cursor/`](../.cursor/); Gemini users copy [`.agents/`](../.agents/)). Share with Claude Code teammates by copying `.claude/` into a project (or later syncing from a tagged template repo). New rules and skills should be added to **all three**: `.claude/`, `.cursor/`, and `.agents/`.
+This is the Gemini package (Android Studio Agent / Gemini CLI). Claude Code uses [`.claude/`](../.claude/). Cursor uses [`.cursor/`](../.cursor/). Share by copying `.agents/` into a project. New rules and skills should be added to **all three**: `.agents/`, `.claude/`, and `.cursor/`.
 
 ## Rules vs Skills
 
-|      | **Rules** (`.claude/rules/`)                   | **Skills** (`.claude/skills/`)                             |
+|      | **Rules** (`.agents/rules/`)                   | **Skills** (`.agents/skills/`)                             |
 |------|------------------------------------------------|------------------------------------------------------------|
 | Role | Company law — invariants, naming, architecture | Multi-step playbooks (+ templates)                         |
-| When | Always-on or glob-matched while editing        | Invoked by name (`/` or agent pick) or trigger description |
+| When | Always-on or glob-matched while editing        | Invoked by name (`@` or agent pick) or trigger description |
 | Size | Prefer clear invariants + BAD/GOOD             | Full workflows                                             |
 
 **Long detail** lives under [`rules/reference/`](rules/reference/). `.md` rule files hold **short invariants + links** to those reference docs (so Agent context stays smaller). Do not delete reference files — edit them when rules change.
 
-**Commands:** Prefer skills with `/` invoke. Do not grow a large `.claude/commands/` tree unless needed.
+**Commands:** Prefer skills with `@` invoke. Do not grow a large `.agents/commands/` tree unless needed.
 
 ## Project settings
 
 After `setup-new-project` / `setup-old-project` (or when joining an app), settings live in:
 
-**[`.claude/project-settings.json`](project-settings.json)**
+**[`.agents/project-settings.json`](project-settings.json)**
 
 All feature/UI/test skills **must read and obey** this file when present:
 
@@ -36,7 +36,7 @@ All feature/UI/test skills **must read and obey** this file when present:
 
 ## Skill map
 
-All skills live flat under `.claude/skills/<name>/SKILL.md` and are invoked as `/<name>`.
+All skills live flat under `.agents/skills/<name>/SKILL.md` and are invoked as `@<name>`.
 
 ```
 setup-new-project          Bootstrap multi-module app + persist settings (Firebase BOM + analytics/crashlytics/messaging + RC cache)
@@ -88,7 +88,7 @@ add-admob-appOpen-lifecycle   Wire App Open LIFECYCLE (resume)
 
 ### Typical feature flow
 
-**Shortcut:** `/create-screen` runs steps 3–5 in one invoke (UI → optional domain/data → MVI). Prefer it when you would otherwise attach all three leaf skills.
+**Shortcut:** `@create-screen` runs steps 3–5 in one invoke (UI → optional domain/data → MVI). Prefer it when you would otherwise attach all three leaf skills.
 
 1. `setup-new-project` (greenfield) or `setup-old-project` (existing production app) — persist **`uiFramework`**
 2. `setup-design-system` — Figma tokens/themes in `:core-ui` (Compose `AppTheme` in `core/ui/theme/` when compose)
@@ -96,7 +96,7 @@ add-admob-appOpen-lifecycle   Wire App Open LIFECYCLE (resume)
 4. `create-mvi` — Intent/State/Effect/VM + Fragment **or** `*Screen` in `:feature-*`
 5. `create-clean-architecture` — when new domain/data is required
 
-Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/rules/reference/`](rules/reference/) — not separate skills.
+Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.agents/rules/reference/`](rules/reference/) — not separate skills.
 
 ## Rules index (`00`–`33`)
 
@@ -133,12 +133,12 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.claude/
 
 ## Future distribution (not in v1)
 
-**Option A:** Dedicated template repo + sync script that copies a tagged `.claude/` (and `.cursor/` / `.agents/`) into each app. VERSION / CHANGELOG / sync scripts come in a later pass — do not invent local divergent rules; update the template instead.
+**Option A:** Dedicated template repo + sync script that copies a tagged `.agents/` (and `.claude/` / `.cursor/`) into each app. VERSION / CHANGELOG / sync scripts come in a later pass — do not invent local divergent rules; update the template instead.
 
 ## How teammates use this
 
-1. Copy `.claude/` into the project root (this folder includes [`CLAUDE.md`](CLAUDE.md)).
-2. Open Android Studio, terminal at the repo root, run `claude`.
-3. Type `/` and pick a skill (e.g. `/create-screen`, `/figma-to-xml`, `/figma-to-compose`, `/create-mvi`).
-4. Path-scoped rules load when matching files are touched; `00-global`, `14-security-secrets`, and `16-logging` always apply.
-5. Before PRs: `/review-complete` or individual `review-*` skills.
+1. Copy `.agents/` into the project root (this folder includes [`GEMINI.md`](GEMINI.md)).
+2. Open the project in Android Studio (Gemini) or Gemini CLI.
+3. Type `@` and pick a skill (e.g. `@create-screen`, `@figma-to-xml`, `@figma-to-compose`, `@localize`).
+4. Skills point at `.agents/rules/`. Read `00-global`, `14-security-secrets`, and `16-logging` on every task; path-scoped rules apply when those files are touched.
+5. Before PRs: `@review-complete` or individual `review-*` skills.

@@ -2,7 +2,7 @@
 
 Company-grade **rules** + **skills** for Clean Architecture Android apps (XML + View Binding **or** Jetpack Compose via `uiFramework`, MVI, Koin `lazyModule`).
 
-Use this folder as the single source of truth while building the template. Share with the team by copying `.cursor/` into a project (or later syncing from a tagged template repo).
+Use this folder as the single source of truth while building the template. Share with the team by copying `.cursor/` into a project (or later syncing from a tagged template repo). Claude Code uses [`.claude/`](../.claude/). Gemini uses [`.agents/`](../.agents/). New rules and skills should be added to **all three**.
 
 ## Rules vs Skills
 
@@ -133,7 +133,7 @@ Data patterns (Retrofit, Room, SharedPreferences) live in **rules** + [`.cursor/
 
 ## Future distribution (not in v1)
 
-**Option A:** Dedicated template repo + sync script that copies a tagged `.cursor/` into each app. VERSION / CHANGELOG / sync scripts come in a later pass — do not invent local divergent rules; update the template instead.
+**Option A:** Dedicated template repo + sync script that copies a tagged `.cursor/` (and `.claude/` / `.agents/`) into each app. VERSION / CHANGELOG / sync scripts come in a later pass — do not invent local divergent rules; update the template instead.
 
 ## How teammates use this
 
