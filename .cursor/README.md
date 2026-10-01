@@ -48,6 +48,7 @@ ui/figma-to-compose                Compose screens (AnimeHub `*Screen` / `*Scree
 ui/create-dialog                   Dialog UI — XML if xml, Compose `*Dialog` if compose
 ui/create-bottom-sheet             Bottom sheet UI — XML if xml, Compose `*BottomSheet` if compose
 ui/create-custom-view              Custom View (xml) or reusable composable (compose)
+i18n/localize                      Native string localization — one worker per language (`values-*` only)
 review/review-architecture         Architecture / MVI / boundaries
 review/review-performance          ANR / lists / dispatchers
 review/review-security             Secrets / manifest / PII
